@@ -227,7 +227,24 @@ Plus d'info sur les formules mathématiques dans le cheat sheet LaTex.
 
 ---
 
-## Palette de couleurs (HTML)
+## 14. Ajouter un spoiler
+
+```
+Question apparente
+<details>
+    <summary>Cliquer ici</summary>
+Réponse cachée.
+</details>
+```
+Question apparente
+<details>
+    <summary>Cliquer ici</summary>
+Réponse cachée.
+</details>
+
+---
+
+## 15. Palette de couleurs (HTML)
 
 ### Couleurs de base (nommées)
 
