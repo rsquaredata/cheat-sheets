@@ -215,14 +215,15 @@ alt="Texte alternatif image" width="240" height="180" border="10" /></a>
 ### Bloc
 ```latex
 $$
-\int_a^b f(x)\,dx = F(b) - F(a)
+\int_a^b f(x) \ dx = F(b) - F(a)
 $$
 ```
 
 $$
-\int_a^b f(x)\,dx = F(b) - F(a)
+\int_a^b f(x) \ dx = F(b) - F(a)
 $$
 
+Le signe *backslash* "`\`" suivi d'une espace sert ici à ajouter l'espace en question entre `f(x)`et `dx`.  
 Plus d'info sur les formules mathématiques dans le cheat sheet LaTex.
 
 ---
