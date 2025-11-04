@@ -249,12 +249,12 @@ Réponse cachée.
 
 ### Couleurs de base (nommées)
 
-- `<span style="color:red;">rouge</span>` → <span style="color:red;">rouge</span>
-- `<span style="color:blue;">bleu</span>` → <span style="color:blue;">bleu</span>
-- `<span style="color:green;">vert</span>` → <span style="color:green;">vert</span>
-- `<span style="color:orange;">orange</span>` → <span style="color:orange;">orange</span>
-- `<span style="color:purple;">violet</span>` → <span style="color:purple;">violet</span>
-- `<span style="color:gray;">gris</span>` → <span style="color:gray;">gris</span>
+- `<span style="color:red">rouge</span>` → <span style="color:red">rouge</span>
+- `<span style="color:blue">bleu</span>` → <span style="color:blue">bleu</span>
+- `<span style="color:green">vert</span>` → <span style="color:green">vert</span>
+- `<span style="color:orange">orange</span>` → <span style="color:orange">orange</span>
+- `<span style="color:purple">violet</span>` → <span style="color:purple">violet</span>
+- `<span style="color:gray">gris</span>` → <span style="color:gray">gris</span>
 
 ### Couleurs HEX
 
