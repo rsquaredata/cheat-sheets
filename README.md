@@ -1,28 +1,75 @@
-# Liste de cheat sheets utiles
+# Comprehensive Cheat Sheets Repository
 
-## 📝 Cheat Sheets
+A complete collection of **cheat sheets**, **tutorials**, and **notebook templates** designed for  data science, machine learning, BI/OLAP, R, Python, terminal workflows, and infrastructure.
 
-| Sujet | Fichier |
-|-------|---------|
-| Conda (macOS) | [📄 conda_cheatsheet_macOS](cheatsheet_conda_macos.md) |
-| Docker (macOS) | [📄 docker_cheatsheet_macOS](cheatsheet_docker_macos.md) |
-| Markdown | [📄 markdown cheatsheet)](cheat-sheet-markdown.md) |
-| LaTex pour les maths |  [📄 LaTeX Maths](latex_maths.md) |
-| Dockerfile Cheat Sheet | [📄 dockerfile_cheatsheet.md](dockerfile_cheatsheet.md) |
+This repository is meant to be my **all‑in‑one personal reference library** for my Master 2 SISE journey.
 
-## Tutoriels
+---
 
-| Sujet | Fichier |
-|-------|---------|
-| Créer un environnement avec Conda | |
-| Créer un environnement avec venv | |
-| Créer un environnement avec uv | |
+# Course Sheets
 
+| Sheet | File |
+|-------|------|
+| EDA | eda_cheatsheet.md |
+| Big Data | bigdata_cheatsheet.md |
+| Clustering | clustering_cheatsheet.md |
+| PCA & Dimensionality Reduction | pca_dimred_cheatsheet.md |
+| Supervised ML | supervisedml_cheatsheet.md |
+| NLP | nlp_cheatsheet.md |
+| Time Series | timeseries_cheatsheet.md |
+| BI & OLAP | bi_olap_cheatsheet.md |
+| SQL for DS | sql_cheatsheet.md |
 
-## Notebooks
+---
 
-| Sujet | Fichier |
-|-------|---------|
-| ML Python | |
-| NLP R | |
+# General Cheat Sheets
 
+| Sheet | File |
+|-------|------|
+| Markdown | markdown_cheatsheet.md |
+| LaTeX Maths | latex_maths.md |
+| Pandas | pandas_cheatsheet.md |
+| Numpy | numpy_cheatsheet.md |
+| Tidyverse | tidyverse_cheatsheet.md |
+| Sklearn | sklearn_cheatsheet.md |
+
+---
+
+# Terminal & Infra Cheat Sheets
+
+| Sheet | File |
+|-------|------|
+| Conda (macOS) | cheatsheet_conda_macos.md |
+| Docker (macOS) | cheatsheet_docker_macos.md |
+| Dockerfile | dockerfile_cheatsheet.md |
+| Git | git_cheatsheet.md |
+| Makefile | makefile_cheatsheet.md |
+| SSH & Tunnels | ssh_tunnels_cheatsheet.md |
+| Homebrew | brew_cheatsheet.md |
+| zsh (.zshrc) | zsh_cheatsheet.md |
+
+---
+
+# Tutorials
+
+| Tutorial | File |
+|----------|------|
+| Create env with Conda | tutorial_env_conda.md |
+| Create env with venv | tutorial_env_venv.md |
+| Create env with uv | tutorial_env_uv.md |
+| Structure a Python ML project | tutorial_python_project.md |
+| Structure an R ML project | tutorial_r_project.md |
+| Build a DS Docker container | tutorial_docker_ds.md |
+| GitHub Workflow | tutorial_github_workflow.md |
+| BI Project (Tableau + SQL) | tutorial_bi_tableau_sql.md |
+
+---
+
+# 📒 Notebook Templates
+
+| Template | File |
+|----------|------|
+| Python ML Notebook | template_python_ml.md |
+| R ML Notebook | template_r_ml.md |
+| R NLP Notebook | template_r_nlp.md |
+| Quarto Report Template | template_quarto_report.md |
