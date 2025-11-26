@@ -10,8 +10,8 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 
 | Sheet | File |
 |-------|------|
-| EDA | eda_cheatsheet.md |
-| Big Data | bigdata_cheatsheet.md |
+| EDA | [EDA cheatsheet](]eda_cheatsheet.md) |
+| Big Data | [Big Data cheatsheet](bigdata_cheatsheet.md) |
 | Clustering | clustering_cheatsheet.md |
 | PCA & Dimensionality Reduction | pca_dimred_cheatsheet.md |
 | Supervised ML | supervisedml_cheatsheet.md |
@@ -26,8 +26,8 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 
 | Sheet | File |
 |-------|------|
-| Markdown | markdown_cheatsheet.md |
-| LaTeX Maths | latex_maths.md |
+| Markdown | [Mardown cheatsheet](markdown_cheatsheet.md) |
+| LaTeX Maths | [LaTeX Maths cheatsheet](latex_maths.md) |
 | Pandas | pandas_cheatsheet.md |
 | Numpy | numpy_cheatsheet.md |
 | Tidyverse | tidyverse_cheatsheet.md |
@@ -39,9 +39,9 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 
 | Sheet | File |
 |-------|------|
-| Conda (macOS) | cheatsheet_conda_macos.md |
-| Docker (macOS) | cheatsheet_docker_macos.md |
-| Dockerfile | dockerfile_cheatsheet.md |
+| Conda (macOS) | [Conda cheatsheet](cheatsheet_conda_macos.md) |
+| Docker (macOS) | [Docker cheatsheet](cheatsheet_docker_macos.md) |
+| Dockerfile | [Dockerfile cheatsheet](dockerfile_cheatsheet.md) |
 | Git | git_cheatsheet.md |
 | Makefile | makefile_cheatsheet.md |
 | SSH & Tunnels | ssh_tunnels_cheatsheet.md |
@@ -73,3 +73,4 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 | R ML Notebook | template_r_ml.md |
 | R NLP Notebook | template_r_nlp.md |
 | Quarto Report Template | template_quarto_report.md |
+| Tex Report Template | template_text_report.md |
