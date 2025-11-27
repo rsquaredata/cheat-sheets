@@ -1,0 +1,29 @@
+name: Compile LaTeX Cheat Sheets
+
+on:
+  push:
+    paths:
+      - 'cheat-sheets/**/*.tex'
+      - '.github/workflows/latex.yml'
+  workflow_dispatch:
+
+jobs:
+  build_latex:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install LaTeX
+      uses: xu-cheng/latex-action@v3
+      with:
+        root_file: |
+          cheat-sheets/fouille.tex
+        latexmk_use_xelatex: true
+
+    - name: Upload PDF artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: fouille-donnees-massives
+        path: cheat-sheets/fouille.pdf
