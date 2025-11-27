@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, geometry, graphicx}
+\geometry{margin=2cm}
+\title{Cheat Sheet Étendue -- Fouille de Données (Metzler, SISE)}
+\author{Rina}
+\date{Novembre 2025}
+
+\begin{document}
+\maketitle
+
+\section{Imbalanced Learning}
+Mesures: $Recall$, $Precision$, $F1$, $BalancedAccuracy = (TPR + TNR)/2$, $G\text{-}mean = \sqrt{TPR \cdot TNR}$.
+
+\subsection{Prétraitements}
+Oversampling: SMOTE. Undersampling. Class weights. Threshold moving.
+
+\section{SVM}
+Objectif:
+$
+\min_{w,b} \frac12 \|w\|^2 + C \sum_i \xi_i
+$
+subject to
+$
+y_i (w \cdot x_i + b) \ge 1 - \xi_i.
+$
+
+Noyaux: Linéaire, Polynômial, RBF. Hyperparams: $C$, $\gamma$.
+
+\section{Approximation de Noyaux}
+RFF approxime RBF:
+$
+\phi(x) = \sqrt{\frac{2}{D}} \cos(W x + b).
+$
+
+Nystroe\section{Imbalanced Learning}
+Mesures: $Recall$, $Precision$, $F1$, $BalancedAccuracy = (TPR + TNR)/2$, $G\text{-}mean = \sqrt{TPR \cdot TNR}$.
+
+\subsection{Prétraitements}
+Oversampling: SMOTE. Undersampling. Class weights. Threshold moving.
+
+\section{SVM}
+Objectif:
+$
+\min_{w,b} \frac12 \|w\|^2 + C \sum_i \xi_i
+$
+subject to
+$
+y_i (w \cdot x_i + b) \ge 1 - \xi_i.
+$
+
+Noyaux: Linéaire, Polynômial, RBF. Hyperparams: $C$, $\gamma$.
+
+\section{Approximation de Noyaux}
+RFF approxime RBF:
+$
+\phi(x) = \sqrt{\frac{2}{D}} \cos(W x + b).
+$
+
+Nystroem: $
+K \approx C W^\dagger C^\top.
+$
+
+\section{Boosting}
+AdaBoost: mise à jour des poids
+$
+w_i \leftarrow w_i e^{\alpha_t 1[h_t(x_i)\neq y_i]}.
+$
+
+Gradient Boosting: descente de gradient fonctionnelle.
+
+\section{Deep Learning (Keras)}
+Dense/ReLU, Dropout, Sigmoid. Optimiseur: Adam.
+
+\section{Fraud Detection}
+Pipeline strict: split, scale, encode, SMOTE (train only), modèle, tuning, test.
+
+\section{Schéma Global du Processus}
+\begin{center}
+\textbf{Schéma placeholder — ajouter une image si besoin.}
+\end{center}
+
+\end{document}
+
