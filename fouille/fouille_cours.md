@@ -1,3 +1,9 @@
+<!--
+Title: "Apprentissage automatique des données massives"
+Author: rsquaredata
+Last updated: 2025-11-30
+-->
+
 <details>
   <summary><strong>Table des matières</strong></summary>
 - [1. Fondamentaux en apprentissage machine](#1-fondamentaux-en-apprentissage-machine)
