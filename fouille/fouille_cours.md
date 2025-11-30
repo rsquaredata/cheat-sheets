@@ -3,6 +3,7 @@ Title: "Apprentissage automatique des données massives"
 Author: rsquaredata
 Last updated: 2025-11-30
 -->
+# Table des matières
 
 - [1. Fondamentaux en apprentissage machine](#1-fondamentaux-en-apprentissage-machine)
   - [1.1. Processus d'apprentissage](#11-processus-dapprentissage)
@@ -36,6 +37,7 @@ Last updated: 2025-11-30
     - [Normes](#normes)
     - [Algorithmes de résolution](#algorithmes-de-résolution)
 
+---
 
 # 1. Fondamentaux en apprentissage machine
 
