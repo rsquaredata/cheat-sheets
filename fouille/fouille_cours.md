@@ -3,6 +3,39 @@ title: "Fouille de Données Massives et Apprentissage"
 date: 2025-011-29
 matière: "Fouille de données massives"
 ---
+- [1. Fondamentaux en apprentissage machine](#1-fondamentaux-en-apprentissage-machine)
+  - [1.1. Processus d'apprentissage](#11-processus-dapprentissage)
+  - [1.2. Cadre d'optimisation](#12-cadre-doptimisation)
+  - [1.3. Les caractéristiques du Big Data](#13-les-caractéristiques-du-big-data)
+  - [1.4. Les branches du Machine Learning](#14-les-branches-du-machine-learning)
+- [2. Algorithmes de classification clés](#2-algorithmes-de-classification-clés)
+  - [2.1. Séparateurs à Vaste Marge (SVM)](#21-séparateurs-à-vaste-marge-svm)
+    - [Méthodes à noyaux (Kernel Methods)](#méthodes-à-noyaux-kernel-methods)
+    - [Limites des méthodes à noyaux](#limites-des-méthodes-à-noyaux)
+  - [2.2 Arbres de décision et forêts aléatoires](#22-arbres-de-décision-et-forêts-aléatoires)
+    - [Arbres de décision (CART)](#arbres-de-décision-cart)
+    - [Forêts aléatoires (Random Forests)](#forêts-aléatoires-random-forests)
+  - [2.3. Boosting](#23-boosting)
+- [3. Apprentissage dans un contexte de données massives](#3-apprentissage-dans-un-contexte-de-données-massives)
+  - [3.1. Approximation des méthodes à noyaux](#31-approximation-des-méthodes-à-noyaux)
+  - [3.2. Outils Big Data pour le Deep Learning](#32-outils-big-data-pour-le-deep-learning)
+- [4. Problématiques des données déséquilibrées (Imbalanced Learning)](#4-problématiques-des-données-déséquilibrées-imbalanced-learning)
+  - [4.1. Mesures de performance adaptées](#41-mesures-de-performance-adaptées)
+  - [4.2. Stratégies d'échantillonnage (Sampling)](#42-stratégies-déchantillonnage-sampling)
+    - [Oversampling (sur-échantillonnage)](#oversampling-sur-échantillonnage)
+    - [Undersampling (sous-échantillonnage)](#undersampling-sous-échantillonnage)
+  - [4.3. Apprentissage sensible aux coûts (Cost-Sensitive Learning)](#43-apprentissage-sensible-aux-coûts-cost-sensitive-learning)
+- [5. Théorie de la généralisation](#5-théorie-de-la-généralisation)
+  - [5.1. Risques et objectif](#51-risques-et-objectif)
+  - [5.2. Stabilité uniforme](#52-stabilité-uniforme)
+  - [5.3. Bornes de généralisation (théorème)](#53-bornes-de-généralisation-théorème)
+- [6. Outils mathématiques et concepts connexes.](#6-outils-mathématiques-et-concepts-connexes)
+    - [Convexité](#convexité)
+    - [Fonction lipschitzienne](#fonction-lipschitzienne)
+    - [Normes](#normes)
+    - [Algorithmes de résolution](#algorithmes-de-résolution)
+
+
 
 # 1. Fondamentaux en apprentissage machine
 
@@ -27,10 +60,11 @@ L'apprentissage d'un modèle implique souvent de résoudre un problème d'optimi
 $$
 \min_{w \in \mathbb{R}^d} \frac{1}{m} \sum_{i=1}^m \ell(w, x_i) + \lambda f(w),
 $$
+
 avec :
 - $\frac{1}{m} \sum_{i=1}^m \ell(w, x_i)$ : représente le **risque empirique** (l'erreur sur le jeu d'entraînement, mesure par la fonction de perte $\ell$).
 - $f(w)$ : représente le **terme de régularisation**, qui pénalise la complexité du modèle $w$.
-- $\lambda$ : est l'**hyper-paramètre de régularisation¨¨, contrôlant l'importance de la complexité du modèle par rapport à l'erreur.
+- $\lambda$ : est l'**hyper-paramètre de régularisation**, contrôlant l'importance de la complexité du modèle par rapport à l'erreur.
 
 **Impact du terme de régularisation $f(w)$** :
 - $f : w \mapsto \Vert w \Vert_1$ (**Régression Lasso**) : favorise un modèle **aussi parcimonieux que possible** (sparse).
@@ -64,9 +98,9 @@ Le SVM est un algorithme uissant pour la classification binaire.
 |---------|--------------------------|
 | **Objectif principal** | Apprendre un hyperplan $h(x) = sign[\langle w, x \rangle + b]$ qui **maximise la marge** $\gamma$. |
 | **Marge $\gamma$** | Distance entre les deux hyperplans supports, définie par $\gamma = \frac{2}{\vert w \vert_2}$. Maximiser $\gamma$ revient à minimiser $\frac{1}{2 \lvert w \rvert_2^2}$. |
-| **Hard Margin SVM** | Suppose les données linéairement séparables (cas idyllique). $$\min_{(w,b)} \in \mathbb{R}^{d+1} \frac{1}{2} \text{s.t.} y_i (\langle w, x_i \rangle + b) \ge 1$$. |
-| **Soft Margin SVM** | Introduit les variables slacks $\xi \ge 0$ pour tolérer les erreurs (points à l'intérieur de la marge ou mal classés). $$\min_{\xi \in \mathbb{R}^, (w,b) \in \mathbb{R}^{d+1} \frac{1}{2} \lvert w \rvert_2^2 + \frac{C}{m} \sum_{i=1}^m \xi_i \text{s.t.} y_i(\langle w, x_i \rangle + b) \ge 1 - \xi_i}. |
-| **Hinge Loss** | Formulation équivalent du Soft Margin SVM : $$\min{(w,b) \mathbb{R}^{d+1} \frac{1}{2} \vert w \vert_2^2 + \frac{C}{m} \sum_{i=1}^m [1 - y_i(\langle w, x_i \rangle + b)]_+}$$. |
+| **Hard Margin SVM** | Suppose les données linéairement séparables (cas idyllique).  $$\min_{(w,b)} \in \mathbb{R}^{d+1} \frac{1}{2} \text{s.t.} y_i (\langle w, x_i \rangle + b) \ge 1$$. |
+| **Soft Margin SVM** | Introduit les variables slacks $\xi \ge 0$ pour tolérer les erreurs (points à l'intérieur de la marge ou mal classés).   $$\min_{\xi \in \mathbb{R}^m, (w,b) \in \mathbb{R}^{d+1}} \frac{1}{2} \lvert w \rvert_2^2 + \frac{C}{m} \sum_{i=1}^m \xi_i \text{s.t.} y_i(\langle w, x_i \rangle + b) \ge 1 - \xi_i.$$ |
+| **Hinge Loss** | Formulation équivalente du Soft Margin SVM : $$\min{(w,b) \mathbb{R}^{d+1} \frac{1}{2} \vert w \vert_2^2 + \frac{C}{m} \sum_{i=1}^m [1 - y_i(\langle w, x_i \rangle + b)]_+}$$. |
 | **Vecteurs supports** | Les exemples qui participent à la construction de la frontière de décision sont ceux pour lesquels $\alpha_i \neq 0$ dans la formulation duale. |
 
 ### Méthodes à noyaux (Kernel Methods)
@@ -105,11 +139,11 @@ Le bossing vise à combiner plusieurs **modèles qui ont un faible pouvoir préd
 | **Gradient Boosting** | Généralisation du boosting. Vu comme un algorithme de **descente de gradient dans un espace fonctionnel**. Apprends les apprenants faibles $h_t$ sur les **pseudo-résidus** $r_i$ (qui sont le gradient négatif $\tilde{y}_i$ de la fonction de loss $\ell$ par rapport à la prédiction courante $H_{t-1}(x_i)$). |
 | **XGBoost** | Algorithme de *Gradient Tree Boosting* très efficace. Utilise une **approximation d'ordre 2** de la fonction de loss. Permet l'optimisation de n'importe quelle loss et est très rapide. |
 
-# 3. Apprentussage dans un contexte de données massives
+# 3. Apprentissage dans un contexte de données massives
 
 ## 3.1. Approximation des méthodes à noyaux
 
-Pour pullier la complexité $O(m^2)$ des méthodes à noyaux classqiues sur des données volumineuses, des méthodes d'approximation sont nécessaires.
+Pour pallier la complexité $O(m^2)$ des méthodes à noyaux classqiues sur des données volumineuses, des méthodes d'approximation sont nécessaires.
 
 - **Landmarks (Points de repères)** : L'idée est de sélectionner $k \lt m$ points de repère (aléatoirement ou via un algorithme comme *k-means*) et d'apprendre le modèle uniquement à partir des similarités avec ces points. Cela réduit le nombre de similarités à calculer.
   - La prédiction se fait en calculant la similarité du nouveau point $x$ avec les *landmarks* $x_k : f(x) = \sum_{k=1}^l \alpha_k y_k(x, x_k)$.
@@ -201,7 +235,7 @@ $$
 
 **Interprétation (pour le SVM)** :
 - La borne diminue avec l'augmentation du nombre d'exemples $m$.
-- La borne diminue avec l'augmentation de l'hyper-paramètre $\lamba$ (qui est inversement lié à $C$). Si $\lambda$ augmente, le terme de régularisation prend plus d'importance, réduisant la complexité du modèle et améliorant la généralisation.
+- La borne diminue avec l'augmentation de l'hyper-paramètre $\lambda$ (qui est inversement lié à $C$). Si $\lambda$ augmente, le terme de régularisation prend plus d'importance, réduisant la complexité du modèle et améliorant la généralisation.
 
 # 6. Outils mathématiques et concepts connexes.
 
