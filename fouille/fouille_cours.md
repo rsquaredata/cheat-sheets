@@ -101,9 +101,9 @@ Le SVM est un algorithme uissant pour la classification binaire.
 |---------|--------------------------|
 | **Objectif principal** | Apprendre un hyperplan $h(x) = sign[\langle w, x \rangle + b]$ qui **maximise la marge** $\gamma$. |
 | **Marge $\gamma$** | Distance entre les deux hyperplans supports, définie par $\gamma = \frac{2}{\vert w \vert_2}$. Maximiser $\gamma$ revient à minimiser $\frac{1}{2 \lvert w \rvert_2^2}$. |
-| **Hard Margin SVM** | Suppose les données linéairement séparables (cas idyllique).  $$\min_{(w,b)} \in \mathbb{R}^{d+1} \frac{1}{2} \text{s.t.} y_i (\langle w, x_i \rangle + b) \ge 1$$. |
-| **Soft Margin SVM** | Introduit les variables slacks $\xi \ge 0$ pour tolérer les erreurs (points à l'intérieur de la marge ou mal classés).   $$\min_{\xi \in \mathbb{R}^m, (w,b) \in \mathbb{R}^{d+1}} \frac{1}{2} \lvert w \rvert_2^2 + \frac{C}{m} \sum_{i=1}^m \xi_i \text{s.t.} y_i(\langle w, x_i \rangle + b) \ge 1 - \xi_i.$$ |
-| **Hinge Loss** | Formulation équivalente du Soft Margin SVM : $$\min{(w,b) \mathbb{R}^{d+1} \frac{1}{2} \vert w \vert_2^2 + \frac{C}{m} \sum_{i=1}^m [1 - y_i(\langle w, x_i \rangle + b)]_+}$$. |
+| **Hard Margin SVM** | Suppose les données linéairement séparables (cas idyllique).</br>$\min_{(w,b)} \in \mathbb{R}^{d+1} \frac{1}{2} \text{s.t.} y_i (\langle w, x_i \rangle + b) \ge 1$. |
+| **Soft Margin SVM** | Introduit les variables slacks $\xi \ge 0$ pour tolérer les erreurs (points à l'intérieur de la marge ou mal classés).</br>$\min_{\xi \in \mathbb{R}^m, (w,b) \in \mathbb{R}^{d+1}} \frac{1}{2} \lvert w \rvert_2^2 + \frac{C}{m} \sum_{i=1}^m \xi_i \text{s.t.} y_i(\langle w, x_i \rangle + b) \ge 1 - \xi_i.$ |
+| **Hinge Loss** | Formulation équivalente du Soft Margin SVM :</br>$\min{(w,b) \mathbb{R}^{d+1} \frac{1}{2} \vert w \vert_2^2 + \frac{C}{m} \sum_{i=1}^m [1 - y_i(\langle w, x_i \rangle + b)]_+}$. |
 | **Vecteurs supports** | Les exemples qui participent à la construction de la frontière de décision sont ceux pour lesquels $\alpha_i \neq 0$ dans la formulation duale. |
 
 ### Méthodes à noyaux (Kernel Methods)
@@ -139,7 +139,7 @@ Le bossing vise à combiner plusieurs **modèles qui ont un faible pouvoir préd
 | Algorithme | Caractéristiques clés |
 |------------|-----------------------|
 | **Adaboost** | Apprend les hypothèses $h_t$ de manière itérative, en **repondérant les exemples** à chaque étape pour se focaliser sur ceux qui étaient mal classés. Basés sur l'*exponential loss*. |
-| **Gradient Boosting** | Généralisation du boosting. Vu comme un algorithme de **descente de gradient dans un espace fonctionnel**. Apprends les apprenants faibles $h_t$ sur les **pseudo-résidus** $r_i$ (qui sont le gradient négatif $\tilde{y}_i$ de la fonction de loss $\ell$ par rapport à la prédiction courante $H_{t-1}(x_i)$). |
+| **Gradient Boosting** | Généralisation du boosting. Vu comme un algorithme de **descente de gradient dans un espace fonctionnel**. Apprend les apprenants faibles $h_t$ sur les **pseudo-résidus** $r_i$ (qui sont le gradient négatif ${\tilde{y}{i}}$ de la fonction de loss $\ell$ par rapport à la prédiction courante ${H_{t-1}(xi)}$ ). |
 | **XGBoost** | Algorithme de *Gradient Tree Boosting* très efficace. Utilise une **approximation d'ordre 2** de la fonction de loss. Permet l'optimisation de n'importe quelle loss et est très rapide. |
 
 # 3. Apprentissage dans un contexte de données massives
