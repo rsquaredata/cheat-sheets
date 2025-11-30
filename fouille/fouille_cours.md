@@ -4,8 +4,6 @@ Author: rsquaredata
 Last updated: 2025-11-30
 -->
 
-<details>
-  <summary><strong>Table des matières</strong></summary>
 - [1. Fondamentaux en apprentissage machine](#1-fondamentaux-en-apprentissage-machine)
   - [1.1. Processus d'apprentissage](#11-processus-dapprentissage)
   - [1.2. Cadre d'optimisation](#12-cadre-doptimisation)
@@ -37,7 +35,6 @@ Last updated: 2025-11-30
     - [Fonction lipschitzienne](#fonction-lipschitzienne)
     - [Normes](#normes)
     - [Algorithmes de résolution](#algorithmes-de-résolution)
-</details>
 
 
 # 1. Fondamentaux en apprentissage machine
