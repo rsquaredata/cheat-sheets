@@ -2,7 +2,7 @@
 
 A complete collection of **cheat sheets**, **tutorials**, and **notebook templates** designed for  data science, machine learning, BI/OLAP, R, Python, terminal workflows, and infrastructure.
 
-This repository is meant to be my **all‑in‑one personal reference library** for my academic journey. Happy to share!
+This repository is meant to be my **all‑in‑one personal reference library** for my academic journey.
 
 ---
 
