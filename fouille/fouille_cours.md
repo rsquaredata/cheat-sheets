@@ -1,8 +1,5 @@
----
-title: "Fouille de Données Massives et Apprentissage"
-date: 2025-011-29
-matière: "Fouille de données massives"
----
+<details>
+  <summary><strong>Table des matières</strong></summary>
 - [1. Fondamentaux en apprentissage machine](#1-fondamentaux-en-apprentissage-machine)
   - [1.1. Processus d'apprentissage](#11-processus-dapprentissage)
   - [1.2. Cadre d'optimisation](#12-cadre-doptimisation)
@@ -34,7 +31,7 @@ matière: "Fouille de données massives"
     - [Fonction lipschitzienne](#fonction-lipschitzienne)
     - [Normes](#normes)
     - [Algorithmes de résolution](#algorithmes-de-résolution)
-
+</details>
 
 
 # 1. Fondamentaux en apprentissage machine
