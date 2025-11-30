@@ -249,10 +249,10 @@ Une fonction $f$ est convexe si le segment joignant deux points de son graphe es
 Une fonction $f$ est dite lipschitzienne s'il existe une constante $C \gt 0$ telle que la variation de la fonction est bornée par la distance entre les entrés multipliée par $C : \Vert f(x) - f(x')\Vert \le C \Vert x-x' \Vert$. Une loss $\ell$ peut être $\sigma$-admissible si elle est convexe et lipschitzienne par rapport à son premier argument.
 
 ### Normes
-- L_1 (Manhattan) : $\sum \vert x_j \vert$
-- L_2 (euclidienne) : $\sqrt{\sum x-J^2}$
-- L_{\infty} (Maximum) : \max \vert x_j \vert
-- L_p
+- $L_1$ (Manhattan) : $\sum \vert x_j \vert$
+- $L_2$ (euclidienne) : $\sqrt{\sum x-J^2}$
+- $L_{\infty}$ (Maximum) : \max \vert x_j \vert
+- $L_p$
 
 ### Algorithmes de résolution
 L'implémentation d'algorithmes peut nécessiter des solveurs d'optimisation comme `scipy.optimize.fmin_l_bfgs_b` en Python.
