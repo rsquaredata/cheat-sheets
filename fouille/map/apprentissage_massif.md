@@ -25,7 +25,7 @@ Les trois grandes branches du Machine Learning sont les suivantes :
 2. Apprentissage non supervisé.
 3. Aprentissafe par renforcement.
 
-# 2. Théoruie de la généralisation et Stabilité
+# 2. Théorie de la généralisation et Stabilité
 
 **Théorie des bornes en généralisation** : L'objectif est de borner l'écart $\vert R_{\ell} - R_{\ell}^S \vert$ entre le **risque réel** ($R_{\ell}$), sur la distribution inconnue $D$, et le **risque empirique** ($R_{\ell}^S$), sur le jeu d'entraînement, avec une certaine probabilité $1 - \delta$.
 
