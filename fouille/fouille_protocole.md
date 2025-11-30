@@ -3,6 +3,25 @@ Title: "Fouille massive - Protocole expérimental et démarche de résolution"
 Author: rsquaredata
 Last updated: 2025-11-30
 -->
+# Table des matières
+
+- [1. Phase d'initialisation et d'analyse (Pré-traitement)](#1-phase-dinitialisation-et-danalyse-pré-traitement)
+  - [1.1. Caractérisation des données](#11-caractérisation-des-données)
+  - [1.2. Définition des ensembles et validation](#12-définition-des-ensembles-et-validation)
+    - [Séparation initiale](#séparation-initiale)
+    - [Validation croisée (Cross Validation)](#validation-croisée-cross-validation)
+- [2. Phase de définition des objectifs et mesures](#2-phase-de-définition-des-objectifs-et-mesures)
+  - [2.1. Choix de la métrique de performance](#21-choix-de-la-métrique-de-performance)
+- [3. Phase d'application algorithmique et stratégies](#3-phase-dapplication-algorithmique-et-stratégies)
+  - [3.1. Stratégies face au Big Data ou à la Haute Dimension](#31-stratégies-face-au-big-data-ou-à-la-haute-dimension)
+  - [3.2. Stratégies face au déséquilibre (Imbalanced Learning)](#32-stratégies-face-au-déséquilibre-imbalanced-learning)
+    - [3.2.1. Échantillonnage (*Sampling*)](#321-échantillonnage-sampling)
+    - [3.2.2. Apprentissage sensible aux coûts (*Cost-Sensitive Learning*)](#322-apprentissage-sensible-aux-coûts-cost-sensitive-learning)
+    - [3.2.3. Combinaison de modèles](#323-combinaison-de-modèles)
+- [4. Réalisation du protocole expérimental (Démarche en action)](#4-réalisation-du-protocole-expérimental-démarche-en-action)
+- [5. Analyse des résultats et conclusions](#5-analyse-des-résultats-et-conclusions)
+
+---
 
 Le protocole vise à exposer une démarche de résolution complète, allant de la préparation des données au choix de l'algorithme, de la fonction de perte (*loss*), de la mesure de performance et des combinaisons de méthodes.
 
