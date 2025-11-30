@@ -8,8 +8,9 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 
 # Course Sheets
 
-| Sheet | File |
+| Sheet | Folder |
 |-------|------|
+| ML on Big Data | [Machine Learning on Big Data](./fouille) |
 | EDA | [EDA cheatsheet](]eda_cheatsheet.md) |
 | Big Data | [Big Data cheatsheet](bigdata_cheatsheet.md) |
 | Clustering | clustering_cheatsheet.md |
