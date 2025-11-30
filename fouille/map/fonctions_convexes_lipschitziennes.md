@@ -6,7 +6,7 @@ Last updated: 2025-11-30
 
 # Fonctions convexes/ Fonctions lipschitziennes
 
-Les concepts de fonctions convexes et de fonctions lipschitziennes sont des fondements mathématiques essentiels dans le contexte de l'optimisation et de la régularisation en Machine Learning. ls garantissent la solubilité des problèmes d'optimisation et sont au cœur de l'établissement des bornes théoriques de généralisation.
+Les concepts de **fonctions convexes** et de **fonctions lipschitziennes** sont des fondements mathématiques essentiels dans le contexte de l'optimisation et de la régularisation en Machine Learning. Ils garantissent la solubilité des problèmes d'optimisation et sont au cœur de l'établissement des bornes théoriques de généralisation.
 
 ## 1. Fonctions convexes : La clé de l'optimisation en ML
 
