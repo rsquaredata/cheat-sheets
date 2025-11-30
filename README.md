@@ -75,3 +75,11 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 | R NLP Notebook | template_r_nlp.md |
 | Quarto Report Template | template_quarto_report.md |
 | Tex Report Template | template_text_report.md |
+
+---
+
+# misc
+
+| Course  | File       |
+|---------|------------|
+| English | [English Folder](https://github.com/rsquaredata/cheat-sheets/tree/main/English) |
