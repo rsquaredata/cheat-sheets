@@ -142,7 +142,10 @@
 | ``$\lambda, \mu, \theta$`` | $\lambda, \mu, \theta$ |
 | ``$\sigma, \Sigma$`` | $\sigma, \Sigma$ |
 | ``$\varepsilon$`` | $\varepsilon$ |
+| ``$\epsilon$``| $\epsilon$ |
 | ``$\theta^\star$`` | $\theta^\star$ |
+| ``$\eta$``| $\eta$ |
+| ``$\xi, \hat{\xi}$`` | $\xi, \hat{\xi}$ |
 
 ---
 
