@@ -27,7 +27,7 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 
 | Sheet | File |
 |-------|------|
-| Markdown | [Mardown cheatsheet](markdown_cheatsheet.md) |
+| Markdown | [Mardown cheatsheet](cheat-sheet-markdown.md) |
 | LaTeX Maths | [LaTeX Maths cheatsheet](latex_maths.md) |
 | Pandas | pandas_cheatsheet.md |
 | Numpy | numpy_cheatsheet.md |
