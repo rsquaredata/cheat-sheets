@@ -43,7 +43,7 @@ les normaliser. Cette transformation est recommandée pour les algorithmes basé
 interne (comme le $k$-Nearest Neighbor ou les SVM).
 
 - **Normalisation (Z-score)** : Transforme les données pour qu'elles suivent une distribution normale centrée et 
-réduite ($\mu_j = 0, \sigma_j = 1).
+réduite ($\mu_j = 0, \sigma_j = 1$).
 
 	- **Norme hypercube (Min-Max)** : Décale les valeurs des descripteurs pour qu'elles se situent dans 
 l'intervalle $[0,1]$ ou $[-1,1]$.
