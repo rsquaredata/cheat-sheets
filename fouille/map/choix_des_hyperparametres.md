@@ -69,7 +69,7 @@ similarité entre deux exemples.
 - **Rôle** : $\gamma$ contrôle l'importance que l'on donne à la distance entre les points. Si $\gamma$ est grand, on 
 accorde moins d'importance à la distance entre les exemples, ce qui tend à lisser la frontière de décision.
 
-- *Tuning nécessaire** : Pour un SVM avec noyau gaussien, il est indispensable de tuner simultanément l'hyperparamètre 
+- **Tuning nécessaire** : Pour un SVM avec noyau gaussien, il est indispensable de tuner simultanément l'hyperparamètre 
 $C$ et le paramètre \gamma$.
 
 - **Exemples pratiques** : On tune $\gamma$ parmi des valeurs telles que $\{0.01, 0.1, 1, 10\}$.
