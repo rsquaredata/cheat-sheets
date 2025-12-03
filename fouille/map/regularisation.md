@@ -59,9 +59,9 @@ Le principal impact de la norme $L_1$ est d'induire la **parcimonie** (*sparsity
 
 Contrairement à la norme $L_2^2$, la norme $L_1$ présente un inconvénient majeur : le terme de régularisation est **non-différentiable** à tous les points, ce qui complique l'application des méthodes d'optimisation standards comme la descente de gradient classique.
 
-## 3. Le rôle de l'Hyperparamètre $\lambda$
+## 3. Le rôle de l'hyperparamètre $\lambda$
 
-Dans le cadre du RRM, l'hyperparamètre $\lambda$ (souvent remplacé par $C$ dans la formulation primal du SVM, où $\lambda = 1/2C$) est le paramètre clé qui doit être ajusté (*tuned*).
+Dans le cadre du RRM, l'hyperparamètre $\lambda$ (souvent remplacé par $C$ dans la formulation primal du SVM, où $\lambda = \frac{1}{2C}$) est le paramètre clé qui doit être ajusté (*tuned*).
 - Il contrôle le **compromis** (*trade-off*) entre l'ajustement aux données (minimisation du risque empirique) et la simplicité/complexité du modèle (régularisation).
 - Si $\lambda$ est petit, l'ajustement aux données est privilégié, augmentant le risque de **surapprentissage** (*over-fitting*).
 - Si $\lambda$ est grand, la simplicité du modèle est privilégiée, ce qui peut mener à un **sous-apprentissage** (*under-fitting*).
