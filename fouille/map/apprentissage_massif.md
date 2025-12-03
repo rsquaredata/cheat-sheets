@@ -1,7 +1,7 @@
 <!--
 Title: "Apprentissage massif et données déséquilibrées"
 Author: rsquaredata
-Last updated: 2025-11-30
+Last updated: 2025-12-03
 -->
 
 Thèmes principaux et concepts abordés :
@@ -15,7 +15,7 @@ Thèmes principaux et concepts abordés :
 
 Le **processus d'apprentissage** d'un modèle comprend plusieurs étapes essentielles :
 1. **Préparation des données** : Détection d'éventuelles valeurs manquantes et imputation, et identification des caractéristiques des jeux de données (taille, dimension, type de problème, ratio des classes).
-2. **Mise en œuvre **: Application de plusieurs algorithmes, mise en œuvre de méthodes de pré-apprentissage (*pre-processing*), et choix d'une mesure de performance appropriée.
+2. **Mise en œuvre**: Application de plusieurs algorithmes, mise en œuvre de méthodes de pré-apprentissage (*pre-processing*), et choix d'une mesure de performance appropriée.
 3. **Évaluation** : Comparaison des performances des algorithmes, en tenant compte à la fois des performances et du **temps d’apprentissage**.
 
 Le **Big Data** se caractérise par des données volumineuses et complexes, et l'engouement pour ce sujet s'explique par le développement constant de la capacité de stockage des données par les entreprises.
