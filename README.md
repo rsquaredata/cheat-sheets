@@ -83,3 +83,4 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 | Course  | File       |
 |---------|------------|
 | English | [English Folder](https://github.com/rsquaredata/cheat-sheets/tree/main/English) |
+| Library | [Library Folder](https://github.com/rsquaredata/cheat-sheets/tree/main/Library) |
