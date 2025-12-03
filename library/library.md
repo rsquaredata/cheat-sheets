@@ -117,14 +117,14 @@ Pour vous faciliter la vie, Zotero propose une fonction très pratique appelée 
 |-------------|--------------------------|
 | **data-wrangling** | nettoyage, fusion, imputation de données manquantes, techniques de préparation de données |
 | **SQL-Bases** | optimisation de requêtes, modélisation relationnelle, bases de données NoSQL (MongoDB, Cassandra) | 
-| BI-Reporting,"Outils de visualisation (Tableau, Power BI), dashboards, principes de la Business Intelligence."
-Data-Warehouse,"Concepts de Data Mart, ETL/ELT, modélisation en étoile/flocon."
+| **BI-Reporting** | outils de visualisation (Tableau, Power BI), dashboards, principes de la Business Intelligence |
+| **Data-Warehouse** | concepts de Data Mart, ETL/ELT, modélisation en étoile/flocon |
 
 ### Catégorie : Type de document / source
 
 | Tag suggéré | Contexte et exemples de Papiers |
 |-------------|---------------------------------|
-| **article-fondamental** | lLes papiers qui ont introduit un concept majeur (ex: *Attention is All You Need*) | 
+| **article-fondamental** | les papiers qui ont introduit un concept majeur (ex: *Attention is All You Need*) | 
 | **revue-synthèse** | articles de Survey ou Review qui résument l'état de l'art d'un domaine |
 | **manuel-référence** | chapitres de livres ou manuels utilisés pour apprendre une base théorique (ex: _The Elements of Statistical Learning_) |
 | **implémentation-code** | ressources qui se concentrent sur un code ou une implémentation spécifique (ex: tutoriel PyTorch ou un GitHub repo) |
