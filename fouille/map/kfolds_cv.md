@@ -4,7 +4,7 @@ Author: rsquaredata
 Last updated: 2025-12-03
 -->
 
-# Validation croisée $k^-folds pour l'optimisation des hyperparamètres
+# Validation croisée $k$-folds pour l'optimisation des hyperparamètres
 
 La **validation croisée ($k$-folds CV)** est une procédure fondamentale dans la phase d'**entraînement et de tuning** 
 des modèles d'apprentissage automatique, pour assurer la généralisation des modèles appris. Elle sert principalement à 
@@ -82,22 +82,4 @@ de test doit être fixe et basée sur la date.
 En résumé, la validation croisée est le mécanisme standard pour le **tuning rigoureux** des hyperparamètres, 
 permettant de trouver le point d'équilibre entre la minimisation du risque empirique et la complexité du modèle, tout 
 en optimisant sa capacité à généraliser.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
