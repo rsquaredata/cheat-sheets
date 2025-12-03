@@ -79,7 +79,7 @@ $C$ et le paramètre \gamma$.
 L'algorithme du k-Plus Proches Voisins (k-NN) est non paramétrique, mais il dépend fortement du paramètre $k$, le 
 nombre de voisins considérés pour la prédiction.
 
-- **Rôle* : La valeur de $k$ influence la prédiction par vote majoritaire. Un petit $k$ (par exemple $k=1$) rend 
+- **Rôle** : La valeur de $k$ influence la prédiction par vote majoritaire. Un petit $k$ (par exemple $k=1$) rend 
 l'algorithme très sensible aux variations locales, tandis qu'un grand $k$ tend à lisser la décision et peut assigner 
 la classe majoritaire à toutes les données si $k$ est proche de la taille de l'échantillon.
 
