@@ -90,7 +90,7 @@ la classe majoritaire à toutes les données si $k$ est proche de la taille de l
 
 D'autres algorithmes possèdent de nombreux hyperparamètres structuraux et d'optimisation qui doivent être réglés :
 
-- **Réseaux de neurones (Deep Learning via H2O**/Keras) : La phase de *tuning* est exploratoire et touche à la fois la 
+- **Réseaux de neurones (Deep Learning via H2O/Keras)** : La phase de *tuning* est exploratoire et touche à la fois la 
 structure et l'optimisation. Les hyperparamètres incluent :
 
 	- **Structure** : Le nombre de couches cachées et le nombre de neurones par couche (par exemple, trois couches de 
