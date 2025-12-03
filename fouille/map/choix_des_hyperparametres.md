@@ -24,7 +24,7 @@ $C$, $\lambda$ et $\gamma$.
 Dans la formulation du Soft Margin SVM, le paramètre $C$ est l'hyperparamètre qui fait l'équilibre entre la 
 **maximisation de la marge** et la **pénalisation des erreurs** (variables slacks $\eta_i$).
 
-- **Rôle* : $C$ contrôle l'importance que l'on accorde aux erreurs effectuées par le modèle par rapport aux poids du 
+- **Rôle** : $C$ contrôle l'importance que l'on accorde aux erreurs effectuées par le modèle par rapport aux poids du 
 modèle $w$ (sa complexité). Si $C$ est très grand, le modèle sera plus sensible aux erreurs d'entraînement et cherchera 
 une marge plus petite; si $C$ est petit, la régularisation sera plus forte, privilégiant une marge vaste au détriment 
 de quelques erreurs d'entraînement.
