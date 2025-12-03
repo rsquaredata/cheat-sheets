@@ -129,14 +129,15 @@ Data-Warehouse,"Concepts de Data Mart, ETL/ELT, modélisation en étoile/flocon.
 | **manuel-référence** | chapitres de livres ou manuels utilisés pour apprendre une base théorique (ex: _The Elements of Statistical Learning_) |
 | **implémentation-code** | ressources qui se concentrent sur un code ou une implémentation spécifique (ex: tutoriel PyTorch ou un GitHub repo) |
 
-### Catégorie : Statut / évaluation personnelle
+### Catégorie : Statut / organisation / évaluation personnelle
 
 | Tag suggéré | Objectif |
 |-------------|----------|
 | **à-lire** | références ajoutées récemment et qui nécessitent une lecture approfondie |
+| **à-citer** | référence absolument nécessaire pour un projet ou un mémoire |
 | **à-citer-urgent** | documents dont je sais qu'ils doivent absolument figurer dans ma prochaine rédaction |
 | **trop-théorique** | documents très mathématiques ou peu pratiques ; à ne consulter que pour la preuve |
-| **excellent-exemple** | contient un exemple de cas d'utilisation très pertinent pour mon travail |
+| **excellent-exemple** | contient un exemple de cas d'utilisation très pertinent pour mon travail | 
 
 ### Catégorie : SISE
 
@@ -159,9 +160,17 @@ Data-Warehouse,"Concepts de Data Mart, ETL/ELT, modélisation en étoile/flocon.
 | **data-viz** | TD Data visualisation | outils et principes pour la création de tableaux de bord (BI) et l'exploration |
 | **MLOps-Cloud** | TD Data visualisation, Bl. Cloud, MLOps | tag pour l'intégration de ML en production, les déploiements cloud |
 
+#### Data Science & IA
+
+| Tag suggéré | Correspondance dans le MCCC | Utilité |
+|-------------|-----------------------------|---------|
+| **ML-Python** | TD Machine learning sous Python | pPour les implémentations et tutoriels ML généraux avec Python (Scikit-learn, etc.) |
+| **DeepLearning-CV** | TD Deep learning Machine learning Computer Vision | pour les modèles de réseaux de neurones profonds et tout ce qui touche à la vision par ordinateur |
+| **NLP** | TD NLP-Traitement automatique du langage naturel | pour les modèles de langage (LLMs, Transformer, RAG, etc.) |
+| **Web-Mining** | TD Fouille du web et analyse des réseaux sociaux | extraction d'information du web, APIs de réseaux sociaux, analyse de sentiment |
+| **data-sécurité** | Visualisation et analyse des données de sécurité | pour les ressources spécifiques à l'analyse de logs, détection de fraude/anomalies |
+
+</details>
+
 ## TOC
 
-## Articles
-D. Sculley et al., "Hidden Technical Debt in Machine Learning Systems," in Advances in Neural Information Processing Systems 28 (NIPS 2015), 2015.
-
-## Ouvrages
