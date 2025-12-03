@@ -59,7 +59,7 @@ Ces méthodes ensemblistes sont importantes pour leur robustesse et leur perform
 - Le **Boosting** vise à combiner plusieurs apprenants faibles (*weak learners*) de manière itérative pour construire un modèle fort.
 - L'algorithme **Adaboost** apprend les hypothèses itérativement en **repondérant les exemples** pour se concentrer sur les erreurs commises par le modèle précédent. Adaboost est basé sur l'*exponential loss*.
 - Le **Gradient Boosting** est une généralisation plus flexible, capable d'utiliser **n'importe quelle fonction de loss**. Il apprend les apprenants faibles (*weak learners*) en les ajustant sur les **pseudo-résidus** (le gradient négatif de la loss).
-- **XGBoost** (eXtreme Gradient Boosting) est une implémentation très efficace, utilisant une a**pproximation d’ordre 2** de la fonction objectif pour mesurer la pureté d'une feuille.
+- **XGBoost** (eXtreme Gradient Boosting) est une implémentation très efficace, utilisant une **approximation d’ordre 2** de la fonction objectif pour mesurer la pureté d'une feuille.
 - Les **forêts aléatoires** (Random Forests) utilisent un **double échantillonnage** (sur les données et sur les variables) pour créer des modèles diversifiés, augmentant la stabilité et la généralisation.
 
 ## 3.4. Deep Learning
