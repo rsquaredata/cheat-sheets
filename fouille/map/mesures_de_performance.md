@@ -41,8 +41,9 @@ toutes les données comme appartenant à la classe majoritaire, ce qui biaise le
 Pour évaluer la capacité du modèle à gérer la classe minoritaire, on utilise des métriques dérivées de la 
 **matrice de confusion** :
 
-| Prédiction | $h(x)$ =Positif | $h(x) = Négatif |
-| **Réel** $y$=Positif (*Minoritaire**) | Vrai Positif (TP) | Faux Négatif (FN) |
+| Prédiction | $h(x)$ = Positif | $h(x) = Négatif |
+|-|-|-|
+| **Réel** $y$=Positif (**Minoritaire**) | Vrai Positif (TP) | Faux Négatif (FN) |
 | **Réel** $y$=Négatif (**Majoritaire**) | Faux Positif (FP) | Vrai Négatif (TN) |
 
 ### 3.1. Précision et Rappel
@@ -51,7 +52,7 @@ Pour évaluer la capacité du modèle à gérer la classe minoritaire, on utilis
 positive ou minoritaire. Il est défini par $\frac{TP}{TP+FN}$. Un rappel élevé est souvent essentiel, par exemple en 
 diagnostic médical, pour ne pas manquer un patient.
 
-2. **La Précision (_Precision_)** : Évalue la justesse du modèle dans ses prédictions positives, soit $\frac{TP}{TP+FP}.
+2. **La Précision (_Precision_)** : Évalue la justesse du modèle dans ses prédictions positives, soit $\frac{TP}{TP+FP}$.
 
 ### 3.2. La F-mesure
 
@@ -64,7 +65,7 @@ $$
 F_{\beta} = ÷frac{(1 + \beta^2)TP}{(1 + \beta^2) TP + \beta^2 FN + FP}.
 $$
 
-- **Tuning de $\beta$ : Le paramètre $\beta$ permet de pondérer l'importance du Rappel par rapport à la Précision. 
+- **Tuning de $\beta$** : Le paramètre $\beta$ permet de pondérer l'importance du Rappel par rapport à la Précision. 
 Si $\beta=1$, les deux sont jugés avec la même importance.
 
 - **Objectif pratique** : Il s'agit chercher à établir le modèle qui permet d'obtenir les **meilleurs résultats en 
@@ -98,8 +99,8 @@ L'objectif réel de certaines tâches, comme la détection de fraude fiscale, es
 due à la fraude.
 
 - **Matrice de coût** : Au lieu de seulement compter les erreurs, on associe des **poids/coûts** aux décisions. Il 
-faut se concentrer sur la valeur du coût des faux négatifs ($c_{FN}) — une fraude non détectée — et des faux positifs 
-($c_{FP}).
+faut se concentrer sur la valeur du coût des faux négatifs ($c_{FN}$) — une fraude non détectée — et des faux positifs 
+($c_{FP}$).
 
 - **Minimisation des pertes** : La procédure peut être ajustée pour attribuer un poids plus important aux fraudes de 
 montant élevé, afin de **maximiser la marge** de l'enseigne en prenant en compte les gains et les pertes spécifiques 
