@@ -109,8 +109,7 @@ liés à l'acceptation ou au refus des transactions (TN, FN, FP).
 ### 5.2. Temps d'apprentissage
 
 L'évaluation doit non seulement analyser les performances (F-mesure, AUC) des algorithmes, mais aussi leur **temps 
-d'apprentissage**. Ce critère est essentiel pour justifier si un algorithme est adapté au contexte de **onnées 
-massives**. On peut par exemple comparer les résultats obtenus, ainsi que le temps d’apprentissage, entre un modèle 
+d'apprentissage**. Ce critère est essentiel pour justifier si un algorithme est adapté au contexte de **données massives**. On peut par exemple comparer les résultats obtenus, ainsi que le temps d’apprentissage, entre un modèle 
 initial et sa version approchée (comme les *landmarks* ou RFF).
 
 ---
