@@ -17,7 +17,7 @@ Les algorithmes fondamentaux sont souvent les points de départ pour la construc
 Les SVM sont des algorithmes largement utilisés pour la **classification binaire**.
 
 - **Principe** : Les SVM cherchent l'hyperplan qui maximise la marge entre les deux classes afin de maximiser la capacité de généralisation.
-- **Version linéaire (Hard/Soft Margin)** : Le *Hard Margin SVM* est la solution idéale lorsque les données sont linéairement séparables, en minimisant la norme $\Vert w \Vert_2^2$ soumise à des contraintes. Le *Soft Margin SVM* introduit des **variables _slacks_** ($\eta_i$) et un **hyperparamètre de régularisation** $C$ pour tolérer les erreurs et le non-linéarité.
+- **Version linéaire (Hard/Soft Margin)** : Le *Hard Margin SVM* est la solution idéale lorsque les données sont linéairement séparables, en minimisant la norme $\Vert w \Vert_2^2$ soumise à des contraintes. Le *Soft Margin SVM* introduit des **variables _slacks_** ($\xi_i$) et un **hyperparamètre de régularisation** $C$ pour tolérer les erreurs et le non-linéarité.
 - **Méthodes à noyaux (_Kernel SVM_)** : Pour traiter les données non linéairement séparables, l'**astuce du noyau** (*Kernel trick*) permet de projeter implicitement les données dans un espace de dimension supérieure (potentiellement infinie) où elles deviennent séparables linéairement. Les noyaux incluent le **noyau linéaire** et le **noyau gaussien (RBF)**, qui nécessite le tuning des hyperparamètres $C$ et $\gamma$.
 - **Limites et scalabilité** : Les méthodes à noyaux classiques sont **très limitées** dans un contexte de données massives, car elles nécessitent le calcul de $m^2$ similarités (matrice de Gram $K \in \mathbb{R}^{m \times m}$), ce qui est irréalisable pour le *Big Data*.
 
