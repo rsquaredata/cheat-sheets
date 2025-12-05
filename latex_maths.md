@@ -69,6 +69,10 @@
 | ``$A \cap B$`` | $A \cap B$ |
 | ``$\forall x, \exists y$`` | $\forall x, \exists y$ |
 | ``$\Rightarrow$`` | $\Rightarrow$ |
+| ``$\emptyset$`` | $\emptyset$ |
+| ``$\varnothing$`` | $\varnothing$ |
+| ``$\oplus$``, ``$\bigoplus$`` | $\oplus$, $\bigoplus$ |
+| ``$\otimes$``, ``$\bigotimes$`` | $\otimes$, $\bigotimes$ |
 
 ---
 
@@ -84,7 +88,9 @@
 | ``$a \gg b$`` | $a \gg b$ |
 | ``$a \approx b$`` | $a \approx b$ |
 | ``$a \sim b$`` | $a \sim b$ |
+| ``$a \simeq a$`` | $a \simeq a$ |
 | ``$a \equiv b$`` | $a \equiv b$ |
+| ``$a \cong b$`` | $a \cong b$ |
 | ``$a \neq b$`` | $a \neq b$ |
 
 ---
@@ -106,7 +112,7 @@
 
 | Code | Résultat |
 |------|----------|
-| ``$f : \mathbb{R} \to \mathbb{R}, x \mapsto y$`` | $f : \mathbb{R} \to \mathbb{R}, x \mapsto y$ |
+| ``$f : \mathbb{R} \to \mathbb{R}``, ``$x \mapsto y$`` | $f : \mathbb{R} \to \mathbb{R}$, $x \mapsto y$ |
 | ``$f'(x)$`` | $f'(x)$ |
 | ``$\frac{df}{dx}$`` | $\frac{df}{dx}$ |
 | ``$\frac{\partial f}{\partial x}$`` | $\frac{\partial f}{\partial x}$ |
@@ -149,11 +155,11 @@
 
 ---
 
-## 12. Calligraphie
+## 12. Calligraphie, diacritiques
 
 | Code | Résultat |
 |------|----------|
-| ``$\mathbb{1}$`` ``$\mathbb{C}$`` ``$\mathbb{N}$`` ``$\mathbb{Q}$`` ``$\mathbb{Z}$`` | $\mathbb{1}$ $\mathbb{C}$ $\mathbb{N}$ $\mathbb{Q}$ $\mathbb{Z}$ |
+| ``$\mathbb{1}$`` ``$\mathbb{C}$`` ``$\mathbb{K}$`` ``$\mathbb{N}$`` ``$\mathbb{Q}$`` ``$\mathbb{R}$`` ``$\mathbb{Z}$`` | $\mathbb{1}$ $\mathbb{C}$ $\mathbb{K}$ $\mathbb{N}$ $\mathbb{Q}$ $\mathbb{R}$ $\mathbb{Z}$ |
 | ``$\mathcal{A}$`` ``$\mathcal{L}$`` ``$\mathcal{M}$`` | $\mathcal{A}$ $\mathcal{L}$ $\mathcal{M}$ |
 | ``$\mathfrak{a}$`` ``$\mathfrak{i}$`` ``$\mathfrak{p}$`` ``$\mathfrak{q}$`` | $\mathfrak{a}$ $\mathfrak{i}$ $\mathfrak{p}$ $\mathfrak{q}$ |
 | ``$\dot{a}$`` | $\dot{a}$ |
@@ -169,11 +175,12 @@
 | Code | Résultat |
 |------|----------|
 | ``$\infty$`` | $\infty$ |
-| ``$x_1 \cdot x_2 \cdot x_3 \cdots x_n$`` | $x_1 \cdot x_2 \cdot x_3 \cdots x_n$ |
+| ``$x \cdot y$``, ``$x_1 \cdots x_n$`` | $x \cdot y$,  $x_1 \cdots x_n$ |
 | ``1, 2, \ldots, n$`` | $1, 2, \ldots, n$ |
-| ``$f \circ g$`` | $f \circ g$ |
+| ``$g \circ f$`` | $g \circ f$ |
 | ``$\pm \mp$`` | $\pm \mp$ |
-| ``$\times \div$`` | $\times \div$ |
+| ``$n \times p$`` | $n \times p$ |
+| ``$b \div a$`` | $b \div a$ |
 
 
 ## 14. Packages utiles (préambule)
