@@ -105,6 +105,28 @@ Last updated: 2025-12-04
 
 ### 5.1. Pour les problèmes de régression
 
+| Métrique | Formule | Définition | Avantages / Inconvénients | Pour données... |
+|----------|---------|------------|---------------------------|-----------------|
+| **MSE** (Mean squared Error) | $\frac{1}{n} \sum_i (y_i - \hat{y}_i)^2$ | Erreur quadratique moyenne.</br>Très sensible aux valeurs extrêmes | pénalise fortement les grandes erreurs, mais amplifie les outliers | homogènes |
+| **RMSE** (Root MSE) | $\sqrt{MSE}$ | Même unité que la variable cible. | plus intuitif, mais même limites que MSE | homogènes |
+**MAE* (Mean Absolute Error | $\frac{1}{n} \sum_i \vert y_i - \hat{y}_i \vert $ | Erreur absolue moyenne, plus robuste. | moins sensible aux gros écarts, mais moins différenciant | avec outliers |
+| **$R^2$** (Coefficient de détermination | $1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y}_i)^2 }$ | Part de la variance expliquée (max = 1) | intuitif mais pas stable et varie peu | - |
+
+<u><str>NB</str></u> : si comparaison de modèles → toujours préciser l'unité (ex.: erreur moyenne de 5°C).
+
+### 5.2. Pour les problèmes de classification
+
+#### 5.2.1. Jeu équilibré
+
+| Métrique | Formule | Définition / Usage | Avantages / Inconvénients | Rédaction |
+|----------|---------|------------|-------------------------------|-----------|
+| **Accuracy** | $\frac{TP+TN}{TP+TN+FP+FN}$ | pourcentage de bonnes prédictions | simple, mais trompeur si classes déséquilibrées | 
+| **AUC ROC ** (Area Under the Curve of the Receiver Operating Characteristic) | $AUC = \int_0^1 TPR(FR) \text{ d}(FPR)$</br>    \simeq \sum_{i=1}^{n-1} (FPR_{i+1} - FPR_i) \times \frac{TPR_{i+1} + TPR_i}{2}$ | capacité à discriminer les classes.</br>maths : aire sous la courbe ROC (TPR vs FPR), calculée en pratique comme une somme de trapèzes</br>stats : $AUC = \mathbb{P}(\text{score positif} \gt taxt{score négatif})$ | AUC = 0.5 → modèle aléatoire (aucun pouvoir discriminant)</br>AUC = 0.7-0.8 → correct</br>AUC = 0.8-0.9 → bon</br>AUC > 0.9 → excellent</br>AUC = 1.0 → parfait (souvent sur-apprentissage</br>L'AUC est **indépendante du seuil** → pratique mais peut **masquer** une mauvaise calibration des probabilités | La courbe ROC trace la sensibilité (TPR) en fonction du taux de faux positifs (FPR). L'aire sous la courve (AUC) mesure la capacité du modèle à classer un positif au-dessus d'un négatif. Une AUC = 1 correspond à un classifieur parfait, 0.5 à un modèle aléatoire. |
+| **Log Loss / Cross Entropy** | $- \frac{1}{n} \sum \left[y_i \log(p_i) + (1-y_i) \log()1-p_i \right]$ \ pénalise les prédictions trop confiantes et fausses | bon pour calibration probabiliste | |
+
+
+
+
 ## 6. Tuning des hyperparamètres
 
 | Méthode | Paramètre clé | Comment / Pourquoi |
@@ -143,8 +165,6 @@ Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
 | Temps de calcul critique | préférer un modèle linéaire ou Random Forest |
 | Besoin d'interprétabilité | régression logistique, arbres |
 | Surapprentissage suspecté | learning curve, réduction complexité, early stopping |
-
-
 
 
 
