@@ -46,9 +46,23 @@ Last updated: 2025-12-04
   - Régression : MSE, RMSE, MAE
   - Classification : log loss, hinge loss, exponential loss
 
-## 2. Choix des modèles selon le problème
+<small>"La surrogate loss **détermine le type de modèle** et le **comportement de l'optimisation**</small>
 
-### 2.1. Régression
+| Tâche | Loss idéale | Surrogate courante | Algorithme associé | Forme |
+|-------|-------------|--------------------|--------------------|-------|
+| **Classification binaire | O-1 loss | **Hinge loss** | SVM | $\ell \letf( y, f(x) \right) = \max(0, 1-f(x))$ |
+| | 0-1 loss | **Logistic loss** | Régression logistique, Boosting | $ell \letf( y, f(x) \right) = \og(1 + e^{-y(f(x)})$ |
+| | 0-1 loss | **Exponential loss** | AdaBoost | $ell \letf( y, f(x) \right) = e^{-yf(x)}$ |
+| Régression | $L_2$ | MSE/RMSE | Linéaire, Ridge, SVR | \left( y-f(x) \right)^2$ |
+| | $L_1$ | MAE | Lasso, quantile regression | $vert y-f(x) \vert $ |
+
+<small>Exemple de rédaction : "Les méthodes de marge large (SVM) reposent sur la hinge loss, qui est une surrogate convexifiant la 0-1 loss"</small>
+
+## 2. Choix des modèles
+
+### 2.1. Choix des modèles selon le problème
+
+#### 2.1.1. Régression
 
 | Algorithmes classiques | Avantages | Limites |
 |------------------------|-----------|---------|
@@ -57,7 +71,7 @@ Last updated: 2025-12-04
 | Random Forest Regressor | Gère la non-linéarité, pas de normalisation | Peu interprétatble, lent si gros dataset |
 | Gradient Boosting / XGBoost | Très performant, gère les features hétérogènes | Sensible au surapprentissage |
 
-### 2.2. Classification
+#### 2.1.2. Classification
 
 | Algorithmes classiques | Avantages | Limites |
 |------------------------|-----------|---------|
@@ -67,6 +81,10 @@ Last updated: 2025-12-04
 | Random Forest | Gère les données mixtes, importance des variables | Peux explicatif sur les décisions |
 | Gradient Boosting | Très efficace sur déséquilibre | Long à entraîner, nécessite réglage fin |
 | Réseaux de neurones | Très flexible | Données nombreuses + tuning lourd |
+
+### 2.2. Choix du noyau
+
+- Si je teste un modèle **linéaire** (régression logistique, SVM linéaire) → choisir un 
 
 ## 3. Prétraitement des données
 
@@ -83,6 +101,12 @@ Last updated: 2025-12-04
 4. Interprétation / validation finale
 
 ## 5. Choix des métriques
+
+**Règle heuristique rapide** :
+- dataset équilibré → **Accuracy / AUC**
+- dataset déséquilibré → **F1/Recall/MCC**
+- priorité à "ne pas rater" → **Recall**
+- priorité à "ne pas se tromper" → **Precision**
 
 ```text
 → Type de problème :
@@ -121,22 +145,47 @@ Last updated: 2025-12-04
 | Métrique | Formule | Définition / Usage | Avantages / Inconvénients | Rédaction |
 |----------|---------|------------|-------------------------------|-----------|
 | **Accuracy** | $\frac{TP+TN}{TP+TN+FP+FN}$ | pourcentage de bonnes prédictions | simple, mais trompeur si classes déséquilibrées | 
-| **AUC ROC ** (Area Under the Curve of the Receiver Operating Characteristic) | $AUC = \int_0^1 TPR(FR) \text{ d}(FPR)$</br>    \simeq \sum_{i=1}^{n-1} (FPR_{i+1} - FPR_i) \times \frac{TPR_{i+1} + TPR_i}{2}$ | capacité à discriminer les classes.</br>maths : aire sous la courbe ROC (TPR vs FPR), calculée en pratique comme une somme de trapèzes</br>stats : $AUC = \mathbb{P}(\text{score positif} \gt taxt{score négatif})$ | AUC = 0.5 → modèle aléatoire (aucun pouvoir discriminant)</br>AUC = 0.7-0.8 → correct</br>AUC = 0.8-0.9 → bon</br>AUC > 0.9 → excellent</br>AUC = 1.0 → parfait (souvent sur-apprentissage</br>L'AUC est **indépendante du seuil** → pratique mais peut **masquer** une mauvaise calibration des probabilités | La courbe ROC trace la sensibilité (TPR) en fonction du taux de faux positifs (FPR). L'aire sous la courve (AUC) mesure la capacité du modèle à classer un positif au-dessus d'un négatif. Une AUC = 1 correspond à un classifieur parfait, 0.5 à un modèle aléatoire. |
-| **Log Loss / Cross Entropy** | $- \frac{1}{n} \sum \left[y_i \log(p_i) + (1-y_i) \log()1-p_i \right]$ \ pénalise les prédictions trop confiantes et fausses | bon pour calibration probabiliste | |
+| **AUC ROC** (Area Under the Curve of the Receiver Operating Characteristic) | $AUC = \int_0^1 TPR(FR) \text{ d}(FPR)$</br>    $\simeq \sum_{i=1}^{n-1} (FPR_{i+1} - FPR_i) \times \frac{TPR_{i+1} + TPR_i}{2}$ | • capacité à discriminer les classes.</br>• maths : aire sous la courbe ROC (TPR vs FPR), calculée en pratique comme une somme de trapèzes</br>• stats : $AUC = \mathbb{P}(\text{score positif} \gt taxt{score négatif})$ | AUC = 0.5 → modèle aléatoire (aucun pouvoir discriminant)</br>AUC = 0.7-0.8 → correct</br>AUC = 0.8-0.9 → bon</br>AUC > 0.9 → excellent</br>AUC = 1.0 → parfait (souvent sur-apprentissage</br>L'AUC est **indépendante du seuil** → pratique mais peut **masquer** une mauvaise calibration des probabilités | La courbe ROC trace la sensibilité (TPR) en fonction du taux de faux positifs (FPR). L'aire sous la courve (AUC) mesure la capacité du modèle à classer un positif au-dessus d'un négatif. Une AUC = 1 correspond à un classifieur parfait, 0.5 à un modèle aléatoire. |
+| **Log Loss / Cross Entropy** | $- \frac{1}{n} \sum \left[y_i \log(p_i) + (1-y_i) \log(1-p_i) \right]$ | pénalise les prédictions trop confiantes et fausses | bon pour calibration probabiliste | |
 
+### 5.3. Visualisation
 
+| Outil | Ce qu'il montre | Utilité |
+| **Matrice de confusion** | vrais/faux positifs/négatifs | voir où le modèle se trompe |
+| **Courbe AUC ROC** | TPR vs FPR | comparaison  visuelle de modèles |
+| **Courbe PR (Precision-Recall)** | Precision vs Recall | plus informative si classes rares |
+| **Learning Curve** | Score train vs test selon le nb d'exemples | détecter un sur/sous-apprentissage |
 
+#### 5.2.2. Jeu déséquilibré
+
+*Accuracy* devient inutile : un modèle qui prédit toujours la classe majoritaire peut avoir 95% de précision mais 0 en recall.
+
+| Métrique | Formule | Sens intuitif | Quand utiliser |
+|----------|---------|---------------|----------------|
+| **Precision** | $\frac{TP}{TP+FP}$ | parmi les positifs prédits, combien sont vrais | faux positifs coûteux (ex.: spams, fraude) |
+| **Recall (Sensibilité)** | \frac{TP}{TP+FN} | parmi les vrais positifs, combien ont été trouvés | faux négatifs coûteux (ex.: cancer, panne) |
+| **F1-score** | $2 \times \frac{Precision \times Recall}{Precision + Recall}$ | compromis entre précision et rappel | bon résumé global pour classes rares |
+| **Balanced Accurary** | $\frac{TPR + TNR}{2}$ | moyenne des taux de succès par classe | comparer des modèles sur dataset déséquilibré |
+| **MCC** (Matthews Correlation Coefficient) | $\frac{TP \times TN - FP \times FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}$ | corrélation entre prédictions et vérité terrain | robuste, stable même si classes très déséquilibrées |
 
 ## 6. Tuning des hyperparamètres
 
-| Méthode | Paramètre clé | Comment / Pourquoi |
+1. split train / validation / test
+2. CV 5-fold
+3. GridSearchCV ou RandomizedSearchCV
+4. Comparer sur **métrique adaptée** (pas forcément *Accuracy*)
+5. vérifier la **stabilité des scores** variance basse → modèle robuste)
+
+| Modèle | Hyperparamètres clés | Comment / Pourquoi | Effet du réglage | Astuce / Pièges |
 |---------|---------------|--------------------|
-| SVM | $C$ (régularisation)</br>$\gamma$ (noyau RBF) | `GridSearchCV`sur $C$ ($C \in \[0.1,1,10\]$, $\gamma \in \[0.01,0.1,1\]$ |
-| Random Forest | n_estimators</br>max_depth</br>min_samples_split | plus d'arbres → meilleur stabilité mais plus lent |
-| Boosting | n_estimators</br>learning_rate</br>max_depth | petit learning_rate → réduit le surapprentissage |
-| Ridge / Lasso | $\lambda = \alpha$ (régularisation) | tuning par CV |
-| k-NN | $k$, distance | $k$ impair, scaling obligatoire |
-| Neural Net | lr</>nb de couches</br>epochs | attention à l'overfitting, early stopping |
+| SVM (RBF) | $C$ (régularisation)</br>$\gamma$ (largeur du noyau RBF) | `GridSearchCV`sur $C$ ($C \in \[0.1,1,10\]$, $\gamma \in \[0.01,0.1,1\]$ | $C$ ↗ : surapprentissage</br>$\gamma$ ↗ : frontière trop fine | toujours standardiser les *features* |
+| Random Forest | `n_estimators`</br>`max_depth`</br>`min_samples_split`</br>`max_features` | | plus d'arbres → meilleure stabilité mais plus lent</br> profondeur ↗ → surfit | commencer par peu de profondeur |
+| Gradient Boosting | `n_estimators`</br>`learning_rate`</br>`max_depth`</br>`subsample` | petit learning_rate → réduit le surapprentissage mais besoin de + d'estimators | commencer avec lr=0.1 |
+| Ridge / Lasso | $\lambda = \alpha$ (for de la régularisation) | tuning par CV | ↗ → coefficients plus petits → biais ↗ → variance ↘ | |
+| k-NN | $k$, distance | | petit $k$ → surfit, grand $k$ → biais fort | garder $k$ impair, scaling obligatoire |
+| NN (réseau de neurones | `learning_rate`</br>`hidden_layers`</br>`epochs`</br>`batch_size` | | learning_rate trop haut → diverge | surveiller la courbe de perte, attention à l'overfitting, early stopping |
+| Arbre de décision | `max_depth`</>`min_samples_split`</br>`criterion` | | profondeur ↗ → surfit | pruning recommandé |
+| XGBoost | `eta`</br>`max_depth`</br>`colsample_bytree`</br>`lambda` | paramètres très interdépendants | | tuning itératif par bloc |
 
 Toujours normaliser les données pour SVM / k-NN / NN.
 Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
@@ -144,7 +193,7 @@ Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
 ## 7. Validation et interprétation
 
 1. Comparer plusieurs modèles sur le même split :
-    - performances (métrique choisie)
+    - performances (sur métrique choisie)
     - temps d'apprentissage
     - stabilité des résultats (variance CV)
   
