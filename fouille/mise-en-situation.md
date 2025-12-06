@@ -275,13 +275,13 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 | Modèle | Hyperparamètres clés | Comment / Pourquoi | Effet du réglage | Astuce / Pièges |
 |---------|---------------|--------------------|
 | **SVM (RBF)** | $C$ (régularisation)</br>$\gamma$ (largeur du noyau RBF) | `GridSearchCV`sur $C$ ($C \in \[0.1,1,10\]$, $\gamma \in \[0.01,0.1,1\]$ | $C$ ↗ : surapprentissage</br>$\gamma$ ↗ : frontière trop fine | toujours standardiser les *features* |
-| **Random Forest** | `n_estimators`</br>`max_depth`</br>`min_samples_split`</br>`max_features` | - | plus d'arbres → meilleure stabilité mais plus lent</br> profondeur ↗ → surfit | commencer par peu de profondeur |
-| **Gradient Boosting** | `n_estimators`</br>`learning_rate`</br>`max_depth`</br>`subsample` | petit learning_rate → réduit le surapprentissage mais besoin de + d'estimators | commencer avec lr=0.1 |
+| **Random Forest** | `n_estimators`</br>`max_depth`</br>`min_samples_split`</br>`max_features` | | plus d'arbres → meilleure stabilité mais plus lent</br> profondeur ↗ → surfit | commencer par peu de profondeur |
+| **Gradient Boosting** | `n_estimators`</br>`learning_rate`</br>`max_depth`</br>`subsample` | petit learning_rate → réduit le surapprentissage mais besoin de + d'estimators | | commencer avec lr=0.1 |
 | Ridge / Lasso | $\lambda = \alpha$ (for de la régularisation) | tuning par CV | ↗ → coefficients plus petits → biais ↗ → variance ↘ | - |
 | **k-NN** | $k$, distance | | petit $k$ → surfit, grand $k$ → biais fort | garder $k$ impair, scaling obligatoire |
-| **NN (réseau de neurones** | `learning_rate`</br>`hidden_layers`</br>`epochs`</br>`batch_size` | - | learning_rate trop haut → diverge | surveiller la courbe de perte, attention à l'overfitting, early stopping |
-| **Arbre de décision** | `max_depth`</>`min_samples_split`</br>`criterion` | - | profondeur ↗ → surfit | pruning recommandé |
-| **XGBoost** | `eta`</br>`max_depth`</br>`colsample_bytree`</br>`lambda` | paramètres très interdépendants | - | tuning itératif par bloc |
+| **NN (réseau de neurones)** | `learning_rate`</br>`hidden_layers`</br>`epochs`</br>`batch_size` | | learning_rate trop haut → diverge | surveiller la courbe de perte, attention à l'overfitting, early stopping |
+| **Arbre de décision** | `max_depth`</br>`min_samples_split`</br>`criterion` | | profondeur ↗ → surfit | pruning recommandé |
+| **XGBoost** | `eta`</br>`max_depth`</br>`colsample_bytree`</br>`lambda` | paramètres très interdépendants | | tuning itératif par bloc |
 
 - Toujours normaliser les données pour SVM / k-NN / NN.
 - Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
