@@ -20,7 +20,7 @@ Last updated: 2025-12-04
 | Indice | Type | Interprétation |
 |--------|------|----------------|
 | Présence d'une variable "target", "y", "class", "price", "diagnosis", etc. | Supervisé | On veut prédire cette variable |
-| Pas de variable cible, juste des caractéristiques $X_1, X_2, X_3, \ldots$ | Non supervisé | On veut segmenter, réduire ou repérer des schémas |
+| Pas de variable cible, juste des caractéristiques $X_1, X_2, \ldots, X_p$ | Non supervisé | On veut segmenter, réduire ou repérer des schémas |
 | Objectif formulé en "prédire", "estimer", "classer", "régression" | Supervisé | ex.: "Prédire le revenu selon le diplôme" |
 | Objectif forumé en "découvrir", "analyser", "regrouper", "réduire" | Non supervisé | ex.: "Identifier des profils types d'utilisateurs" |
 
@@ -28,15 +28,35 @@ Last updated: 2025-12-04
 
 1. **Examiner le jeu de données** :  j'ai une variable cible connue ? si oui, supervisé ; sinon, non supervisé
 2. **Clarifer l'objectif métier ou scientifique** : **prédire** une valeur → supervisé ; **comprendre** les structures → non supervisé.
-3. **Choisir la famille d'algorithmes adaptée**
+3. **Choisir la famille d'algorithmes adaptée** :
 
 | Type | Sous-type | Exemples d'algorithmes | Sortie attendue |
 |------|-----------|------------------------|-----------------|
 | **Supervisé** | Classification | SVM, Logistic Regression, Random Forest, Boosting | Classe (catégorie) |
-|  | Régression | Linear Regression, Ridge, SVR, Gradient Boosting Regressor | Valeur numérique |
+| | Régression | Linear Regression, Ridge, SVR, Gradient Boosting Regressor | Valeur numérique |
 | **Non supervisé** | Clustering | k-means, k-medoirs, DBSCAN, HDBSCZN, Hierarchical | Groupes (étiquettes générées- |
 | | Réduction de dimension | PCA, t-SNE, UMAP | Axes / projections |
 | | Détection d'anomalies | Isolation Forest, Autoencoder, LOF | Score d'anomalie |
+
+#### 1.1.4. Exemples
+
+| Cas | Type | Justification |
+|-----|------|---------------|
+| prédire si un mail est un spam ou non | supervisé (classification) | $y = \\{spam, non spam\\} connu |
+| prédire le prix d'un logement | supervisé (régression) | $y$ = prix, variable numérique |
+| regrouper des clients selon leur comportement | non supervisé (clustering) | pas de $y$, on cherche des groupes naturels |
+| identifier des variables corrélées dans un dataset de 100 features | non supervisé (réduction de dimension) | PCA, pas de $y$ |
+| détecter des transactions sans étiquettes frauduleuses | non supervisé (anomalies) | on cherche les points rares |
+| détecter le thème dominant dans des textes | non supervisé (topic modeling) | LDA, pas de $y$ |
+| prédire la probabilité de défaut d'un client | supervisé (classification probabiliste) | $y$ = défaut ou non |
+
+### 1.1.5. Cas limites (hybrides)
+
+| Types | Description | Exemples |
+|-------|-------------|----------|
+| **semi-supervisé** | une partie des données a une étiquette $y^$, l'autre partie non | apprentissage sur 10% labellé + 90% non labellé |
+| **auto-supervisé** | le modèle crée ses propres labels à partie des données | pré-entraînement d'un modèle de langage ou d'images |
+| **RL** | pas de $y$ fixe, mais une récompense à maximiser | jeu, robotique, trading adaptif |
 
 #### 
 
@@ -72,11 +92,11 @@ Last updated: 2025-12-04
 
 ### 1.4. Formuler le problème
 
-1. Définir l'input et l'output : $X \in \mathbb{R}^{m \times d}$ ; $y \in \mathbb{R}^m$ ou $y \in {{0,1}}^m$
+1. Définir l'input et l'output : $X \in \mathbb{R}^{m \times d}$ ; $y \in \mathbb{R}^m$ ou $y \in \\{0,1\\}^m$
 
 2. Formuler la tâche :
     - Régression : trouver $f : X \to \mathbb{R}$
-    - Classification : trouver $f : X \to {{0,1}}$ ou $f : X \to {{1, \ldots, K}}$
+    - Classification : trouver $f : X \to \\{0,1\\}$ ou $f : X \to \\{1, \ldots, K\\}$
 
 3. Choisir l'objectif d'optimisation (minimiser une *loss*) :
   - Régression : MSE, RMSE, MAE
