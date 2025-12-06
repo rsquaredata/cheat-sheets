@@ -330,9 +330,18 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 | | **Courbes d'apprentissage (train/test)** | sur- ou sous-apprentissage selon taille de l'échantillon | écart large → surfit ; scores faibles → underfit | <small>"Le modèle est trop complexe : la perte test augmente après 200 itérations."</small> |
 
 <details >
-    <summary><str>Implémentation</str></summary>
+    <summary><span style="color:pink; font-weight:bold">Implémentation</span></summary>
+
+En résumé :
+- `sklearn.metrics` $\rightarrow$ pour ROC, PR, AUC, confusion, displays.
+- `sklearn.model_selection` $\rightarrow$ pour `learning_curve`.
+- `matplotlib`/`seaborn` $\rightarrow$ pour tracer le reste.
+- `statsmodels`/`scipy`$\rightarrow$ pour les résidus et diagnostics avancés.
+
 
 #### Courbe ROC / AUC (classification)
+
+Version qui fonctionne pour tous les classifieurs ayant `predict_proba()` ou `decision_function()` :
 
 ```python
 # Librairies
@@ -348,6 +357,174 @@ plt.grid(True)
 plt.show()
 ```
 
+Version manuelle :
+
+```python
+from sklearn.metrics import roc_curve, auc
+fpr, tpr, _ = roc_curve(y_test, model.predict_proba(X_test)[:,1])
+roc_auc = auc(fpr, tpr)
+plt.plot(fpr, tpr, label=f"AUC = {roc_auc:.2f}")
+plt.legend(); plt.show()
+```
+
+#### Courbe  Precision-Recall (classification)
+
+```python
+# Librairies
+from sklearn.metrics import PrecisionRecallDisplay
+import matplotlib.pyplot as plt
+
+# Tracé automatique
+PrecisionRecallDisplay.from_estimator(model, X_test, y_test)
+
+# Personnalisation
+plt.title("Courbe Precision–Recall")
+plt.grid(True)
+plt.show()
+```
+
+#### Matrice de confusion
+
+```python
+# Librairies
+from sklearn.metrics import ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+
+# Affichage direct
+ConfusionMatrixDisplay.from_estimator(model, X_test, y_test, cmap="Blues")
+
+plt.title("Matrice de confusion")
+plt.show()
+```
+
+Pour récupérer les valeurs :
+
+```python
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, model.predict(X_test))
+print(cm)
+```
+
+#### Courbe d'apprentissage (classification ou régression)
+
+```python
+# Librairies
+from sklearn.model_selection import learning_curve
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Calcul des scores pour différentes tailles d'échantillon
+train_sizes, train_scores, val_scores = learning_curve(model, X, y, cv=5)
+
+# Moyenne et intervalle de confiance
+plt.plot(train_sizes, np.mean(train_scores, axis=1), label="train")
+plt.plot(train_sizes, np.mean(val_scores, axis=1), label="validation")
+plt.xlabel("Taille de l'échantillon")
+plt.ylabel("Score (AUC / R² / F1)")
+plt.title("Courbe d'apprentissage")
+plt.legend()
+plt.grid(True)
+plt.show()
+```
+
+### Importance des *features* (arbres, forêts, boosting)
+
+Pour `RandomForest`, `GradientBoosting`, `XGBoost`, `LightGBM` :
+
+```python
+# Librairies
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Récupération des importances
+importances = model.feature_importances_
+features = X.columns
+
+# Classement et affichage
+imp_df = pd.DataFrame({'Feature': features, 'Importance': importances})
+imp_df.sort_values(by='Importance', ascending=True, inplace=True)
+
+plt.barh(imp_df['Feature'], imp_df['Importance'])
+plt.title("Importance des variables")
+plt.xlabel("Importance")
+plt.show()
+```
+
+Pour SVM linéaire → utiliser `model.coef_`.
+
+#### Graphique des résidus (régression)
+
+```python
+# Librairies
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Calcul des résidus
+y_pred = model.predict(X_test)
+residuals = y_test - y_pred
+
+# Tracé des résidus
+sns.scatterplot(x=y_pred, y=residuals)
+plt.axhline(0, color='red', linestyle='--')
+plt.xlabel("Valeurs prédites")
+plt.ylabel("Résidus")
+plt.title("Analyse des résidus")
+plt.show()
+```
+
+→ résidus aléatoires autour de 0 = bon ajustement.  
+→ forme en courbe = modèle mal spécifié (non-linéarité non captée).
+
+#### Histogramme / QQ-plot des résidus (régression)
+
+```python
+# Librairies
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy import stats
+
+# Distribution des résidus
+sns.histplot(residuals, kde=True)
+plt.title("Distribution des résidus")
+plt.show()
+
+# QQ-plot (normalité)
+stats.probplot(residuals, plot=plt)
+plt.title("QQ-plot des résidus")
+plt.show()
+```
+
+#### Courbe de calibration (régression)
+
+```python
+# Librairies
+import matplotlib.pyplot as plt
+
+# y_pred et y_test déjà calculés
+plt.scatter(y_test, y_pred)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--')
+
+plt.xlabel("Valeurs réelles")
+plt.ylabel("Valeurs prédites")
+plt.title("Courbe de calibration (ŷ vs y réel)")
+plt.show()
+```
+
+#### Courbes d'apprentissage (régression)
+
+*(identique à la version classification, mais on évalue R² ou RMSE)*
+
+```python
+# Même code que plus haut
+train_sizes, train_scores, val_scores = learning_curve(model, X, y, cv=5, scoring='r2')
+
+plt.plot(train_sizes, np.mean(train_scores, axis=1), label="train")
+plt.plot(train_sizes, np.mean(val_scores, axis=1), label="validation")
+plt.ylabel("Score R²")
+plt.title("Courbe d'apprentissage (régression)")
+plt.legend()
+plt.show()
+```
 
 </details>
 
