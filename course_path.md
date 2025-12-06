@@ -98,7 +98,9 @@ Points d'attention :
 | **BUT Informatique** | pas d'EAD | ⭐⭐⭐⭐ bon | ⭐⭐ moyen | ⭐⭐⭐⭐⭐ excellent (ingé) | moyen | très fort| parfait pour écoles d'ingé | moins de stats → remise à niveau nécessaire pour SISE |
 
 $\rightarrow$ Le meilleur compromis global est la licence MIASHS qui peut mener à M2 MIASHS, M2 SISE, NLP/TAL, école d'ingé avec renfort.
+
 $\rightarrow$ le parcours qui ouvre toutes les portes est le parcours Data pur car il mène très facilement à M2 SISE, facilement à M2 MIASHS, ouvre les portes des écoles d'ingé, peut mener à NLP
+
 $\rightarrow$ Le parcours le plus costaud pour Machine Learning est la Licence de Maths, parfait pour le école et aussi M2 SISE
 
 ### Stratégies
@@ -117,12 +119,14 @@ $\rightarrow$ **voie royale** : excellent niveau en ML/deep learning, forte empl
 - licence Sciences du langage + renfort quanti (maths+stats)
 
 $\rightarrow$ : très bonne employabilité en **data analysis, data science appliquée, ML appliqué**, très bonnes compétences en Python/R/stats, profil data+SHS trcherché en NLP/socio-data/pyscho-data/RH-data/UX-data/économétrie/sciences sociales computationnelles, accès fluide vers M2 MIASHS et possible vers SISE (si renfort maths+stats)  
+
 $\rightarrow$ parfait pour avoir un profil data avec sensibilité linguistique ou SHS
 
 #### parcours "langues" pouvant au NLP/TAL/ML linguistique mais solide renfort nécessaire en maths/stats/code
 - Licence Sciences du langange → M1/M2 MIASHS ou Master TAL
 
 $\rightarrow$ emplois accessibles : NLP engineer, ingénieur data spécialisé texte, spécialiste TAL, data scientitst spécialisé data textuelle; chargé d'analyse sémantique/classifiction/modèles linguistiques  
+
 $\rightarrow$ **MAIS** il faut être solide en Python, stats et en ML/NLP niveau M1/M2
 
 ## Conclusion
