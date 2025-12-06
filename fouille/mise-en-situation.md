@@ -290,17 +290,66 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 
 ## 7. Validation et interprétation
 
+### 7.1. Comparer plusieurs modèles sur le même split
+
+**Bonnes pratiques** :
+- ** même preprocessing et même train/test** pour tous les modèles (sinon, comparaison biaisée).
+- **même métrique** pour tous.
+- **validation croisée §$k$-fold)** :
+     - par défaut, $k = 5$.
+     -  **stratifiée** si classification déséquilibrée.
+     -  rapporter moyenne $\pm$ écart-type.
+
 1. Comparer plusieurs modèles sur le même split :
     - performances (sur métrique choisie)
     - temps d'apprentissage
     - stabilité des résultats (variance CV)
   
-2. Choisir le modèle qui offre le meilleur compromis
+### 7.2. Choisir le modèle qui offre le meilleur compromis
 
-3. Visualiser :
-    - courbe ROC / AUC ROC
-    - importance des features
-    - résidus (régression)
+**Trois axes de comparaison** :
+
+| Axe | Exemples de critères | Objectif |
+|-----|----------------------|----------|
+| **Performance** | AUC, F1, RMSE, R²... | précision globale |
+| **Complexité** | nb de paramères, temps d'apprentissage | efficacité computationnelle |
+| **Robustesse** | stabilité des résultats (variance CV), stabilité des *features* | fiabilité sur échantillons nouveaux |
+
+### 7.3. Visualiser les résultats
+
+| Type de tâche | Visualisation | Ce qu'elle montre | Interprétation attendue | Exemple de rédaction |
+|---------------|---------------|-------------------|-------------------------|----------------------|
+| **Classification** | **Courbe ROC / AUC** | compromis entre rappel (TPR) et faux positifs (FPR) pour tous les seuils | AUC proche de 1 → excellente discrimination entre classes | <small>"Le SVM à noyau RBF atteint une AUC de 0,93, traduisant une forte capacité de discrimination."</small> |
+| | **Courbe PR (Precision-Recall)** | compromis entre précision et rappel, utile si classes déséquilibrées | courbe proche du coin supérieur droit = bon équilibre précision/rappel | <small>"Le modèle conserve une précision stable jusqu’à un rappel de 0,8, indiquant une gestion correcte du déséquilibre."</small> |
+| | **Matrice de confusion** | répartition des prédictions correctes et erreurs par classe | permet de repérer les classes sous-prédites | <small>"La classe minoritaire est mal détectée (rappel 0,62), ce qui justifie un rééquilibrage ou un seuil adapté.".</small> |
+| **Courbes d'apprentissage** | évolution du score train/validation selon la taille de l'échantillon | écart large = overfit ; écart faible = bon compromis | <small>"Le modèle surapprend : le score train reste élevé tandis que le score validation stagne."</small> |
+| **Importance des features** (forêts, boosting) | contribution de chaque variable à la prédiction | identifie les variables déterminantes ; attention aux corrélations | <small>"Les variables de revenu et d’âge expliquent 70 % de la variance prédictive."</small> |
+| **Régression** | **Graphique des résifus vs valeurs prédites** | qualité d'ajustemnet : résidus centrés autour de 0 ? | répartition aléatoire = bon modèle ; structure = biais / non-linéarité | <small>"Les résidus sont homogènes, aucune structure apparente : l’ajustement est correct."</small> |
+| **Histogramme ou QQ-plot des résidus** | vérifie la normalité et la symétrie des errurs | distribution centrée et gaussienne = modèle conforme aux hypothèses | <small>"Les résidus suivent une distribution quasi normale, validant l’hypothèse de linéarité."</small> |
+| | **Résidus standardisés ou Cook's distance** | détexte les points influents / outliers | valeurs extrêmes → observation atypique à évaluer | <small>"Deux points présentent une distance de Cook > 1, suggérant une influence excessive." | | **Courbe de calibration ($\hat{y}$ vs $y$ réel)** | fidélité du modèle : les prédicitions suivent-elles la diagonale idéale ? | points proches de la diagonale → bon calibrage | <small>"La courbe de calibration est proche de la diagonale, le modèle prédit sans biais systématique"</small> |
+| | **Courbes d'apprentissage (train/test)** | sur- ou sous-apprentissage selon taille de l'échantillon | écart large → surfit ; scores faibles → underfit | <small>"Le modèle est trop complexe : la perte test augmente après 200 itérations."</small> |
+
+<details >
+    <summary><str>Implémentation</str></summary>
+
+#### Courbe ROC / AUC (classification)
+
+```python
+# Librairies
+from sklearn.metrics import RocCurveDisplay
+import matplotlib.pyplot as plt
+
+# Affichage automatique à partir d’un modèle sklearn
+RocCurveDisplay.from_estimator(model, X_test, y_test)
+
+# Personnalisation
+plt.title("Courbe ROC")
+plt.grid(True)
+plt.show()
+```
+
+
+</details>
 
 ## 7. Cas spéciaux
 
@@ -319,11 +368,4 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 [^1] Mathématiquement, $x_1 x_2 = x_2 x_1$.  
 [^2] AdaBoost (comme SVM) cherche à **maximiser la marge**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
 [^3] Données complexes = non linéaires, bruitées, variables dépendantes (ex.: prévisions financières, médicales).
-[^4] Apprentissage résiduel
-
-
-
-
-
-
-
+[^4] Apprentissage rési
