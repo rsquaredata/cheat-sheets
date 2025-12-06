@@ -6,21 +6,53 @@ Last updated: 2025-12-04
 
 ## 1. identification du problème
 
-## 1.1. Supervisé ou Non supervisé ?
+### 1.1. Supervisé ou non supervisé ?
 
-## 1.2. Classification ou Régression ?
+#### 1.1.1. Principe fondamental
 
-### 1.2.1. Étude de la variable cible $y$ pour déterminer la nature du problème
+| Type | Données disponibles | Objectif global |
+|------|---------------------|-----------------|
+| **Supervisé | J'ai une **variable cible** $y$ à prédire | Apprendre une relation $y=f(x)$ |
+| **Non supervisé** | Je n'ai **pas de variable cible** | Explorer la structure des données (groupesn axes, anomalies, etc.) |
 
-| $y$ ... | Exemple | Type de tâche |
+#### 1.1.2. Indices dans le dataset
+
+| Indice | Type | Interprétation |
+|--------|------|----------------|
+| Présence d'une variable "target", "y", "class", "price", "diagnosis", etc. | Supervisé | On veut prédire cette variable |
+| Pas de variable cible, juste des caractéristiques $X_1, X_2, X_3, \ldots$ | Non supervisé | On veut segmenter, réduire ou repérer des schémas |
+| Objectif formulé en "prédire", "estimer", "classer", "régression" | Supervisé | ex.: "Prédire le revenu selon le diplôme" |
+| Objectif forumé en "découvrir", "analyser", "regrouper", "réduire" | Non supervisé | ex.: "Identifier des profils types d'utilisateurs" |
+
+#### 1.1.3. Démarche
+
+1. **Examiner le jeu de données** :  j'ai une variable cible connue ? si oui, supervisé ; sinon, non supervisé
+2. **Clarifer l'objectif métier ou scientifique** : **prédire** une valeur → supervisé ; **comprendre** les structures → non supervisé.
+3. **Choisir la famille d'algorithmes adaptée**
+
+| Type | Sous-type | Exemples d'algorithmes | Sortie attendue |
+|------|-----------|------------------------|-----------------|
+| **Supervisé** | Classification | SVM, Logistic Regression, Random Forest, Boosting | Classe (catégorie) |
+|  | Régression | Linear Regression, Ridge, SVR, Gradient Boosting Regressor | Valeur numérique |
+| **Non supervisé** | Clustering | k-means, k-medoirs, DBSCAN, HDBSCZN, Hierarchical | Groupes (étiquettes générées- |
+| | Réduction de dimension | PCA, t-SNE, UMAP | Axes / projections |
+| | Détection d'anomalies | Isolation Forest, Autoencoder, LOF | Score d'anomalie |
+
+#### 
+
+### 1.2. Classification ou Régression ?
+
+#### 1.2.1. Étude de la variable cible $y$ pour déterminer la nature du problème
+
+| $y$... | Exemple | Type de tâche |
 |---------|---------|---------------|
-| prend des valeurs **numériques continues** | prix, température, consommation, durée | Régression |
-| prend des valeurs **catégorielles** | O/1, malade/sain, fraude/non-fraude, classes | Classification |
-| n'est **pas connue** | on cherche à trouver une structure dans les données | Clustering (non supervisé) |
-| est connue mais il y a **plusieurs labels par instance** | - | Classification multi-étiquette |
-| est **ordinale** | faible/moyen/fort | Régression ordinale / Classification hiérarchique |
+| ...prend des valeurs **numériques continues** | prix, température, consommation, durée | Régression |
+| ...prend des valeurs **catégorielles** | O/1, malade/sain, fraude/non-fraude, classes | Classification |
+| ...n'est **pas connue** | on cherche à trouver une structure dans les données | Clustering (non supervisé) |
+| ...est connue mais il y a **plusieurs labels par instance** | - | Classification multi-étiquette |
+| ...est **ordinale** | faible/moyen/fort | Régression ordinale / Classification hiérarchique |
 
-### 1.2.2. Étude de la variable d'entrée $X$ (*features*)
+#### 1.2.2. Étude de la variable d'entrée $X$ (*features*)
 
 | Type de variable | Exemple | Conséquences sur les méthodes |
 |------------------|---------|-------------------------------|
@@ -66,11 +98,11 @@ Last updated: 2025-12-04
 
 ### 2.1. Diagnostic exploratoire
 
-### 2.1.1. Linéarité (a.k.a. "vérifier la complexité intrinsèque du problème")
+#### 2.1.1. Linéarité (a.k.a. "vérifier la complexité intrinsèque du problème")
 
-#### 2.1.1.1. Indices de non-linéarité
+##### 2.1.1.1. Indices de non-linéarité
 
-##### Frontière de décision
+###### Frontière de décision
 
 La **frontière de décision** sépare les zones de l'espace où le modèle prédit chaque classe.
 
@@ -85,7 +117,7 @@ La **frontière de décision** sépare les zones de l'espace où le modèle pré
         - y a-t-il des **interactions complexes** entre variables ?
         - les variables sont-elles fortement corrélées entre elles ?
      
-##### Interactions entre variables
+###### Interactions entre variables
 
 Une **interaction** se produit quand **l'effet d'une varaible dépend d'une autre variable** :
 - formellement :
@@ -99,7 +131,7 @@ Les modèles linéaires ne capturent pas ces interactions, il faut :
 - soit ajouter manuellement des termes croisées ($x_1 x_2$, x_1^2, \ldots) ;
 - soit utiliser un modèle non linéaire (SVM à noyau, boosting, random forest...).
 
-##### Variables fortement corrélées
+###### Variables fortement corrélées
 
 1. calculer la **matrice de corrélation de Pearson** :
 ```python
@@ -110,13 +142,13 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 3. conséquence : variables corrélées → modèle linéaire instable (les coefficients explosent).
 4. solutions : ACP ; supprimer une des deux variables de la paire ; modèle à régularisation (Ridge, Lasso).
 
-#### 2.1.1.2. Tester l'hypothèse de linéarité
+##### 2.1.1.2. Tester l'hypothèse de linéarité
 
 1. **Fit un modèle linéaire simple** (régression logistique ou SVM linéaire).
 2. **Fit un modèle non linéaire** (SVM RBF ou Random Forest).
 3. Comparer les métriques : si le modèle linéaire a de meilleurs résultats → la structure est non linéaire.
 
-##### 2.1.1.1. Approche à noyau : Choisir un noyau (SVM/Kernel)
+###### 2.1.1.1. Approche à noyau : Choisir un noyau (SVM/Kernel)
 
 - On choisit un noyau *après* avoir sélectionné le modèle SVM et *avant* le tuning des hyperparamètres
 
@@ -135,7 +167,7 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 
 - toujours tester au moins deux noyaux  et justifier le choix par une **métrique adaptée** et un **compromis biais/variance**
 
-##### 2.1.1.2. Approche additive : Choisir un Boosting
+###### 2.1.1.2. Approche additive : Choisir un Boosting
 
 - on choisit le boosting après avoir choisi la famille d'algorithmes d'ensemble et avant le tuning.
 - toujours tester au moins deux variantes de boosting
@@ -148,12 +180,12 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 | Variables catégorielles dominantes | **CatBoost** | encodage intégré |
 | Risque d'overfit fort | **↘ `learning_rate`**, ↗ `n_estimators` | meilleur compromis biais/variance |
 
-### 2.1.2 Déséquilibre des classes
+#### 2.1.2 Déséquilibre des classes
 
 - dataset équilibré →
 - dataset déséquilibré → modèle **additif de type boosting / ensemble**
 
-## 2.2. Choix de la famille de modèles
+### 2.2. Choix de la famille de modèles
 
 - SVM
 - Boosting
@@ -244,14 +276,6 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 | **AUC ROC** (Area Under the Curve of the Receiver Operating Characteristic) | $AUC = \int_0^1 TPR(FR) \text{ d}(FPR)$</br>    $\simeq \sum_{i=1}^{n-1} (FPR_{i+1} - FPR_i) \times \frac{TPR_{i+1} + TPR_i}{2}$ | • capacité à discriminer les classes.</br>• maths : aire sous la courbe ROC (TPR vs FPR), calculée en pratique comme une somme de trapèzes</br>• stats : $AUC = \mathbb{P}(\text{score positif} \gt taxt{score négatif})$ | AUC = 0.5 → modèle aléatoire (aucun pouvoir discriminant)</br>AUC = 0.7-0.8 → correct</br>AUC = 0.8-0.9 → bon</br>AUC > 0.9 → excellent</br>AUC = 1.0 → parfait (souvent sur-apprentissage</br>L'AUC est **indépendante du seuil** → pratique mais peut **masquer** une mauvaise calibration des probabilités | La courbe ROC trace la sensibilité (TPR) en fonction du taux de faux positifs (FPR). L'aire sous la courve (AUC) mesure la capacité du modèle à classer un positif au-dessus d'un négatif. Une AUC = 1 correspond à un classifieur parfait, 0.5 à un modèle aléatoire. |
 | **Log Loss / Cross Entropy** | $- \frac{1}{n} \sum \left[y_i \log(p_i) + (1-y_i) \log(1-p_i) \right]$ | pénalise les prédictions trop confiantes et fausses | bon pour calibration probabiliste | |
 
-### 5.3. Visualisation
-
-| Outil | Ce qu'il montre | Utilité |
-| **Matrice de confusion** | vrais/faux positifs/négatifs | voir où le modèle se trompe |
-| **Courbe AUC ROC** | TPR vs FPR | comparaison  visuelle de modèles |
-| **Courbe PR (Precision-Recall)** | Precision vs Recall | plus informative si classes rares |
-| **Learning Curve** | Score train vs test selon le nb d'exemples | détecter un sur/sous-apprentissage |
-
 #### 5.2.2. Jeu déséquilibré
 
 *Accuracy* devient inutile : un modèle qui prédit toujours la classe majoritaire peut avoir 95% de précision mais 0 en recall.
@@ -264,6 +288,14 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 | **Balanced Accurary** | $\frac{TPR + TNR}{2}$ | moyenne des taux de succès par classe | comparer des modèles sur dataset déséquilibré |
 | **MCC** (Matthews Correlation Coefficient) | $\frac{TP \times TN - FP \times FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}$ | corrélation entre prédictions et vérité terrain | robuste, stable même si classes très déséquilibrées |
 
+### 5.3. Visualisation
+
+| Outil | Ce qu'il montre | Utilité |
+| **Matrice de confusion** | vrais/faux positifs/négatifs | voir où le modèle se trompe |
+| **Courbe AUC ROC** | TPR vs FPR | comparaison visuelle de modèles |
+| **Courbe PR (Precision-Recall)** | Precision vs Recall | plus informative si classes rares |
+| **Learning Curve** | Score train vs test selon le nb d'exemples | détecter un sur/sous-apprentissage |
+
 ## 6. Tuning des hyperparamètres
 
 1. split train / validation / test
@@ -275,13 +307,13 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 | Modèle | Hyperparamètres clés | Comment / Pourquoi | Effet du réglage | Astuce / Pièges |
 |---------|----------------------|--------------------|------------------|-----------------|
 | **SVM (RBF)** | C (régularisation) ; γ (largeur du noyau RBF) | `GridSearchCV` sur C ∈ [0.1, 1, 10], γ ∈ [0.01, 0.1, 1] | C ↗ → surapprentissage ; γ ↗ → frontière trop fine | Toujours standardiser les *features* |
-| **Random Forest** | `n_estimators` ; `max_depth` ; `min_samples_split` ; `max_features` | – | Plus d'arbres → meilleure stabilité mais plus lent ; profondeur ↗ → surfit | Commencer par peu de profondeur |
-| **Gradient Boosting** | `n_estimators` ; `learning_rate` ; `max_depth` ; `subsample` | Petit `learning_rate` → réduit le surapprentissage mais nécessite plus d'estimators | – | Commencer avec `learning_rate = 0.1` |
-| **Ridge / Lasso** | λ = α (force de régularisation) | Tuning par validation croisée | λ ↗ → coefficients plus petits → biais ↗, variance ↘ | – |
-| **k-NN** | k, distance | – | Petit k → surfit ; grand k → biais fort | Garder k impair, scaling obligatoire |
-| **NN (réseau de neurones)** | `learning_rate` ; `hidden_layers` ; `epochs` ; `batch_size` | – | `learning_rate` trop haut → divergence | Surveiller la courbe de perte ; *early stopping* recommandé |
-| **Arbre de décision** | `max_depth` ; `min_samples_split` ; `criterion` | – | Profondeur ↗ → surfit | *Pruning* recommandé |
-| **XGBoost** | `eta` ; `max_depth` ; `colsample_bytree` ; `lambda` | Paramètres très interdépendants | – | Tuning itératif par bloc |
+| **Random Forest** | `n_estimators` ; `max_depth` ; `min_samples_split` ; `max_features` | | Plus d'arbres → meilleure stabilité mais plus lent ; profondeur ↗ → surfit | Commencer par peu de profondeur |
+| **Gradient Boosting** | `n_estimators` ; `learning_rate` ; `max_depth` ; `subsample` | Petit `learning_rate` → réduit le surapprentissage mais nécessite plus d'estimators | | Commencer avec `learning_rate = 0.1` |
+| **Ridge / Lasso** | λ = α (force de régularisation) | Tuning par validation croisée | λ ↗ → coefficients plus petits → biais ↗, variance ↘ | |
+| **k-NN** | k, distance | | Petit k → surfit ; grand k → biais fort | Garder k impair, scaling obligatoire |
+| **NN (réseau de neurones)** | `learning_rate` ; `hidden_layers` ; `epochs` ; `batch_size` | | `learning_rate` trop haut → divergence | Surveiller la courbe de perte ; *early stopping* recommandé |
+| **Arbre de décision** | `max_depth` ; `min_samples_split` ; `criterion` | | Profondeur ↗ → surfit | *Pruning* recommandé |
+| **XGBoost** | `eta` ; `max_depth` ; `colsample_bytree` ; `lambda` | Paramètres très interdépendants | | Tuning itératif par bloc |
 
 - Toujours normaliser les données pour SVM / k-NN / NN.
 - Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
@@ -299,11 +331,6 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
      - par défaut, $k = 5$.
      -  **stratifiée** si classification déséquilibrée.
      -  rapporter moyenne $\pm$ écart-type.
-
-1. Comparer plusieurs modèles sur le même split :
-    - performances (sur métrique choisie)
-    - temps d'apprentissage
-    - stabilité des résultats (variance CV)
   
 ### 7.2. Choisir le modèle qui offre le meilleur compromis
 
