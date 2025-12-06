@@ -6,7 +6,11 @@ Last updated: 2025-12-04
 
 ## 1. identification du problème
 
-### 1.1. Étude de la variable cible $y$ pour déterminer la nature du problème
+## 1.1. Supervisé ou Non supervisé ?
+
+## 1.2. Classification ou Régression ?
+
+### 1.2.1. Étude de la variable cible $y$ pour déterminer la nature du problème
 
 | $y$ ... | Exemple | Type de tâche |
 |---------|---------|---------------|
@@ -16,7 +20,7 @@ Last updated: 2025-12-04
 | est connue mais il y a **pluseurs labels par instance** | - | Classification multi-étiquette |
 | est **ordinale** | faible/moyen/fort | Régression ordinale / Classification hiérarchique |
 
-### 1.2. Étude de la variable d'entrée $X$ (*features*)
+### 1.2.2. Étude de la variable d'entrée $X$ (*features*)
 
 | Type de variable | Exemple | Conséquences sur les méthodes |
 |------------------|---------|-------------------------------|
@@ -50,19 +54,115 @@ Last updated: 2025-12-04
 
 | Tâche | Loss idéale | Surrogate courante | Algorithme associé | Forme |
 |-------|-------------|--------------------|--------------------|-------|
-| **Classification binaire | O-1 loss | **Hinge loss** | SVM | $\ell \letf( y, f(x) \right) = \max(0, 1-f(x))$ |
-| | 0-1 loss | **Logistic loss** | Régression logistique, Boosting | $ell \letf( y, f(x) \right) = \og(1 + e^{-y(f(x)})$ |
-| | 0-1 loss | **Exponential loss** | AdaBoost | $ell \letf( y, f(x) \right) = e^{-yf(x)}$ |
-| Régression | $L_2$ | MSE/RMSE | Linéaire, Ridge, SVR | \left( y-f(x) \right)^2$ |
-| | $L_1$ | MAE | Lasso, quantile regression | $vert y-f(x) \vert $ |
+| **Classification binaire** | 0-1 loss | **Hinge loss** | SVM | $\ell \left( y, f(x) \right) = \max(0, 1-f(x))$ |
+| | 0-1 loss | **Logistic loss** | Régression logistique, Boosting | $ell \left( y, f(x) \right) = \log(1 + e^{-y(f(x)})$ |
+| | 0-1 loss | **Exponential loss** | AdaBoost | $ell \left( y, f(x) \right) = e^{-yf(x)}$ |
+| Régression | $L_2$ | MSE/RMSE | Linéaire, Ridge, SVR | $\left( y-f(x) \right)^2$ |
+| | $L_1$ | MAE | Lasso, quantile regression | $\vert y-f(x) \vert $ |
 
 <small>Exemple de rédaction : "Les méthodes de marge large (SVM) reposent sur la hinge loss, qui est une surrogate convexifiant la 0-1 loss"</small>
 
 ## 2. Choix des modèles
 
-### 2.1. Choix des modèles selon le problème
+### 2.1. Diagnostic exploratoire
 
-#### 2.1.1. Régression
+### 2.1.1. Linéarité (a.k.a. "vérifier la complexité intrinsèque du problème")
+
+#### 2.1.1.1. Indices de non-linéarité
+
+##### Frontière de décision
+
+La **frontière de décision** sépare les zones de l'espace où le modèle prédit chaque classe.
+
+**Visualiser la frontière** :
+- cas 2 variables → tracer un nuage de points (`sns.scatterplot(x,y,hue=class)`) : si je peux tracer une *ligne droite* qui sépare proprement les classes, le problème est linéaire.
+- cas > 2 variables → ACP pour réduire à 2 dimensions, ou pairplot (scatterplots pour toutes les paires de variables) : si aucune combinaison de 2 variables ne sépare bien, structure linéaire probable.
+
+- frontière **linéaire** → modèle **linéaire** (SVM linéaire, régression logistique) suffisent.
+- frontière **courbe/tordue** → approche à noyau (**SVM à noyau**) ou approche additive (**boosting non linéaire**)
+    - indices de non-linéarité :
+        - les frontières entre classes sont-elles "droites" ou "courbes" ?
+        - y a-t-il des **interactions complexes** entre variables ?
+        - les variables sont-elles fortement corrélées entre elles ?
+     
+##### Interactions entre variables
+
+Une **interaction** se produit quand **l'effet d'une varaible dépend d'une autre variable** :
+- formellement :
+    - $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 (x_1 x_2) + \beta_4 x_1^2 + \beta_5 x_2$, où $x_1 x_2$, $x_2, x_1$, $x_1^2$, x_2^2$ est un modèle polynomial du second degré où $x_1 x_2$ est le terme d'**interaction polynomiale**, $x_1^2$ et $x_2^2$ sont des termes **quadratiques** et $x_1$ et $x_2$ sont des termes **linéaires**[^1].
+        - si $\beta_3 \gt 0$, l'effet de $x_1$ augmente quand $x_2$ augmente (et inversement) ;
+        - si $\beta_3 \lt 0$, l'effet de $x_1$ diminue quand $x_2$ augmente (et inversement).
+- exemple pratique : l'effet du sport sur la santé dépend de l'âge.
+
+
+Les modèles linéaires ne capturent pas ces interactions, il faut :
+- soit ajouter manuellement des termes croisées ($x_1 x_2$, x_1^2, \ldots) ;
+- soit utiliser un modèle non linéaire (SVM à noyau, boosting, random forest...).
+
+##### Variables fortement corrélées
+
+1. calculer la **matrice de corrélation de Pearson** :
+```python
+corr df.corr()
+sns.heatma^p(corr, cmap='coolwarm', annot=True)
+```
+2. si on a une paire avec $\vert corr \vert \gt 0.8$ → redondance forte.
+3. conséquence : variables corrélées → modèle linéaire instable (les coefficients explosent).
+4. solutions : ACP ; supprimer une des deux variables de la paire ; modèle à régularisation (Ridge, Lasso).
+
+#### 2.1.1.2. Tester l'hypothèse de linéarité
+
+1. **Fit un modèle linéaire simple** (régression logistique ou SVM linéaire).
+2. **Fit un modèle non linéaire** (SVM RBF ou Random Forest).
+3. Comparer les métriques : si le modèle linéaire a de meilleurs résultats → la structure est non linéaire.
+
+##### 2.1.1.1. Approche à noyau : Choisir un noyau (SVM/Kernel)
+
+- On choisit un noyau *après* avoir sélectionné le modèle SVM et *avant* le tuning des hyperparamètres
+
+| Situation | Type du noyau | Justification |
+|-----------|---------------|---------------|
+| Frontière simple/linéaire | **linéaire** | suffisant et rapide |
+| Frontière courbe mais lisse (sans cassures brutales) | **RBF (Gaussien)** | bonne flexibilité, paramètre $\gamma$ à tuner |
+| Frontière non lisse (découpée en rectangles orthogonaux) | | |
+| Interaction polynomiale connue | **polynomial** | interprétable si faible degré |
+| Volume de données élevé | **approximation RBF (RFF)** | gain de temps mémoire |
+| Texte | **noyau de similarité cosinus** ou **TF-IDF kernel** | mesure de proximité sémantique |
+| Graphe | **graph kernel** (Weisfeller-Lehman, shortest-path) | compare des sous-graphes structurels |
+| Séquences / Bio-informatique | **Noyau de sous-chaînes** (string kernel) | compare des motifs communs |
+| Images | **Noyaux RBF / CNN** (*features* préentraînées | capture des formes et textures |
+| Données temporelles | **Dynamic Time Warping kernel** | tolère des décalages temporels |
+
+- toujours tester au moins deux noyaux  et justifier le choix par une **métrique adaptée** et un **compromis biais/variance**
+
+##### 2.1.1.2. Approche additive : Choisir un Boosting
+
+- on choisit le boosting après avoir choisi la famille d'algorithmes d'ensemble et avant le tuning.
+- toujours tester au moins deux variantes de boosting
+
+| Situation | Type de boosting | Justification |
+|-----------|------------------|---------------|
+| Petit dataset, peu de bruit | **AdaBoost** | simple, efficace, marge large[^2] |
+| Données complexes[^3], bruit modéré | **Gradient Boosting** | apprentissage résiduel[^4], flexible |
+| Dataset volumineux/*features* nombreuses | **XGBoost / LightGBM** | optimisé, parallèle, régularisé |
+| Variables catégorielles dominantes | **CatBoost** | encodage intégré |
+| Risque d'overfit fort | **↘ `learning_rate`**, ↗ `n_estimators` | meilleur compromis biais/variance |
+
+### 2.1.2 Déséquilibre des classes
+
+- dataset équilibré →
+- dataset déséquilibré → modèle **additif de type boosting / ensemble**
+
+## 2.2. Choix de la famille de modèles
+
+- SVM
+- Boosting
+- Forêt
+- Réseau de neurones
+
+### 2.3. Choix des modèles selon le type de tâche
+
+#### 2.3.1. Problème de régression
 
 | Algorithmes classiques | Avantages | Limites |
 |------------------------|-----------|---------|
@@ -71,7 +171,7 @@ Last updated: 2025-12-04
 | Random Forest Regressor | Gère la non-linéarité, pas de normalisation | Peu interprétatble, lent si gros dataset |
 | Gradient Boosting / XGBoost | Très performant, gère les features hétérogènes | Sensible au surapprentissage |
 
-#### 2.1.2. Classification
+#### 2.3.2. Problème de classification
 
 | Algorithmes classiques | Avantages | Limites |
 |------------------------|-----------|---------|
@@ -81,10 +181,6 @@ Last updated: 2025-12-04
 | Random Forest | Gère les données mixtes, importance des variables | Peux explicatif sur les décisions |
 | Gradient Boosting | Très efficace sur déséquilibre | Long à entraîner, nécessite réglage fin |
 | Réseaux de neurones | Très flexible | Données nombreuses + tuning lourd |
-
-### 2.2. Choix du noyau
-
-- Si je teste un modèle **linéaire** (régression logistique, SVM linéaire) → choisir un 
 
 ## 3. Prétraitement des données
 
@@ -187,8 +283,10 @@ Last updated: 2025-12-04
 | Arbre de décision | `max_depth`</>`min_samples_split`</br>`criterion` | | profondeur ↗ → surfit | pruning recommandé |
 | XGBoost | `eta`</br>`max_depth`</br>`colsample_bytree`</br>`lambda` | paramètres très interdépendants | | tuning itératif par bloc |
 
-Toujours normaliser les données pour SVM / k-NN / NN.
-Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
+- Toujours normaliser les données pour SVM / k-NN / NN.
+- Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
+- tuning noyaux : $C$ (si SVM linéaire) ou $C$ et $\gamma$ (si SVM RBF)
+- tuning boosting : `n_estimators`, `learning_rate`, `max_depth` et `subsample`, parfois `lambda` (régularisation) et `colsample_bytree` (échantillonage des *features*).
 
 ## 7. Validation et interprétation
 
@@ -217,17 +315,15 @@ Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
 
 
 
+---
+[^1] Mathématiquement, $x_ x_2 = x_2 x_1$.  
+[^2] AdaBoost (comme SVM) cherche à **maximiser la marge**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
+[^3] Données complexes = non linéaires, bruitées, variables dépendantes (ex.: prévisions financières, médicales).
+[^4] Apprentissage résid
 
 
 
-## 3. Prétraitement des données
 
-## 4. Définition du protocole expérimental
 
-## 5. Choix des métriques
 
-## 6. Tuning des hyperparamètres
 
-## 7. Validation et interprétation
-
-## 8. Cas particuliers
