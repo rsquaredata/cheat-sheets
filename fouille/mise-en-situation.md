@@ -273,15 +273,15 @@ sns.heatma^p(corr, cmap='coolwarm', annot=True)
 5. vérifier la **stabilité des scores** variance basse → modèle robuste)
 
 | Modèle | Hyperparamètres clés | Comment / Pourquoi | Effet du réglage | Astuce / Pièges |
-|---------|---------------|--------------------|
-| **SVM (RBF)** | $C$ (régularisation) ; $\gamma$ (largeur du noyau RBF) | `GridSearchCV` sur $C$ ($C \in \\[0.1,1,10 \\]$, $\gamma \in \\[$0.01,0.1,1\\]$ | $C$ ↗ : surapprentissage</br>$\gamma$ ↗ : frontière trop fine | toujours standardiser les *features* |
-| **Random Forest** | `n_estimators` ; `max_depth` ; `min_samples_split` ; `max_features` | - | plus d'arbres → meilleure stabilité mais plus lent</br> profondeur ↗ → surfit | commencer par peu de profondeur |
-| **Gradient Boosting** | `n_estimators` ; `learning_rate` ; `max_depth` ; `subsample` | petit learning_rate → réduit le surapprentissage mais besoin de + d'estimators | - | commencer avec lr=0.1 |
-| Ridge / Lasso | $\lambda = \alpha$ (for de la régularisation) | tuning par CV | ↗ → coefficients plus petits → biais ↗ → variance ↘ | - |
-| **k-NN** | $k$, distance | - | petit $k$ → surfit, grand $k$ → biais fort | garder $k$ impair, scaling obligatoire |
-| **NN (réseau de neurones)** | `learning_rate` ; `hidden_layers` ; `epochs` ; `batch_size` | - | learning_rate trop haut → diverge | surveiller la courbe de perte, attention à l'overfitting, early stopping |
-| **Arbre de décision** | `max_depth` ; `min_samples_split` ; `criterion` | - | profondeur ↗ → surfit | pruning recommandé |
-| **XGBoost** | `eta` ; `max_depth` ; `colsample_bytree` ; `lambda` | paramètres très interdépendants | - | tuning itératif par bloc |
+|---------|----------------------|--------------------|------------------|-----------------|
+| **SVM (RBF)** | C (régularisation) ; γ (largeur du noyau RBF) | `GridSearchCV` sur C ∈ [0.1, 1, 10], γ ∈ [0.01, 0.1, 1] | C ↗ → surapprentissage ; γ ↗ → frontière trop fine | Toujours standardiser les *features* |
+| **Random Forest** | `n_estimators` ; `max_depth` ; `min_samples_split` ; `max_features` | – | Plus d'arbres → meilleure stabilité mais plus lent ; profondeur ↗ → surfit | Commencer par peu de profondeur |
+| **Gradient Boosting** | `n_estimators` ; `learning_rate` ; `max_depth` ; `subsample` | Petit `learning_rate` → réduit le surapprentissage mais nécessite plus d'estimators | – | Commencer avec `learning_rate = 0.1` |
+| **Ridge / Lasso** | λ = α (force de régularisation) | Tuning par validation croisée | λ ↗ → coefficients plus petits → biais ↗, variance ↘ | – |
+| **k-NN** | k, distance | – | Petit k → surfit ; grand k → biais fort | Garder k impair, scaling obligatoire |
+| **NN (réseau de neurones)** | `learning_rate` ; `hidden_layers` ; `epochs` ; `batch_size` | – | `learning_rate` trop haut → divergence | Surveiller la courbe de perte ; *early stopping* recommandé |
+| **Arbre de décision** | `max_depth` ; `min_samples_split` ; `criterion` | – | Profondeur ↗ → surfit | *Pruning* recommandé |
+| **XGBoost** | `eta` ; `max_depth` ; `colsample_bytree` ; `lambda` | Paramètres très interdépendants | – | Tuning itératif par bloc |
 
 - Toujours normaliser les données pour SVM / k-NN / NN.
 - Toujours vérifier la stabilité par $k$-fold (5-CV par défaut).
