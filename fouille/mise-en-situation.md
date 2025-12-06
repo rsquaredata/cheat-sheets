@@ -17,7 +17,7 @@ Last updated: 2025-12-04
 | prend des valeurs **numériques continues** | prix, température, consommation, durée | Régression |
 | prend des valeurs **catégorielles** | O/1, malade/sain, fraude/non-fraude, classes | Classification |
 | n'est **pas connue** | on cherche à trouver une structure dans les données | Clustering (non supervisé) |
-| est connue mais il y a **pluseurs labels par instance** | - | Classification multi-étiquette |
+| est connue mais il y a **plusieurs labels par instance** | - | Classification multi-étiquette |
 | est **ordinale** | faible/moyen/fort | Régression ordinale / Classification hiérarchique |
 
 ### 1.2.2. Étude de la variable d'entrée $X$ (*features*)
