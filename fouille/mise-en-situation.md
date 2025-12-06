@@ -12,7 +12,7 @@ Last updated: 2025-12-04
 
 | Type | Données disponibles | Objectif global |
 |------|---------------------|-----------------|
-| **Supervisé | J'ai une **variable cible** $y$ à prédire | Apprendre une relation $y=f(x)$ |
+| **Supervisé** | J'ai une **variable cible** $y$ à prédire | Apprendre une relation $y=f(x)$ |
 | **Non supervisé** | Je n'ai **pas de variable cible** | Explorer la structure des données (groupesn axes, anomalies, etc.) |
 
 #### 1.1.2. Indices dans le dataset
