@@ -156,7 +156,7 @@ Les modèles linéaires ne capturent pas ces interactions, il faut :
 1. calculer la **matrice de corrélation de Pearson** :
 ```python
 corr df.corr()
-sns.heatma^p(corr, cmap='coolwarm', annot=True)
+sns.heatmap(corr, cmap='coolwarm', annot=True)
 ```
 2. si on a une paire avec $\vert corr \vert \gt 0.8$ → redondance forte.
 3. conséquence : variables corrélées → modèle linéaire instable (les coefficients explosent).
