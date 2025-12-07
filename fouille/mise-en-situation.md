@@ -42,7 +42,7 @@ Last updated: 2025-12-04
 
 | Cas | Type | Justification |
 |-----|------|---------------|
-| prédire si un mail est un spam ou non | supervisé (classification) | $y = \\{spam, non spam\\} connu |
+| prédire si un mail est un spam ou non | supervisé (classification) | $y$ = {spam, non spam} connu |
 | prédire le prix d'un logement | supervisé (régression) | $y$ = prix, variable numérique |
 | regrouper des clients selon leur comportement | non supervisé (clustering) | pas de $y$, on cherche des groupes naturels |
 | identifier des variables corrélées dans un dataset de 100 features | non supervisé (réduction de dimension) | PCA, pas de $y$ |
@@ -185,7 +185,9 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 | Images | **Noyaux RBF / CNN** (*features* préentraînées | capture des formes et textures |
 | Données temporelles | **Dynamic Time Warping kernel** | tolère des décalages temporels |
 
-- toujours tester au moins deux noyaux  et justifier le choix par une **métrique adaptée** et un **compromis biais/variance**
+- Toujours tester au moins deux noyaux  et justifier le choix par une **métrique adaptée** et un **compromis biais/variance**
+
+
 
 ###### 2.1.1.2. Approche additive : Choisir un Boosting
 
@@ -282,7 +284,7 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 | **MSE** (Mean squared Error) | $\frac{1}{n} \sum_i (y_i - \hat{y}_i)^2$ | Erreur quadratique moyenne.</br>Très sensible aux valeurs extrêmes | pénalise fortement les grandes erreurs, mais amplifie les outliers | homogènes |
 | **RMSE** (Root MSE) | $\sqrt{MSE}$ | Même unité que la variable cible. | plus intuitif, mais même limites que MSE | homogènes |
 **MAE* (Mean Absolute Error | $\frac{1}{n} \sum_i \vert y_i - \hat{y}_i \vert $ | Erreur absolue moyenne, plus robuste. | moins sensible aux gros écarts, mais moins différenciant | avec outliers |
-| **$R^2$** (Coefficient de détermination | $1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y}_i)^2 }$ | Part de la variance expliquée (max = 1) | intuitif mais pas stable et varie peu | - |
+| **$R^2$** (Coefficient de détermination | $1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y}_i)^2 }$ | Part de la variance expliquée (max = 1) | intuitif mais pas stable et varie peu | |
 
 <u><str>NB</str></u> : si comparaison de modèles → toujours préciser l'unité (ex.: erreur moyenne de 5°C).
 
@@ -311,6 +313,7 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 ### 5.3. Visualisation
 
 | Outil | Ce qu'il montre | Utilité |
+|-------|-----------------|---------|
 | **Matrice de confusion** | vrais/faux positifs/négatifs | voir où le modèle se trompe |
 | **Courbe AUC ROC** | TPR vs FPR | comparaison visuelle de modèles |
 | **Courbe PR (Precision-Recall)** | Precision vs Recall | plus informative si classes rares |
