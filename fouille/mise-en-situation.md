@@ -105,8 +105,8 @@ Last updated: 2025-12-04
 | Tâche | Loss idéale | Surrogate courante | Algorithme associé | Forme |
 |-------|-------------|--------------------|--------------------|-------|
 | **Classification binaire** | 0-1 loss | **Hinge loss** | SVM | $\ell \left( y, f(x) \right) = \max(0, 1-f(x))$ |
-| | 0-1 loss | **Logistic loss** | Régression logistique, Boosting | $ell \left( y, f(x) \right) = \log(1 + e^{-y(f(x)})$ |
-| | 0-1 loss | **Exponential loss** | AdaBoost | $ell \left( y, f(x) \right) = e^{-yf(x)}$ |
+| | 0-1 loss | **Logistic loss** | Régression logistique, Boosting | $\ell \left( y, f(x) \right) = \log(1 + e^{-y(f(x)})$ |
+| | 0-1 loss | **Exponential loss** | AdaBoost | $\ell \left( y, f(x) \right) = e^{-yf(x)}$ |
 | Régression | $L_2$ | MSE/RMSE | Linéaire, Ridge, SVR | $\left( y-f(x) \right)^2$ |
 | | $L_1$ | MAE | Lasso, quantile regression | $\vert y-f(x) \vert $ |
 
