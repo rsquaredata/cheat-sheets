@@ -166,7 +166,7 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 
 ##### 2.1.1.1. Démarche expérimentale
 
-**Protocole** :
+###### Protocole
 1. **Fit un modèle linéaire simple**
     - si classification : régression logistique ou SVM linéaire.
     - si régression : régression linéaire simple ou ridge/lasso.
@@ -179,13 +179,13 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
     - CV recommandée.
 4. Si le modèle non-linéaire fait **significativement mieux** → la structure est non linéaire ; sinon, le modèle linéaire suffit.
 
-**Indicateurs complémentaires visuels et statistiques** :
+###### Indicateurs complémentaires visuels et statistiques**
 
 1. **Analyse des résidus (régression)** : tracer `y_pred`vs `y_true`ou `residuals = y_true - y_pred` ; si les résidus montrent une **courbe** ou une **structure** → non-linéarité ; si les résidus sont répartis aléatoirement autour de 0 → linéarité plausible.
 
 <details>
     <summary>
-        <span style="color:pink; font-weight:bold">Implémentation</span>
+        <span style="color:pink; font-weight:bold">Python</span>
     </summary>
 
 ```python
@@ -198,7 +198,7 @@ plt.axhline(0, color='red', linestyle='--')
 
 <details>
     <summary>
-        <span style="color:pink; font-weight:bold">Implémentation</span>
+        <span style="color:pink; font-weight:bold">Python</span>
     </summary>
 
 ```python
@@ -210,7 +210,7 @@ sns.pairplot(df, hue="target")
 
 <details>
     <summary>
-        <span style="color:pink; font-weight:bold">Implémentation</span>
+        <span style="color:pink; font-weight:bold">Python</span>
     </summary>
 
 ```python
@@ -220,6 +220,12 @@ X_poly = poly.fit_transform(X)
 ```
 </details>
 
+###### Critères quantitatifs à surveiller
+
+- AUC/R² non-linéaire $\approx$ linéaire → relation linéaire suffisante → modèle linéaire ok.
+- AUC/R² non-linéaire $gg$ linéaire → relation non-linéaire → tester RBF, arbres, boosting.
+- résidus courbés/hétéroscédastiques → relation non-linéaire → transformation des variables ou modèle flexible.
+- très concentrées sur quelques variables → possible effet d'interaction → envisager termes croisés.
 
 ###### 2.1.1.2. Approche à noyau : Choisir un noyau (SVM/Kernel)
 
@@ -433,7 +439,7 @@ X_poly = poly.fit_transform(X)
 | | **Courbes d'apprentissage (train/test)** | sur- ou sous-apprentissage selon taille de l'échantillon | écart large → surfit ; scores faibles → underfit | <small>"Le modèle est trop complexe : la perte test augmente après 200 itérations."</small> |
 
 <details >
-    <summary><span style="color:pink; font-weight:bold">Implémentation</span></summary>
+    <summary><span style="color:pink; font-weight:bold">Python</span></summary>
 
 En résumé :
 - `sklearn.metrics` $\rightarrow$ pour ROC, PR, AUC, confusion, displays.
