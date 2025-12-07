@@ -253,7 +253,7 @@ spécifier les métriques utilisées pour comparer deux noyaux
 | Situation | Type de boosting | Justification |
 |-----------|------------------|---------------|
 | Petit dataset, peu de bruit | **AdaBoost** | simple, efficace, marge large[^2] |
-| Données complexes[^3], bruit modéré | **Gradient Boosting** | apprentissage résiduel[^4], flexible |
+| Données complexes[^5], bruit modéré | **Gradient Boosting** | apprentissage résiduel[^4], flexible |
 | Dataset volumineux/*features* nombreuses | **XGBoost / LightGBM** | optimisé, parallèle, régularisé |
 | Variables catégorielles dominantes | **CatBoost** | encodage intégré |
 | Risque d'overfit fort | **↘ `learning_rate`**, ↗ `n_estimators` | meilleur compromis biais/variance |
@@ -265,7 +265,7 @@ spécifier les métriques utilisées pour comparer deux boostings
 #### 2.1.2 Déséquilibre des classes
 
 - dataset équilibré → <!--TODO compléter -->
-- dataset déséquilibré → modèle **additif de type boosting / ensemble**
+- dataset déséquilibré → modèle **additif de type boosting / ensemble**[^6]
 
 ### 2.2. Choix de la famille de modèles
 
@@ -285,7 +285,7 @@ spécifier les métriques utilisées pour comparer deux boostings
 | Régression linéaire / Ridge / Lasso | Interprétable, rapide | Sensible à la colinéarité, sous-ajustement |
 | SVR (linéaire / RBF) | Bonné généralisation, robuste | Paramètres $C$ et $\gamma$ à tuner |
 | Random Forest Regressor | Gère la non-linéarité, pas de normalisation | Peu interprétatble, lent si gros dataset |
-| Gradient Boosting / XGBoost | Très performant, gère les features hétérogènes | Sensible au surapprentissage |
+| Gradient Boosting / XGBoost | Très performant, gère les features hétérogènes | Sensible au surapprentissage[^7] |
 
 #### 2.3.2. Problème de classification
 
@@ -294,9 +294,9 @@ spécifier les métriques utilisées pour comparer deux boostings
 | Régression logistique | Interprétable, baseline solide | Frontière linéaire uniquement |
 | SVM (linéaire / RBF) | Performant sur les données peu bruitées | Sensible au scaling / $C$ / $\gamma$ |
 | k-NN | Simple, non-paramétrique | Coût élevé en test, choix du $k$ |
-| Random Forest | Gère les données mixtes, importance des variables | Peux explicatif sur les décisions |
-| Gradient Boosting | Très efficace sur déséquilibre | Long à entraîner, nécessite réglage fin |
-| Réseaux de neurones | Très flexible[^5] | Données nombreuses + tuning lourd |
+| Random Forest | Gère les données mixtes, importance des variables | Peu explicatif sur les décisions |
+| Gradient Boosting | Très efficace sur déséquilibre | Long à entraîner, nécessite réglage fin[^8] |
+| Réseaux de neurones | Très flexible[^9] | Données nombreuses + tuning lourd |
 
 ## 3. Prétraitement des données
 
@@ -344,7 +344,7 @@ spécifier les métriques utilisées pour comparer deux boostings
 | Métrique | Formule | Définition | Avantages / Inconvénients | Pour données... |
 |----------|---------|------------|---------------------------|-----------------|
 | **MSE** (Mean squared Error) | $\frac{1}{n} \sum_i (y_i - \hat{y}_i)^2$ | Erreur quadratique moyenne.</br>Très sensible aux valeurs extrêmes | pénalise fortement les grandes erreurs, mais amplifie les outliers | homogènes |
-| **RMSE** (Root MSE) | $\sqrt{MSE}$ | Même unité que la variable cible. | plus intuitif, mais même limites que MSE | homogènes |
+| **RMSE** (Root MSE) | $\sqrt{MSE}$ | Même unité que la variable cible. | plus intuitif, mais mêmes limites que MSE | homogènes |
 **MAE* (Mean Absolute Error | $\frac{1}{n} \sum_i \vert y_i - \hat{y}_i \vert $ | Erreur absolue moyenne, plus robuste. | moins sensible aux gros écarts, mais moins différenciant | avec outliers |
 | **$R^2$** (Coefficient de détermination | $1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y}_i)^2 }$ | Part de la variance expliquée (max = 1) | intuitif mais pas stable et varie peu | |
 
@@ -394,7 +394,7 @@ spécifier les métriques utilisées pour comparer deux boostings
 | **SVM (RBF)** | C (régularisation) ; γ (largeur du noyau RBF) | `GridSearchCV` sur C ∈ [0.1, 1, 10], γ ∈ [0.01, 0.1, 1] | C ↗ → surapprentissage ; γ ↗ → frontière trop fine | Toujours standardiser les *features* |
 | **Random Forest** | `n_estimators` ; `max_depth` ; `min_samples_split` ; `max_features` | | Plus d'arbres → meilleure stabilité mais plus lent ; profondeur ↗ → surfit | Commencer par peu de profondeur |
 | **Gradient Boosting** | `n_estimators` ; `learning_rate` ; `max_depth` ; `subsample` | Petit `learning_rate` → réduit le surapprentissage mais nécessite plus d'estimators | | Commencer avec `learning_rate = 0.1` |
-| **Ridge / Lasso** | λ = α (force de régularisation) | Tuning par validation croisée | λ ↗ → coefficients plus petits → biais ↗, variance ↘ | |
+| **Ridge / Lasso** | λ = α (force de régularisation) | Tuning par validation croisée | λ ↗ → coefficients plus petits → biais ↗, variance ↘ [^10] | |
 | **k-NN** | k, distance | | Petit $k$ → surfit ; grand $k$ → biais fort | Garder $k$ impair, scaling obligatoire |
 | **NN (réseau de neurones)** | `learning_rate` ; `hidden_layers` ; `epochs` ; `batch_size` | | `learning_rate` trop haut → divergence | Surveiller la courbe de perte ; *early stopping* recommandé |
 | **Arbre de décision** | `max_depth` ; `min_samples_split` ; `criterion` | | Profondeur ↗ → surfit | *Pruning* recommandé |
@@ -452,7 +452,7 @@ En résumé :
 
 #### Courbe ROC / AUC (classification)
 
-Version qui fonctionne pour tous les classifieurs ayant `predict_proba()` ou `decision_function()` :
+Version qui fonctionne pour tous les classifieurs ayant `predict_proba()` ou `decision_function()`[^11] :
 
 ```python
 # Librairies
@@ -652,7 +652,14 @@ plt.show()
 
 
 ---
-[^1] AdaBoost (comme SVM) cherche à **maximiser la marge**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
-[^2] Mathématiquement, $x_1 x_2 = x_2 x_1$.  
-[^3] Données complexes = non linéaires, bruitées, variables dépendantes (ex.: prévisions financières, médicales).
-[^4] Apprentissage rési
+[^1]: AdaBoost (comme SVM) cherche à **maximiser la marge**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
+[^2]: Mathématiquement, $x_1 x_2 = x_2 x_1$.  
+[^3]: Explosion des coefficients
+[^4]: Résidus :
+[^5]: Données complexes = non linéaires, bruitées, variables dépendantes (ex.: prévisions financières, médicales).
+[^6]: Algorithme d'ensemble :
+[^7]: Gradient Boosting/XGBoost sont sensibles au surfit car
+[^8]: Gradient Boosting nécessite un réglage fin car
+[^9]: Flexibilité d'un modèle :
+[^10]: Biais et variance :
+[$11]: 
