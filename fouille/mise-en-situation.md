@@ -54,7 +54,7 @@ Last updated: 2025-12-04
 
 | Types | Description | Exemples |
 |-------|-------------|----------|
-| **semi-supervisé** | une partie des données a une étiquette $y^$, l'autre partie non | apprentissage sur 10% labellé + 90% non labellé |
+| **semi-supervisé** | une partie des données a une étiquette $y$, l'autre partie non | apprentissage sur 10% labellé + 90% non labellé |
 | **auto-supervisé** | le modèle crée ses propres labels à partie des données | pré-entraînement d'un modèle de langage ou d'images |
 | **apprentissage par renforcement** | pas de $y$ fixe, mais une récompense à maximiser | jeu, robotique, trading adaptif |
 
