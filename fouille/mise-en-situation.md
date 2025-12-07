@@ -90,7 +90,7 @@ Last updated: 2025-12-04
 
 ### 1.4. Formuler le problème
 
-1. Définir l'input et l'output : $X \in \mathbb{R}^{m \times d}$ ; $y \in \mathbb{R}^m$ ou $y \in \\{0,1\\}^m$
+1. Définir l'input et l'output : $X \in \mathbb{R}^{m \times d}$ ; $y \in \mathbb{R}^m$ ou $y \in \\{0,1\\}^m$[^1]
 
 2. Formuler la tâche :
     - Régression : trouver $f : X \to \mathbb{R}$
@@ -106,7 +106,7 @@ Last updated: 2025-12-04
 |-------|-------------|--------------------|--------------------|-------|
 | **Classification binaire** | 0-1 loss | **Hinge loss** | SVM | $\ell \left( y, f(x) \right) = \max(0, 1-f(x))$ |
 | | 0-1 loss | **Logistic loss** | Régression logistique, Boosting | $\ell \left( y, f(x) \right) = \log(1 + e^{-y(f(x)})$ |
-| | 0-1 loss | **Exponential loss** | AdaBoost | $\ell \left( y, f(x) \right) = e^{-yf(x)}$ |
+| | 0-1 loss | **Exponential loss** | AdaBoost[^1] | $\ell \left( y, f(x) \right) = e^{-yf(x)}$ |
 | Régression | $L_2$ | MSE/RMSE | Linéaire, Ridge, SVR | $\left( y-f(x) \right)^2$ |
 | | $L_1$ | MAE | Lasso, quantile regression | $\vert y-f(x) \vert $ |
 
@@ -130,16 +130,12 @@ La **frontière de décision** sépare les zones de l'espace où le modèle pré
 
 - frontière **linéaire** → modèle **linéaire** (SVM linéaire, régression logistique) suffisent.
 - frontière **courbe/tordue** → approche à noyau (**SVM à noyau**) ou approche additive (**boosting non linéaire**)
-    - indices de non-linéarité :
-        - les frontières entre classes sont-elles "droites" ou "courbes" ?
-        - y a-t-il des **interactions complexes** entre variables ?
-        - les variables sont-elles fortement corrélées entre elles ?
      
 ###### Interactions entre variables
 
-Une **interaction** se produit quand **l'effet d'une varaible dépend d'une autre variable** :
+Une **interaction** se produit quand **l'effet d'une variable dépend d'une autre variable** :
 - formellement :
-    - $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 (x_1 x_2) + \beta_4 x_1^2 + \beta_5 x_2$, où $x_1 x_2$, $x_2, x_1$, $x_1^2$, x_2^2$ est un modèle polynomial du second degré où $x_1 x_2$ est le terme d'**interaction polynomiale**, $x_1^2$ et $x_2^2$ sont des termes **quadratiques** et $x_1$ et $x_2$ sont des termes **linéaires**[^1].
+    - $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 (x_1 x_2) + \beta_4 x_1^2 + \beta_5 x_2$, où $x_1 x_2$, $x_2, x_1$, $x_1^2$, x_2^2$ est un modèle polynomial du second degré où $x_1 x_2$ est le terme d'**interaction polynomiale**, $x_1^2$ et $x_2^2$ sont des termes **quadratiques** et $x_1$ et $x_2$ sont des termes **linéaires**[^2].
         - si $\beta_3 \gt 0$, l'effet de $x_1$ augmente quand $x_2$ augmente (et inversement) ;
         - si $\beta_3 \lt 0$, l'effet de $x_1$ diminue quand $x_2$ augmente (et inversement).
 - exemple pratique : l'effet du sport sur la santé dépend de l'âge.
@@ -152,12 +148,17 @@ Les modèles linéaires ne capturent pas ces interactions, il faut :
 ###### Variables fortement corrélées
 
 1. calculer la **matrice de corrélation de Pearson** :
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
 ```python
 corr df.corr()
 sns.heatmap(corr, cmap='coolwarm', annot=True)
 ```
+</details>
+
 2. si on a une paire avec $\vert corr \vert \gt 0.8$ → redondance forte.
-3. conséquence : variables corrélées → modèle linéaire instable (les coefficients explosent).
+3. conséquence : variables corrélées → modèle linéaire instable (les coefficients explosent)[^3].
 4. solutions : ACP ; supprimer une des deux variables de la paire ; modèle à régularisation (Ridge, Lasso).
 
 ##### 2.1.1.2. Tester l'hypothèse de linéarité
@@ -181,12 +182,9 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 
 ###### Indicateurs complémentaires visuels et statistiques**
 
-1. **Analyse des résidus (régression)** : tracer `y_pred`vs `y_true`ou `residuals = y_true - y_pred` ; si les résidus montrent une **courbe** ou une **structure** → non-linéarité ; si les résidus sont répartis aléatoirement autour de 0 → linéarité plausible.
+1. **Analyse des résidus (régression)** : tracer `y_pred`vs `y_true`ou `residuals = y_true - y_pred` ; si les résidus[^4] montrent une **courbe** ou une **structure** → non-linéarité ; si les résidus sont répartis aléatoirement autour de 0 → linéarité plausible.
 
-<details>
-    <summary>
-        <span style="color:pink; font-weight:bold">Python</span>
-    </summary>
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
 
 ```python
 sns.scatterplot(x=y_pred, y=y_test - y_pred)
@@ -194,7 +192,7 @@ plt.axhline(0, color='red', linestyle='--')
 ```
 </details>
 
-2. **Plairplot ou ACP pour visualiser les frontières** : pour on peut visualier les données (2D ou ACP 2D), séparation nette par une ligne droite → linéaire / frontière incurvée → non-linéaire.
+2. **Pairplot ou ACP pour visualiser les frontières** : pour on peut visualier les données (2D ou ACP 2D), séparation nette par une ligne droite → linéaire / frontière incurvée → non-linéaire.
 
 <details>
     <summary>
@@ -208,10 +206,7 @@ sns.pairplot(df, hue="target")
 
 3. **Termes d'interaction / polynômes** : ajouter des termes $x_i^2$, $x_i x_j$ avec `PolynomialFeatures` ; si les scores s'améliorent beaucoup → la relation de base n'était pas linéaire.
 
-<details>
-    <summary>
-        <span style="color:pink; font-weight:bold">Python</span>
-    </summary>
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
 
 ```python
 from sklearn.preprocessing import PolynomialFeatures
@@ -222,10 +217,10 @@ X_poly = poly.fit_transform(X)
 
 ###### Critères quantitatifs à surveiller
 
-- AUC/R² non-linéaire $\approx$ linéaire → relation linéaire suffisante → modèle linéaire ok.
-- AUC/R² non-linéaire $gg$ linéaire → relation non-linéaire → tester RBF, arbres, boosting.
-- résidus courbés/hétéroscédastiques → relation non-linéaire → transformation des variables ou modèle flexible.
-- très concentrées sur quelques variables → possible effet d'interaction → envisager termes croisés.
+- **AUC/R²** non-linéaire $\approx$ linéaire → relation linéaire suffisante → modèle linéaire ok.
+- **AUC/R²** non-linéaire $gg$ linéaire → relation non-linéaire → tester RBF, arbres, boosting.
+- **résidus** courbés/hétéroscédastiques[^4] → relation non-linéaire → transformation des variables ou modèle flexible.
+- **importances** très concentrées sur quelques variables → possible effet d'interaction → envisager termes croisés.
 
 ###### 2.1.1.2. Approche à noyau : Choisir un noyau (SVM/Kernel)
 
@@ -246,12 +241,14 @@ X_poly = poly.fit_transform(X)
 
 - Toujours tester au moins deux noyaux  et justifier le choix par une **métrique adaptée** et un **compromis biais/variance**
 
+<!--TODO
+spécifier les métriques utilisées pour comparer deux noyaux
+-->
 
 
 ###### 2.1.1.3. Approche additive : Choisir un Boosting
 
 - on choisit le boosting *après* avoir choisi la famille d'<u>algorithmes d'ensemble</u> et *avant* le tuning.
-- toujours tester au moins deux variantes de boosting
 
 | Situation | Type de boosting | Justification |
 |-----------|------------------|---------------|
@@ -261,9 +258,13 @@ X_poly = poly.fit_transform(X)
 | Variables catégorielles dominantes | **CatBoost** | encodage intégré |
 | Risque d'overfit fort | **↘ `learning_rate`**, ↗ `n_estimators` | meilleur compromis biais/variance |
 
+<!--TODO
+spécifier les métriques utilisées pour comparer deux boostings
+-->
+
 #### 2.1.2 Déséquilibre des classes
 
-- dataset équilibré →
+- dataset équilibré → <!--TODO compléter -->
 - dataset déséquilibré → modèle **additif de type boosting / ensemble**
 
 ### 2.2. Choix de la famille de modèles
@@ -272,6 +273,8 @@ X_poly = poly.fit_transform(X)
 - Boosting
 - Forêt
 - Réseau de neurones
+
+<!--TODO détailler -->
 
 ### 2.3. Choix des modèles selon le type de tâche
 
@@ -293,7 +296,7 @@ X_poly = poly.fit_transform(X)
 | k-NN | Simple, non-paramétrique | Coût élevé en test, choix du $k$ |
 | Random Forest | Gère les données mixtes, importance des variables | Peux explicatif sur les décisions |
 | Gradient Boosting | Très efficace sur déséquilibre | Long à entraîner, nécessite réglage fin |
-| Réseaux de neurones | Très flexible | Données nombreuses + tuning lourd |
+| Réseaux de neurones | Très flexible[^5] | Données nombreuses + tuning lourd |
 
 ## 3. Prétraitement des données
 
@@ -392,7 +395,7 @@ X_poly = poly.fit_transform(X)
 | **Random Forest** | `n_estimators` ; `max_depth` ; `min_samples_split` ; `max_features` | | Plus d'arbres → meilleure stabilité mais plus lent ; profondeur ↗ → surfit | Commencer par peu de profondeur |
 | **Gradient Boosting** | `n_estimators` ; `learning_rate` ; `max_depth` ; `subsample` | Petit `learning_rate` → réduit le surapprentissage mais nécessite plus d'estimators | | Commencer avec `learning_rate = 0.1` |
 | **Ridge / Lasso** | λ = α (force de régularisation) | Tuning par validation croisée | λ ↗ → coefficients plus petits → biais ↗, variance ↘ | |
-| **k-NN** | k, distance | | Petit k → surfit ; grand k → biais fort | Garder k impair, scaling obligatoire |
+| **k-NN** | k, distance | | Petit $k$ → surfit ; grand $k$ → biais fort | Garder $k$ impair, scaling obligatoire |
 | **NN (réseau de neurones)** | `learning_rate` ; `hidden_layers` ; `epochs` ; `batch_size` | | `learning_rate` trop haut → divergence | Surveiller la courbe de perte ; *early stopping* recommandé |
 | **Arbre de décision** | `max_depth` ; `min_samples_split` ; `criterion` | | Profondeur ↗ → surfit | *Pruning* recommandé |
 | **XGBoost** | `eta` ; `max_depth` ; `colsample_bytree` ; `lambda` | Paramètres très interdépendants | | Tuning itératif par bloc |
@@ -407,11 +410,11 @@ X_poly = poly.fit_transform(X)
 ### 7.1. Comparer plusieurs modèles sur le même split
 
 **Bonnes pratiques** :
-- ** même preprocessing et même train/test** pour tous les modèles (sinon, comparaison biaisée).
+- **même preprocessing et même train/test** pour tous les modèles (sinon, comparaison biaisée).
 - **même métrique** pour tous.
 - **validation croisée §$k$-fold)** :
      - par défaut, $k = 5$.
-     -  **stratifiée** si classification déséquilibrée.
+     -  **stratifiée**[^6] si classification déséquilibrée.
      -  rapporter moyenne $\pm$ écart-type.
   
 ### 7.2. Choisir le modèle qui offre le meilleur compromis
@@ -421,7 +424,7 @@ X_poly = poly.fit_transform(X)
 | Axe | Exemples de critères | Objectif |
 |-----|----------------------|----------|
 | **Performance** | AUC, F1, RMSE, R²... | précision globale |
-| **Complexité** | nb de paramères, temps d'apprentissage | efficacité computationnelle |
+| **Complexité** | nb de paramètres, temps d'apprentissage | efficacité computationnelle |
 | **Robustesse** | stabilité des résultats (variance CV), stabilité des *features* | fiabilité sur échantillons nouveaux |
 
 ### 7.3. Visualiser les résultats
@@ -438,8 +441,7 @@ X_poly = poly.fit_transform(X)
 | | **Résidus standardisés ou Cook's distance** | détexte les points influents / outliers | valeurs extrêmes → observation atypique à évaluer | <small>"Deux points présentent une distance de Cook > 1, suggérant une influence excessive." | | **Courbe de calibration ($\hat{y}$ vs $y$ réel)** | fidélité du modèle : les prédicitions suivent-elles la diagonale idéale ? | points proches de la diagonale → bon calibrage | <small>"La courbe de calibration est proche de la diagonale, le modèle prédit sans biais systématique"</small> |
 | | **Courbes d'apprentissage (train/test)** | sur- ou sous-apprentissage selon taille de l'échantillon | écart large → surfit ; scores faibles → underfit | <small>"Le modèle est trop complexe : la perte test augmente après 200 itérations."</small> |
 
-<details >
-    <summary><span style="color:pink; font-weight:bold">Python</span></summary>
+<details ><summary><span style="color:pink; font-weight:bold">Python</span></summary>
 
 En résumé :
 - `sklearn.metrics` $\rightarrow$ pour ROC, PR, AUC, confusion, displays.
@@ -634,7 +636,6 @@ plt.title("Courbe d'apprentissage (régression)")
 plt.legend()
 plt.show()
 ```
-
 </details>
 
 ## 7. Cas spéciaux
@@ -651,7 +652,7 @@ plt.show()
 
 
 ---
-[^1] Mathématiquement, $x_1 x_2 = x_2 x_1$.  
-[^2] AdaBoost (comme SVM) cherche à **maximiser la marge**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
+[^1] AdaBoost (comme SVM) cherche à **maximiser la marge**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
+[^2] Mathématiquement, $x_1 x_2 = x_2 x_1$.  
 [^3] Données complexes = non linéaires, bruitées, variables dépendantes (ex.: prévisions financières, médicales).
 [^4] Apprentissage rési
