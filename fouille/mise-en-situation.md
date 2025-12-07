@@ -13,7 +13,7 @@ Last updated: 2025-12-04
 | Type | Données disponibles | Objectif global |
 |------|---------------------|-----------------|
 | **Supervisé** | J'ai une **variable cible** $y$ à prédire | Apprendre une relation $y=f(x)$ |
-| **Non supervisé** | Je n'ai **pas de variable cible** | Explorer la structure des données (groupesn axes, anomalies, etc.) |
+| **Non supervisé** | Je n'ai **pas de variable cible** | Explorer la structure des données (groupes, axes, anomalies, etc.) |
 
 #### 1.1.2. Indices dans le dataset
 
@@ -56,9 +56,7 @@ Last updated: 2025-12-04
 |-------|-------------|----------|
 | **semi-supervisé** | une partie des données a une étiquette $y^$, l'autre partie non | apprentissage sur 10% labellé + 90% non labellé |
 | **auto-supervisé** | le modèle crée ses propres labels à partie des données | pré-entraînement d'un modèle de langage ou d'images |
-| **RL** | pas de $y$ fixe, mais une récompense à maximiser | jeu, robotique, trading adaptif |
-
-#### 
+| **apprentissage par renforcement** | pas de $y$ fixe, mais une récompense à maximiser | jeu, robotique, trading adaptif |
 
 ### 1.2. Classification ou Régression ?
 
@@ -164,13 +162,68 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 
 ##### 2.1.1.2. Tester l'hypothèse de linéarité
 
-1. **Fit un modèle linéaire simple** (régression logistique ou SVM linéaire).
-2. **Fit un modèle non linéaire** (SVM RBF ou Random Forest).
-3. Comparer les métriques : si le modèle linéaire a de meilleurs résultats → la structure est non linéaire.
+**Objectif** : vérifier si la relation entre les variables explicatives $X$ et la cible $y$ peut être correctement **modélisée par une fonction linéaire**, ou si elle nécessite un **modèle non linéaire**.
 
-###### 2.1.1.1. Approche à noyau : Choisir un noyau (SVM/Kernel)
+##### 2.1.1.1. Démarche expérimentale
 
-- On choisit un noyau *après* avoir sélectionné le modèle SVM et *avant* le tuning des hyperparamètres
+**Protocole** :
+1. **Fit un modèle linéaire simple**
+    - si classification : régression logistique ou SVM linéaire.
+    - si régression : régression linéaire simple ou ridge/lasso.
+2. **Fit un modèle non linéaire** :
+    - si classification : SVM RBF, arbre de décision, random forest, gradient boosting.
+    - si régression : SVR RBF, RandomForectRegressor, XGBoostRegressor.
+3. **Comparer les performances** :
+    - même split train/test ;
+    - même métrique ;
+    - CV recommandée.
+4. Si le modèle non-linéaire fait **significativement mieux** → la structure est non linéaire ; sinon, le modèle linéaire suffit.
+
+**Indicateurs complémentaires visuels et statistiques** :
+
+1. **Analyse des résidus (régression)** : tracer `y_pred`vs `y_true`ou `residuals = y_true - y_pred` ; si les résidus montrent une **courbe** ou une **structure** → non-linéarité ; si les résidus sont répartis aléatoirement autour de 0 → linéarité plausible.
+
+<details>
+    <summary>
+        <span style="color:pink; font-weight:bold">Implémentation</span>
+    </summary>
+
+```python
+sns.scatterplot(x=y_pred, y=y_test - y_pred)
+plt.axhline(0, color='red', linestyle='--')
+```
+</details>
+
+2. **Plairplot ou ACP pour visualiser les frontières** : pour on peut visualier les données (2D ou ACP 2D), séparation nette par une ligne droite → linéaire / frontière incurvée → non-linéaire.
+
+<details>
+    <summary>
+        <span style="color:pink; font-weight:bold">Implémentation</span>
+    </summary>
+
+```python
+sns.pairplot(df, hue="target")
+```
+</details>
+
+3. **Termes d'interaction / polynômes** : ajouter des termes $x_i^2$, $x_i x_j$ avec `PolynomialFeatures` ; si les scores s'améliorent beaucoup → la relation de base n'était pas linéaire.
+
+<details>
+    <summary>
+        <span style="color:pink; font-weight:bold">Implémentation</span>
+    </summary>
+
+```python
+from sklearn.preprocessing import PolynomialFeatures
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+```
+</details>
+
+
+###### 2.1.1.2. Approche à noyau : Choisir un noyau (SVM/Kernel)
+
+- On choisit un noyau *après* avoir sélectionné le modèle <u>SVM</u> et *avant* le tuning des hyperparamètres
 
 | Situation | Type du noyau | Justification |
 |-----------|---------------|---------------|
@@ -189,9 +242,9 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 
 
 
-###### 2.1.1.2. Approche additive : Choisir un Boosting
+###### 2.1.1.3. Approche additive : Choisir un Boosting
 
-- on choisit le boosting après avoir choisi la famille d'algorithmes d'ensemble et avant le tuning.
+- on choisit le boosting *après* avoir choisi la famille d'<u>algorithmes d'ensemble</u> et *avant* le tuning.
 - toujours tester au moins deux variantes de boosting
 
 | Situation | Type de boosting | Justification |
