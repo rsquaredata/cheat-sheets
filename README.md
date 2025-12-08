@@ -17,7 +17,7 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 | PCA & Dimensionality Reduction | pca_dimred_cheatsheet.md |
 | Supervised ML | supervisedml_cheatsheet.md |
 | NLP/LLM |[NLP Folder](./nlp) |
-| Time Series | [Times Series](.times-series) |
+| Time Series | [Times Series](./times-series) |
 | BI & OLAP | bi_olap_cheatsheet.md |
 | SQL for DS | sql_cheatsheet.md |
 
