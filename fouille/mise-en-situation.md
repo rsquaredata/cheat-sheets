@@ -126,7 +126,7 @@ La **frontière de décision** sépare les zones de l'espace où le modèle pré
 
 **Visualiser la frontière** :
 - cas 2 variables → tracer un nuage de points (`sns.scatterplot(x,y,hue=class)`) : si je peux tracer une *ligne droite* qui sépare proprement les classes, le problème est linéaire.
-- cas > 2 variables → ACP pour réduire à 2 dimensions, ou pairplot (scatterplots pour toutes les paires de variables) : si aucune combinaison de 2 variables ne sépare bien, structure linéaire probable.
+- cas > 2 variables → ACP (pour réduire à 2 dimensions) + pairplot (scatterplots pour toutes les paires de variables) : si aucune combinaison de 2 variables ne sépare bien, structure linéaire probable.
 
 - frontière **linéaire** → modèle **linéaire** (SVM linéaire, régression logistique) suffisent.
 - frontière **courbe/tordue** → approche à noyau (**SVM à noyau**) ou approche additive (**boosting non linéaire**)
@@ -140,6 +140,16 @@ Une **interaction** se produit quand **l'effet d'une variable dépend d'une autr
         - si $\beta_3 \lt 0$, l'effet de $x_1$ diminue quand $x_2$ augmente (et inversement).
 - exemple pratique : l'effet du sport sur la santé dépend de l'âge.
 
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.preprocessing import PolynomialFeatures
+poly = PolynomialFeatures(degree=2)
+X_poly = poly.fit_transform(X)
+
+# si le score augmente nettement, la relation estnon-linéaire.
+```
+</details>
 
 Les modèles linéaires ne capturent pas ces interactions, il faut :
 - soit ajouter manuellement des termes croisées ($x_1 x_2$, x_1^2, \ldots) ;
@@ -179,6 +189,23 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
     - même métrique ;
     - CV recommandée.
 4. Si le modèle non-linéaire fait **significativement mieux** → la structure est non linéaire ; sinon, le modèle linéaire suffit.
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+
+lin = LogisticRegression(max_iter=1000)
+rbf = SVC(kernel="rbf")
+
+print(cross_val_score(lin, X, y, cv=5, scoring="roc_auc").mean())
+print(cross_val_score(rbf, X, y, cv=5, scoring="roc_auc").mean())
+
+# si RBF >> linéaire → non-linéarité confirmée.
+```
+</details>
 
 ###### Indicateurs complémentaires visuels et statistiques**
 
@@ -230,21 +257,21 @@ X_poly = poly.fit_transform(X)
 |-----------|---------------|---------------|
 | Frontière simple/linéaire | **linéaire** | suffisant et rapide |
 | Frontière courbe mais lisse (sans cassures brutales) | **RBF (Gaussien)** | bonne flexibilité, paramètre $\gamma$ à tuner |
-| Frontière non lisse (découpée en rectangles orthogonaux) | | |
-| Interaction polynomiale connue | **polynomial** | interprétable si faible degré |
+| Frontière non lisse/polynomiale / Interaction polynomiale connue | **polynomial** | interprétable si petit degré |
 | Volume de données élevé | **approximation RBF (RFF)** | gain de temps mémoire |
 | Texte | **noyau de similarité cosinus** ou **TF-IDF kernel** | mesure de proximité sémantique |
-| Graphe | **graph kernel** (Weisfeller-Lehman, shortest-path) | compare des sous-graphes structurels |
+| Graphe | **Graph kernel** (Weisfeller-Lehman, shortest-path) | compare des sous-structures |
 | Séquences / Bio-informatique | **Noyau de sous-chaînes** (string kernel) | compare des motifs communs |
 | Images | **Noyaux RBF / CNN** (*features* préentraînées | capture des formes et textures |
-| Données temporelles | **Dynamic Time Warping kernel** | tolère des décalages temporels |
+| Séries temporelles | **Dynamic Time Warping (DTW) kernel** | tolère des décalages temporels |
 
-- Toujours tester au moins deux noyaux  et justifier le choix par une **métrique adaptée** et un **compromis biais/variance**
+- Toujours tester au moins deux noyaux  et justifier le choix par une **métrique adaptée** et un **compromis biais/variance** :
 
-<!--TODO
-spécifier les métriques utilisées pour comparer deux noyaux
--->
-
+| Cas | Métrique adaptée |
+|-----|------------------|
+| **Classification équilibrée** | AUC-ROC |
+| **Classification déséquilibrée** | F1 / AUC-PR |
+| **Régression** | R² / RMSE
 
 ###### 2.1.1.3. Approche additive : Choisir un Boosting
 
@@ -258,14 +285,27 @@ spécifier les métriques utilisées pour comparer deux noyaux
 | Variables catégorielles dominantes | **CatBoost** | encodage intégré |
 | Risque d'overfit fort | **↘ `learning_rate`**, ↗ `n_estimators` | meilleur compromis biais/variance |
 
-<!--TODO
-spécifier les métriques utilisées pour comparer deux boostings
--->
+
+
+| Cas | Métrique adaptée |
+|-----|------------------|
+| **Classification équilibrée** | AUC-ROC / Accuracy |
+| **Classification déséquilibrée** | F1 / Balanced Accuracy |
+| **Régression** | RMSE / MAE / R² |
+| **Autres critères** | Variance CV, temps d'apprentissage |
 
 #### 2.1.2 Déséquilibre des classes
 
-- dataset équilibré → <!--TODO compléter -->
-- dataset déséquilibré → modèle **additif de type boosting / ensemble**[^6]
+- dataset équilibré → Accuracy, AUC, CrossEntropy.
+- dataset déséquilibré → `class_weight='balanced'` ou **SMOTE + F1/Recall** ou modèle **additif de type boosting / ensemble**[^6]
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from imblearn.over_sampling import SMOTE
+X_res, y_res = SMOTE().fit_resample(X, y)
+```
+</details>
 
 ### 2.2. Choix de la famille de modèles
 
@@ -294,9 +334,9 @@ spécifier les métriques utilisées pour comparer deux boostings
 | Régression logistique | Interprétable, baseline solide | Frontière linéaire uniquement |
 | SVM (linéaire / RBF) | Performant sur les données peu bruitées | Sensible au scaling / $C$ / $\gamma$ |
 | k-NN | Simple, non-paramétrique | Coût élevé en test, choix du $k$ |
-| Random Forest | Gère les données mixtes, importance des variables | Peu explicatif sur les décisions |
-| Gradient Boosting | Très efficace sur déséquilibre | Long à entraîner, nécessite réglage fin[^8] |
-| Réseaux de neurones | Très flexible[^9] | Données nombreuses + tuning lourd |
+| Random Forest | Gère les données mixtes, importance des variables ; stable | Peu explicatif sur les décisions |
+| Gradient Boosting | Efficace sur déséquilibre | Long à entraîner, long à tuner[^8] |
+| Réseaux de neurones | Très flexible[^9] | Requiert bcp de données + tuning lourd |
 
 ## 3. Prétraitement des données
 
@@ -305,12 +345,34 @@ spécifier les métriques utilisées pour comparer deux boostings
 3. Variables corrélées → réduction (ACP, sélection de features)
 4. Classes déséquilibrées → `class_weight`, oversampling/undersampling, SMOTE
 
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+
+preprocess = ColumnTransformer([
+    ("num", StandardScaler(), num_features),
+    ("cat", OneHotEncoder(), cat_features)
+])
+```
+</details>
+
 ## 4. Définir le protocole expérimental
 
 1. Split : Train / Validation / Test → 70/15/15 ou $k$-fold CV (5-CV)
 2. Choix de la métrique principale
 3. Comparaison des modèles selon performance + temps d'apprentissage
 4. Interprétation / validation finale
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.model_selection import train_test_split
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, stratify=y)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5)
+```
+</details>
 
 ## 5. Choix des métriques
 
@@ -319,6 +381,8 @@ spécifier les métriques utilisées pour comparer deux boostings
 - dataset déséquilibré → **F1/Recall/MCC**
 - priorité à "ne pas rater" → **Recall**
 - priorité à "ne pas se tromper" → **Precision**
+
+<details><summary><span style="color:lightblue; font-weight:bold">Détails</span></summary>
 
 ```text
 → Type de problème :
@@ -338,6 +402,7 @@ spécifier les métriques utilisées pour comparer deux boostings
                     ├── Precision → éviter les faux positifs
                     └── Balanced accuracy ou MCC
 ```
+</details>
 
 ### 5.1. Pour les problèmes de régression
 
@@ -345,7 +410,7 @@ spécifier les métriques utilisées pour comparer deux boostings
 |----------|---------|------------|---------------------------|-----------------|
 | **MSE** (Mean squared Error) | $\frac{1}{n} \sum_i (y_i - \hat{y}_i)^2$ | Erreur quadratique moyenne.</br>Très sensible aux valeurs extrêmes | pénalise fortement les grandes erreurs, mais amplifie les outliers | homogènes |
 | **RMSE** (Root MSE) | $\sqrt{MSE}$ | Même unité que la variable cible. | plus intuitif, mais mêmes limites que MSE | homogènes |
-**MAE* (Mean Absolute Error | $\frac{1}{n} \sum_i \vert y_i - \hat{y}_i \vert $ | Erreur absolue moyenne, plus robuste. | moins sensible aux gros écarts, mais moins différenciant | avec outliers |
+| **MAE** (Mean Absolute Error | $\frac{1}{n} \sum_i \vert y_i - \hat{y}_i \vert $ | Erreur absolue moyenne, plus robuste. | moins sensible aux gros écarts, mais moins différenciant | avec outliers |
 | **$R^2$** (Coefficient de détermination | $1 - \frac{\sum (y_i - \hat{y}_i)^2}{\sum (y_i - \bar{y}_i)^2 }$ | Part de la variance expliquée (max = 1) | intuitif mais pas stable et varie peu | |
 
 <u><str>NB</str></u> : si comparaison de modèles → toujours préciser l'unité (ex.: erreur moyenne de 5°C).
@@ -405,6 +470,19 @@ spécifier les métriques utilisées pour comparer deux boostings
 - tuning noyaux : $C$ (si SVM linéaire) ou $C$ et $\gamma$ (si SVM RBF)
 - tuning boosting : `n_estimators`, `learning_rate`, `max_depth` et `subsample`, parfois `lambda` (régularisation) et `colsample_bytree` (échantillonnage des *features*).
 
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.model_selection import GridSearchCV
+
+grid = GridSearchCV(SVC(), {
+    "C": [0.1, 1, 10],
+    "gamma": [0.01, 0.1, 1]
+}, cv=5, scoring="roc_auc")
+grid.fit(X_train, y_train)
+```
+</details>
+
 ## 7. Validation et interprétation
 
 ### 7.1. Comparer plusieurs modèles sur le même split
@@ -432,13 +510,13 @@ spécifier les métriques utilisées pour comparer deux boostings
 | Type de tâche | Visualisation | Ce qu'elle montre | Interprétation attendue | Exemple de rédaction |
 |---------------|---------------|-------------------|-------------------------|----------------------|
 | **Classification** | **Courbe ROC / AUC** | compromis entre rappel (TPR) et faux positifs (FPR) pour tous les seuils | AUC proche de 1 → excellente discrimination entre classes | <small>"Le SVM à noyau RBF atteint une AUC de 0,93, traduisant une forte capacité de discrimination."</small> |
-| | **Courbe PR (Precision-Recall)** | compromis entre précision et rappel, utile si classes déséquilibrées | courbe proche du coin supérieur droit = bon équilibre précision/rappel | <small>"Le modèle conserve une précision stable jusqu’à un rappel de 0,8, indiquant une gestion correcte du déséquilibre."</small> |
-| | **Matrice de confusion** | répartition des prédictions correctes et erreurs par classe | permet de repérer les classes sous-prédites | <small>"La classe minoritaire est mal détectée (rappel 0,62), ce qui justifie un rééquilibrage ou un seuil adapté.".</small> |
-| **Courbes d'apprentissage** | évolution du score train/validation selon la taille de l'échantillon | écart large = overfit ; écart faible = bon compromis | <small>"Le modèle surapprend : le score train reste élevé tandis que le score validation stagne."</small> |
-| **Importance des features** (forêts, boosting) | contribution de chaque variable à la prédiction | identifie les variables déterminantes ; attention aux corrélations | <small>"Les variables de revenu et d’âge expliquent 70 % de la variance prédictive."</small> |
+| **Classification déséquilibrée** | **Courbe PR (Precision-Recall)** | compromis entre précision et rappel, utile si classes déséquilibrées | courbe proche du coin supérieur droit = bon équilibre précision/rappel | <small>"Le modèle conserve une précision stable jusqu’à un rappel de 0,8, indiquant une gestion correcte du déséquilibre."</small> |
+| **Classification** | **Matrice de confusion** | répartition des prédictions correctes et erreurs par classe | permet de repérer les classes sous-prédites | <small>"La classe minoritaire est mal détectée (rappel 0,62), ce qui justifie un rééquilibrage ou un seuil adapté.".</small> |
+| **Tous** | **Courbes d'apprentissage** | surfit/sous-fit : évolution du score train/validation selon la taille de l'échantillon | écart large = overfit ; écart faible = bon compromis | <small>"Le modèle surapprend : le score train reste élevé tandis que le score validation stagne."</small> |
+| **Modèles d'arbres | **Importance des features** (forêts, boosting) | contribution de chaque variable à la prédictio | identifie les variables dominantes ; attention aux corrélations dans l'interprétation | <small>"Les variables de revenu et d’âge expliquent 70 % de la variance prédictive."</small> |
 | **Régression** | **Graphique des résifus vs valeurs prédites** | qualité d'ajustemnet : résidus centrés autour de 0 ? | répartition aléatoire = bon modèle ; structure = biais / non-linéarité | <small>"Les résidus sont homogènes, aucune structure apparente : l’ajustement est correct."</small> |
-| **Histogramme ou QQ-plot des résidus** | vérifie la normalité et la symétrie des errurs | distribution centrée et gaussienne = modèle conforme aux hypothèses | <small>"Les résidus suivent une distribution quasi normale, validant l’hypothèse de linéarité."</small> |
-| | **Résidus standardisés ou Cook's distance** | détexte les points influents / outliers | valeurs extrêmes → observation atypique à évaluer | <small>"Deux points présentent une distance de Cook > 1, suggérant une influence excessive." | | **Courbe de calibration ($\hat{y}$ vs $y$ réel)** | fidélité du modèle : les prédicitions suivent-elles la diagonale idéale ? | points proches de la diagonale → bon calibrage | <small>"La courbe de calibration est proche de la diagonale, le modèle prédit sans biais systématique"</small> |
+| **Régression** | **Histogramme ou QQ-plot des résidus** | vérifie la normalité et la symétrie des errurs | distribution centrée et gaussienne = modèle conforme aux hypothèses | <small>"Les résidus suivent une distribution quasi normale, validant l’hypothèse de linéarité."</small> |
+| **Régression** | **Résidus standardisés ou Cook's distance** | détexte les points influents / outliers | valeurs extrêmes → observation atypique à évaluer | <small>"Deux points présentent une distance de Cook > 1, suggérant une influence excessive." | | **Courbe de calibration ($\hat{y}$ vs $y$ réel)** | fidélité du modèle : les prédicitions suivent-elles la diagonale idéale ? | points proches de la diagonale → bon calibrage | <small>"La courbe de calibration est proche de la diagonale, le modèle prédit sans biais systématique"</small> |
 | | **Courbes d'apprentissage (train/test)** | sur- ou sous-apprentissage selon taille de l'échantillon | écart large → surfit ; scores faibles → underfit | <small>"Le modèle est trop complexe : la perte test augmente après 200 itérations."</small> |
 
 <details ><summary><span style="color:pink; font-weight:bold">Python</span></summary>
@@ -652,14 +730,14 @@ plt.show()
 
 
 ---
-[^1]: AdaBoost (comme SVM) cherche à **maximiser la marge**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
-[^2]: Mathématiquement, $x_1 x_2 = x_2 x_1$.  
-[^3]: Explosion des coefficients
-[^4]: Résidus :
-[^5]: Données complexes = non linéaires, bruitées, variables dépendantes (ex.: prévisions financières, médicales).
-[^6]: Algorithme d'ensemble :
-[^7]: Gradient Boosting/XGBoost sont sensibles au surfit car
-[^8]: Gradient Boosting nécessite un réglage fin car
-[^9]: Flexibilité d'un modèle :
-[^10]: Biais et variance :
-[$11]: 
+[^1]: AdaBoost (comme SVM) cherche à **maximiser une marge moyenne**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur ou *weak learner* (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
+[^2]: Mathématiquement, $x_1 x_2 = x_2 x_1$ (interaction symétrique).
+[^3]: Explosion des coefficients en cas de colinéarité : colinéarité → coefficients instables → Ridge ou ACP nécessaire.
+[^4]: Résidus : différences entre $y$ réel et $y$ prédit.
+[^5]: Données complexes = structures non linéaires, bruit, variables fortement dépendantes (ex.: prévisions financières, médicales).
+[^6]: Algorithmes d'ensemble : combinaison pondérées de modèles faibles (bagging, boosting).
+[^7]: Gradient Boosting/XGBoost sont sensibles au surfit : surfit si trop trop d'itérations ou si `learning_rate` trop haut).
+[^8]: Gradient Boosting nécessite un réglage (*tuning*) fin cat il est sensible aux hyperparamètres.
+[^9]: Flexibilité d'un modèle : capacité à approximer des fonctions complexes.
+[^10]: Biais et variance : biais ↗ = modèle simple (risque de sous-apprentissage) ; variance ↗ = modèle complexe (risque de surapprentissage).
+[^11]: `RocCurveDisplay.from_estimator()` fonctionne avec tout modèle ayant `predict_proba()` ou `decision_function()`.
