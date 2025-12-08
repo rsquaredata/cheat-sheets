@@ -45,6 +45,8 @@ Last updated: 2025-12-04^8
 
 9. [Notes de bas de page](#notes-de-bas-de-page)
 
+---
+
 ## 1. identification du problème
 
 ### 1.1. Supervisé ou non supervisé ?
@@ -145,10 +147,10 @@ Last updated: 2025-12-04^8
 
 | Tâche | Loss idéale | Surrogate courante | Algorithme associé | Forme |
 |-------|-------------|--------------------|--------------------|-------|
-| **Classification binaire** | 0-1 loss | **Hinge loss** | SVM | $\ell \left( y, f(x) \right) = \max(0, 1-f(x))$ |
+| **Classification binaire** | 0-1 loss | **Hinge loss** | SVM | $\ell \left( y, f(x) \right) = \max(0, 1- y f(x))$ |
 | | 0-1 loss | **Logistic loss** | Régression logistique, Boosting | $\ell \left( y, f(x) \right) = \log(1 + e^{-y(f(x)})$ |
 | | 0-1 loss | **Exponential loss** | AdaBoost[^1] | $\ell \left( y, f(x) \right) = e^{-yf(x)}$ |
-| Régression | $L_2$ | MSE/RMSE | Linéaire, Ridge, SVR | $\left( y-f(x) \right)^2$ |
+| **Régression** | $L_2$ | MSE/RMSE | Linéaire, Ridge, SVR | $\left( y-f(x) \right)^2$ |
 | | $L_1$ | MAE | Lasso, quantile regression | $\vert y-f(x) \vert $ |
 
 <small>Exemple de rédaction : "Les méthodes de marge large (SVM) reposent sur la hinge loss, qui est une surrogate convexifiant la 0-1 loss"</small>
@@ -188,7 +190,7 @@ from sklearn.preprocessing import PolynomialFeatures
 poly = PolynomialFeatures(degree=2)
 X_poly = poly.fit_transform(X)
 
-# si le score augmente nettement, la relation estnon-linéaire.
+# si le score augmente nettement, la relation est non-linéaire.
 ```
 </details>
 
@@ -216,7 +218,7 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
 
 **Objectif** : vérifier si la relation entre les variables explicatives $X$ et la cible $y$ peut être correctement **modélisée par une fonction linéaire**, ou si elle nécessite un **modèle non linéaire**.
 
-##### 2.1.1.1. Démarche expérimentale
+##### 2.1.1.3. Démarche expérimentale
 
 ###### Protocole
 1. **Fit un modèle linéaire simple**
@@ -224,7 +226,7 @@ sns.heatmap(corr, cmap='coolwarm', annot=True)
     - si régression : régression linéaire simple ou ridge/lasso.
 2. **Fit un modèle non linéaire** :
     - si classification : SVM RBF, arbre de décision, random forest, gradient boosting.
-    - si régression : SVR RBF, RandomForectRegressor, XGBoostRegressor.
+    - si régression : SVR RBF, RandomForestRegressor, XGBoostRegressor.
 3. **Comparer les performances** :
     - même split train/test ;
     - même métrique ;
@@ -325,7 +327,7 @@ print(f"p-value = {test[1]:.4f}")
 ```
 </details>
 
-###### 2.1.1.2. Approche à noyau : Choisir un noyau (SVM/Kernel)
+#### 2.1.2. Approche à noyau : Choisir un noyau (SVM/Kernel)
 
 - On choisit un noyau *après* avoir sélectionné le modèle <u>SVM</u> et *avant* le tuning des hyperparamètres
 
@@ -349,7 +351,7 @@ print(f"p-value = {test[1]:.4f}")
 | **Classification déséquilibrée** | F1 / AUC-PR |
 | **Régression** | R² / RMSE
 
-###### 2.1.1.3. Approche additive : Choisir un Boosting
+#### 2.1.3. Approche additive : Choisir un Boosting
 
 - on choisit le boosting *après* avoir choisi la famille d'<u>algorithmes d'ensemble</u> et *avant* le tuning.
 
@@ -370,7 +372,7 @@ print(f"p-value = {test[1]:.4f}")
 | **Régression** | RMSE / MAE / R² |
 | **Autres critères** | Variance CV, temps d'apprentissage |
 
-#### 2.1.2 Déséquilibre des classes
+#### 2.1.4 Déséquilibre des classes
 
 - dataset équilibré → Accuracy, AUC, CrossEntropy.
 - dataset déséquilibré → `class_weight='balanced'` ou **SMOTE + F1/Recall** ou modèle **additif de type boosting / ensemble**[^6]
@@ -601,7 +603,7 @@ X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5)
 | Métrique | Formule | Définition / Usage | Avantages / Inconvénients | Rédaction |
 |----------|---------|------------|-------------------------------|-----------|
 | **Accuracy** | $\frac{TP+TN}{TP+TN+FP+FN}$ | pourcentage de bonnes prédictions | simple, mais trompeur si classes déséquilibrées | 
-| **AUC ROC** (Area Under the Curve of the Receiver Operating Characteristic) | $AUC = \int_0^1 TPR(FR) \text{ d}(FPR)$</br>    $\simeq \sum_{i=1}^{n-1} (FPR_{i+1} - FPR_i) \times \frac{TPR_{i+1} + TPR_i}{2}$ | • capacité à discriminer les classes.</br>• maths : aire sous la courbe ROC (TPR vs FPR), calculée en pratique comme une somme de trapèzes</br>• stats : $AUC = \mathbb{P}(\text{score positif} \gt taxt{score négatif})$ | AUC = 0.5 → modèle aléatoire (aucun pouvoir discriminant)</br>AUC = 0.7-0.8 → correct</br>AUC = 0.8-0.9 → bon</br>AUC > 0.9 → excellent</br>AUC = 1.0 → parfait (souvent sur-apprentissage</br>L'AUC est **indépendante du seuil** → pratique mais peut **masquer** une mauvaise calibration des probabilités | La courbe ROC trace la sensibilité (TPR) en fonction du taux de faux positifs (FPR). L'aire sous la courve (AUC) mesure la capacité du modèle à classer un positif au-dessus d'un négatif. Une AUC = 1 correspond à un classifieur parfait, 0.5 à un modèle aléatoire. |
+| **AUC ROC** (Area Under the Curve of the Receiver Operating Characteristic) | $AUC = \int_0^1 TPR(FPR) \text{ d}(FPR)$</br>    $\simeq \sum_{i=1}^{n-1} (FPR_{i+1} - FPR_i) \times \frac{TPR_{i+1} + TPR_i}{2}$ | • capacité à discriminer les classes.</br>• maths : aire sous la courbe ROC (TPR vs FPR), calculée en pratique comme une somme de trapèzes</br>• stats : $AUC = \mathbb{P}(\text{score positif} \gt text{score négatif})$ (probabilit qu'un positif ait un score supérieur à un négatif) | AUC = 0.5 → modèle aléatoire (aucun pouvoir discriminant)</br>AUC = 0.7-0.8 → correct</br>AUC = 0.8-0.9 → bon</br>AUC > 0.9 → excellent</br>AUC = 1.0 → parfait (souvent sur-apprentissage</br>L'AUC est **indépendante du seuil** → pratique mais peut **masquer** une mauvaise calibration des probabilités | La courbe ROC trace la sensibilité (TPR) en fonction du taux de faux positifs (FPR). L'aire sous la courve (AUC) mesure la capacité du modèle à classer un positif au-dessus d'un négatif. Une AUC = 1 correspond à un classifieur parfait, 0.5 à un modèle aléatoire. |
 | **Log Loss / Cross Entropy** | $- \frac{1}{n} \sum \left[y_i \log(p_i) + (1-y_i) \log(1-p_i) \right]$ | pénalise les prédictions trop confiantes et fausses | bon pour calibration probabiliste | |
 
 #### 5.2.2. Jeu déséquilibré
@@ -627,11 +629,29 @@ X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5)
 
 ## 6. Tuning des hyperparamètres
 
+0. toujours tuner `random_state`ou fixer la graine pour reproductibilité
 1. split train / validation / test
 2. CV 5-fold
 3. GridSearchCV ou RandomizedSearchCV
 4. Comparer sur **métrique adaptée** (pas forcément *Accuracy*)
 5. vérifier la **stabilité des scores** variance basse → modèle robuste)
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.model_selection import GridSearchCV, cross_val_score, KFold
+from sklearn.svm import SVC
+
+# Boucle interne : tuning
+inner_cv = KFold(n_splits=3, shuffle=True, random_state=42)
+param_grid = {'C': [0.1, 1, 10], 'gamma': [0.01, 0.1, 1]}
+grid = GridSearchCV(SVC(kernel='rbf'), param_grid, cv=inner_cv, scoring='roc_auc')
+
+# Boucle externe : évaluation non biaisée
+outer_cv = KFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_val_score(grid, X, y, cv=outer_cv, scoring='roc_auc')
+
+print(f"AUC moyenne : {scores.mean():.3f} ± {scores.std():.3f}")
 
 | Modèle | Hyperparamètres clés | Comment / Pourquoi | Effet du réglage | Astuce / Pièges |
 |---------|----------------------|--------------------|------------------|-----------------|
@@ -661,6 +681,16 @@ grid = GridSearchCV(SVC(), {
 grid.fit(X_train, y_train)
 ```
 </details>
+
+#### Validation imbriquée (Nested Cross-Validation)
+
+Une **validation imbriquée** (*nested CV*) combine deux boucles de validation croisée :
+- une **boucle interne** pour le **tuning des hyperparamètres** (`GridSearchCV` ou `RandomizedSearchCV`)
+- une **boucle externe** pour **évaluer la performance réelle** du modèle optimisé.
+
+Cette approche fournit une **estimation non biaisée** de la performance finale, car le jeu de test externe n’a **jamais été vu** pendant le tuning.
+
+<small>Exemple : 5-fold externe × 3-fold interne → 15 fits totaux.</small>
 
 ## 7. Validation et interprétation
 
@@ -693,7 +723,7 @@ grid.fit(X_train, y_train)
 | **Classification** | **Matrice de confusion** | répartition des prédictions correctes et erreurs par classe | permet de repérer les classes sous-prédites | <small>"La classe minoritaire est mal détectée (rappel 0,62), ce qui justifie un rééquilibrage ou un seuil adapté.".</small> |
 | **Tous** | **Courbes d'apprentissage** | surfit/sous-fit : évolution du score train/validation selon la taille de l'échantillon | écart large = overfit ; écart faible = bon compromis | <small>"Le modèle surapprend : le score train reste élevé tandis que le score validation stagne."</small> |
 | **Modèles d'arbres | **Importance des features** (forêts, boosting) | contribution de chaque variable à la prédictio | identifie les variables dominantes ; attention aux corrélations dans l'interprétation | <small>"Les variables de revenu et d’âge expliquent 70 % de la variance prédictive."</small> |
-| **Régression** | **Graphique des résifus vs valeurs prédites** | qualité d'ajustemnet : résidus centrés autour de 0 ? | répartition aléatoire = bon modèle ; structure = biais / non-linéarité | <small>"Les résidus sont homogènes, aucune structure apparente : l’ajustement est correct."</small> |
+| **Régression** | **Graphique des résidus vs valeurs prédites** | qualité d'ajustemnet : résidus centrés autour de 0 ? | répartition aléatoire = bon modèle ; structure = biais / non-linéarité | <small>"Les résidus sont homogènes, aucune structure apparente : l’ajustement est correct."</small> |
 | **Régression** | **Histogramme ou QQ-plot des résidus** | vérifie la normalité et la symétrie des errurs | distribution centrée et gaussienne = modèle conforme aux hypothèses | <small>"Les résidus suivent une distribution quasi normale, validant l’hypothèse de linéarité."</small> |
 | **Régression** | **Résidus standardisés ou Cook's distance** | détexte les points influents / outliers | valeurs extrêmes → observation atypique à évaluer | <small>"Deux points présentent une distance de Cook > 1, suggérant une influence excessive." | | **Courbe de calibration ($\hat{y}$ vs $y$ réel)** | fidélité du modèle : les prédicitions suivent-elles la diagonale idéale ? | points proches de la diagonale → bon calibrage | <small>"La courbe de calibration est proche de la diagonale, le modèle prédit sans biais systématique"</small> |
 | | **Courbes d'apprentissage (train/test)** | sur- ou sous-apprentissage selon taille de l'échantillon | écart large → surfit ; scores faibles → underfit | <small>"Le modèle est trop complexe : la perte test augmente après 200 itérations."</small> |
@@ -895,7 +925,7 @@ plt.show()
 ```
 </details>
 
-## 7. Cas spéciaux
+## 8. Cas spéciaux
 
 | Situation | Réponse attendue |
 |-----------|------------------|
@@ -921,4 +951,4 @@ plt.show()
 [^10]: Biais et variance : biais ↗ = modèle simple (risque de sous-apprentissage) ; variance ↗ = modèle complexe (risque de surapprentissage).
 [^11]: `RocCurveDisplay.from_estimator()` fonctionne avec tout modèle ayant `predict_proba()` ou `decision_function()`.
 [^12]: Hétéroscédasticité : On parle d'**hétéroscédasticité** quand la variance des résidus **n'est pas constante** : les erreurs sont plus grandes pour certaines valeurs de $\hat{y}$ que pour d'autres. Autrement dit, si la dispersion des résidus augmante ou diminue avec la valeur prédite → variance non constante/hérétoscédasticité / si les résidus ont **variance stablë¨(bande homogène autour de 0) → homoscédasticité. Intérêt = **violation des hypothèses du modèle linéaire** → la régression linéaire suppose l'homoscédasticité ; si les résidus n'ont pas une variance constante, les coefficient du modèle linéaire restent valide **mais** les **tests statistiques** (t, F) deviennent biaisés, les **intervalles de confiance** ne sont plus fiables, et cela indique souvent que le modèle est **mal spécifié** (il manque un terme non-linéaire ou une transformation).
-[^13]: Apprentissage résiduel : fait d'entraîner chaque nouveau modèle non pas sur les **valeurs cibles** $y$ mais sur les **erreurs (résidus)** du modèle précédent ; autrement dit, fait d'apprendre à **corriger les erreurs des modèles précédents**. En pratique : le boosting apprend **séquentiellement** des modèles faibles (petits arbres), chaque modèle suivant essayant de **prédire les résidus** du modèle précédent.
+[^13]: Apprentissage résiduel : le fait d'entraîner chaque nouveau modèle non pas sur les **valeurs cibles** $y$ mais sur les **erreurs (résidus)** du modèle précédent ; autrement dit, fait d'apprendre à **corriger les erreurs des modèles précédents**. En pratique : le boosting apprend **séquentiellement** des modèles faibles (petits arbres), chaque modèle suivant essayant de **prédire les résidus** du modèle précédent.
