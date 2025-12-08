@@ -336,7 +336,7 @@ où $\nu$ = *learning rate*.
 
 ## Annexes - Mini-dérivations
 
-### 1. SVM linéaire → problème dual
+### A. SVM linéaire → problème dual
 
 1. **Étape 1 - problème primal** : On cherche l’hyperplan séparateur le plus large : $\min_{w,b} \frac{1}{2}\|w\|^2 \quad \text{s.c. } y_i(w^\top x_i + b) \ge 1$
 
@@ -357,12 +357,12 @@ $$
 \quad \text{s.c. } \alpha_i \ge 0, \; \sum_i \alpha_i y_i = 0$
 
 5. **Étape 5 - fonction de décision** :
-    - $f(x) = \text{sign} \left(\sum_i \alpha_i y_i (x_i^\top x) + b\right$
+    - $f(x) = \text{sign} \left(\sum_i \alpha_i y_i (x_i^\top x) + b \right)$
     - Les $\alpha_i > 0$ sont les **vecteurs de support**.
 
 ---
 
-### 2. Passage au noyau (Kernel Trick)
+### B. Passage au noyau (Kernel Trick)
 
 1. On remplace le produit scalaire $x_i^\top x_j$ par un **noyau** $K(x_i,x_j)$ : $K(x_i,x_j) = \phi(x_i)^\top \phi(x_j)$
 2. → Nouveau dual : $\max_\alpha \sum_i \alpha_i - \frac{1}{2}\sum_{i,j}\alpha_i\alpha_j y_i y_j K(x_i, x_j)$
@@ -370,7 +370,7 @@ $$
 
 ---
 
-### 3. Gradient Boosting – dérivation conceptuelle
+### C. Gradient Boosting – dérivation conceptuelle
 
 1. **Étape 1 - objectif général** : On cherche à minimiser la perte empirique : $J(F) = \sum_{i=1}^n L(y_i, F(x_i))$, avec $F(x)$ = modèle global (somme des arbres précédents).
 
@@ -385,7 +385,7 @@ $$
 
 ---
 
-### 4. AdaBoost – dérivation simplifiée
+### D. AdaBoost – dérivation simplifiée
 
 1. **Étape 1 - pondération initiale** : $w_i^{(1)} = \frac{1}{n}$
 2. **Étape 2 - erreur pondérée du classifieur $h_t$** : $\varepsilon_t = \sum_i w_i^{(t)} \mathbb{1}(h_t(x_i) \neq y_i)$
@@ -395,7 +395,7 @@ $$
 
 ---
 
-### 5. Dualité, KKT et interprétation géométrique
+### E. Dualité, KKT et interprétation géométrique
 
 | Élément | Interprétation intuitive |
 |----------|--------------------------|
@@ -406,7 +406,7 @@ $$
 
 ---
 
-### 6. Liens entre AdaBoost, Gradient Boosting et SVM
+### F. Liens entre AdaBoost, Gradient Boosting et SVM
 
 | Point commun | Explication |
 |---------------|-------------|
@@ -417,16 +417,16 @@ $$
 
 ---
 
-### 7. Exemples de calculs rapides (type examen)
+### G. Exemples de calculs rapides (type examen)
 
-#### 7.1. Calculer le nombre de vecteurs support
+#### a. Calculer le nombre de vecteurs support
 Si le dual donne 20 $\alpha_i > 0$ sur 200 points, alors la **marge** dépend uniquement de ces 20 points.
 
-#### 7.2. Produit scalaire et marge
+#### b. Produit scalaire et marge
 
 $\text{Marge} = \frac{2}{\|w\|} = \frac{2}{\sqrt{w_1^2 + w_2^2 + \dots + w_d^2}}$
 
-##### 7.2.1. Produit scalaire dans un noyau RBF (gaussien)
+##### i. Produit scalaire dans un noyau RBF (gaussien)
 
 $K(x_i, x_j) = \exp(-\gamma \|x_i - x_j\|^2)$  
 
@@ -434,22 +434,22 @@ Exemple : $x_i=(1,2)$, $x_j=(3,1)$, $\gamma=0.5$
 → $\|x_i-x_j\|^2 = (1-3)^2+(2-1)^2=5$  
 → $K= e^{-0.5×5} = e^{-2.5} ≈ 0.082$
 
-#### 7.2.2. Marge d'un SVM linéaire
+##### ii. Marge d'un SVM linéaire
 
 $\text{Marge} = \frac{2}{\|w\|} = \frac{2}{\sqrt{w_1^2 + w_2^2 + \dots + w_d^2}}$  
 
 Exemple :  $w=(2,1)$ → → $\|w\| = \sqrt{5}$ → marge $= 2/\sqrt{5} \approx 0.894$
 
-#### 7.2.3. Fonction de décision du SVM
+##### iii. Fonction de décision du SVM
 
-$f(x) = \text{sign} \left(\sum_i \alpha_i y_i K(x_i, x) + b\right)$  
+$f(x) = \text{sign} \left(\sum_i \alpha_i y_i K(x_i, x) + b \right)$  
 
 Exemple :  
 3 vecteurs support avec $\alpha y = [0.5, -0.3, 0.2]$, $K(x_i,x)=[1,0.5,0.1]$, $b=0.1$  
 → $f(x)=\text{sign}(0.5×1 -0.3×0.5 + 0.2×0.1 + 0.1)=\text{sign}(0.47)=+1$  
 
 
-#### 7.3. Exemple de kernel polynomial
+#### b. Exemple de kernel polynomial
 
 $$
 K(x,x') = (x^\top x' + 1)^2 = (x_1x'_1 + x_2x'_2 + 1)^2
@@ -457,7 +457,7 @@ $$
 
 → expansion = $x_1^2x_1'^2 + 2x_1x_2x'_1x'_2 + \dots$ (introduit automatiquement des interactions).
 
-#### 7.4. Vérifier la validité d’un noyau
+#### c. Vérifier la validité d’un noyau
 - Matrice $K$ symétrique  
 - $\forall v$, $v^\top K v \ge 0$
 
@@ -470,13 +470,13 @@ $$
 
 ---
 
-### Comprendre le problème **primal vs dual** (ELI5)
+### H. Comprendre le problème **primal vs dual** (ELI5)
 
-#### Contexte
+#### a. Contexte
 Un SVM cherche une **frontière** (droite, plan ou hyperplan) qui sépare au mieux deux classes.
 Cette frontière est définie par $w$ et $b$ dans l’équation $w^\top x + b = 0$.
 
-#### Le problème primal
+#### i. Le problème primal
 C’est la **formulation directe** : "Je veux trouver le meilleur $w$ et $b$ pour maximiser la marge entre les classes."
 
 $$
@@ -489,7 +489,7 @@ $$
 - Objectif = avoir une marge grande (petite norme de $w$)
 
 
-#### Le problème dual
+#### ii. Le problème dual
 C’est la **formulation inversée** : Au lieu d’optimiser directement $w$ et $b$, on donne à chaque point $x_i$ un **poids** $\alpha_i$ qui indique "combien ce point pousse sur la frontière".
 
 $$
@@ -500,7 +500,7 @@ $$
 Seuls les points **sur la marge** (les “points charnières”) ont $\alpha_i > 0$ :
 ce sont les **vecteurs de support**.
 
-#### Pourquoi on s’en sert
+#### b. Pourquoi on s’en sert
 - Le problème dual **dépend uniquement des produits scalaires** $(x_i^\top x_j)$.
 - On peut donc les **remplacer par un noyau** $K(x_i,x_j)$ pour gérer la non-linéarité : $f(x) = \text{sign}\left(\sum_i \alpha_i y_i K(x_i, x) + b\right)$.
 - Le SVM devient ainsi **non linéaire sans jamais calculer la projection**.
@@ -514,11 +514,9 @@ ce sont les **vecteurs de support**.
 
 ---
 
----
+## Formulaire express
 
-# Formulaire express
-
-## Généralités
+### A. Généralités
 - **Produit scalaire** : $x_i^\top x_j = \sum_k x_{ik} x_{jk}$
 - **Distance euclidienne** : $\|x_i - x_j\| = \sqrt{\sum_k (x_{ik} - x_{jk})^2}$
 - **Norme** : $\|w\| = \sqrt{w_1^2 + \dots + w_d^2}$  
@@ -527,30 +525,30 @@ ce sont les **vecteurs de support**.
   - L1 (Lasso) → $\|w\|_1 = \sum_i |w_i|$
   - L2 (Ridge) → $\|w\|_2^2 = \sum_i w_i^2$
 
-## SVM linéaire
+### B. SVM linéaire
 
-### Problème primal :
+#### D. Problème primal :
 $min_{w,b} \frac{1}{2}\|w\|^2 \quad \text{s.c. } y_i(w^\top x_i + b) \ge 1$
 
-### Lagrangien :
+#### ii. Lagrangien :
 $\mathcal{L}(w,b,\alpha) = \frac{1}{2}\|w\|^2 - \sum_i \alpha_i[y_i(w^\top x_i + b) - 1]$
 
-### Conditions KKT :
+#### iii. Conditions KKT :
 $\frac{\partial \mathcal{L}}{\partial w} = 0 \Rightarrow w = \sum_i \alpha_i y_i x_i$  
 
 $\frac{\partial \mathcal{L}}{\partial b} = 0 \Rightarrow \sum_i \alpha_i y_i = 0$  
 
-### Problème dual :
+#### ii. Problème dual :
 $\max_\alpha \sum_i \alpha_i - \frac{1}{2}\sum_{i,j}\alpha_i\alpha_j y_i y_j (x_i^\top x_j)$  
 
-### Fonction de décision :
-$f(x) = \text{sign}\left(\sum_i \alpha_i y_i (x_i^\top x) + b\right)$  
+#### iii.  Fonction de décision :
+$f(x) = \text{sign} \left(\sum_i \alpha_i y_i (x_i^\top x) + b \right)$  
 
-## Kernel Trick (SVM non linéaire)
+### C. Kernel Trick (SVM non linéaire)
 
 Remplacer $x_i^\top x_j$ par $K(x_i, x_j)$ : $K(x_i, x_j) = \phi(x_i)^\top \phi(x_j)  
 
-### Exemples : 
+#### i. Exemples : 
 | Noyau | Formule | Hyperparamètres |
 |-------|----------|-----------------|
 | Linéaire | $K(x,x') = x^\top x'$ | aucun |
@@ -558,25 +556,25 @@ Remplacer $x_i^\top x_j$ par $K(x_i, x_j)$ : $K(x_i, x_j) = \phi(x_i)^\top \phi(
 | RBF (gaussien) | $K(x,x') = \exp(-\gamma \|x-x'\|^2)$ | $\gamma$ |
 | Sigmoïde | $K(x,x') = \tanh(\beta x^\top x' + \theta)$ | $\beta$, $\theta$ |
 
-### Décision finale :
-$f(x) = \operatorname{sign}\left(\sum_i \alpha_i y_i K(x_i, x) + b\right)$
+#### ii. Décision finale :
+$f(x) = \text{sign} \left(\sum_i \alpha_i y_i K(x_i, x) + b \right)$
 
-## Boosting
+### D. Boosting
 
-### AdaBoost :
+#### i. AdaBoost :
 1. Poids initiaux : $w_i^{(1)} = \frac{1}{n}$
 2. Erreur pondérée : $\varepsilon_t = \sum_i w_i^{(t)} \mathbb{1}(h_t(x_i) \neq y_i)$
 3. Poids du modèle : $\alpha_t = \frac{1}{2}\ln\frac{1-\varepsilon_t}{\varepsilon_t}$
 4. Mise à jour : $w_i^{(t+1)} = w_i^{(t)} e^{-\alpha_t y_i h_t(x_i)}$
-5. Modèle final : $F(x) = \operatorname{sign}\left(\sum_t \alpha_t h_t(x)\right)$
+5. Modèle final : $F(x) = \text{sign} \left(\sum_t \alpha_t h_t(x) \right)$
 
-### Gradient Boosting :
+#### ii. Gradient Boosting :
 1. Objectif : $\displaystyle J(F) = \sum_i L(y_i, F(x_i))$
 2. Pseudo-résidus : $r_{im} = -\frac{\partial L(y_i, F(x_i))}{\partial F(x_i)}$
 3. Apprentissage : $h_m(x) \approx r_{im}$
 4. Mise à jour : $F_m(x) = F_{m-1}(x) + \nu h_m(x)$
 
-## Loss functions
+### E. Loss functions
 
 | Nom | Formule | Dérivée |
 |------|----------|----------|
@@ -584,23 +582,23 @@ $f(x) = \operatorname{sign}\left(\sum_i \alpha_i y_i K(x_i, x) + b\right)$
 | Logistique | $\log(1 + e^{-y f(x)})$ | $-\frac{y}{1 + e^{y f(x)}}$ |
 | Exponentielle | $e^{-y f(x)}$ | $-y e^{-y f(x)}$ |
 | MSE | $(y-f(x))^2$ | $-2(y-f(x))$ |
-| MAE | $|y - f(x)|$ | $\operatorname{sign}(f(x)-y)$ |
+| MAE | $|y - f(x)|$ | $\text{sign} (f(x)-y)$ |
 
-## Métriques de performance
+### F. Métriques de performance
 
-### Classification :
+#### i. Classification :
 - $\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}$
 - $\text{Precision} = \frac{TP}{TP + FP} \quad \text{Recall} = \frac{TP}{TP + FN}$
 - $F1 = 2 \times \frac{Precision \times Recall}{Precision + Recall}$
 - $AUC = \int_0^1 TPR(FPR) \, d(FPR)$
 
-### Régression :
+#### ii. Régression :
 - $MSE = \frac{1}{n}\sum_i (y_i - \hat{y}_i)^2$
 - $RMSE = \sqrt{MSE}$
 - $MAE = \frac{1}{n}\sum_i \ vert y_i - \hat{y}_i \vert $
 - $R^2 = 1 - \frac{\sum_i (y_i - \hat{y}_i)^2}{\sum_i (y_i - \bar{y})^2}$
 
-## Rappels pratiques
+### G. Rappels pratiques
 
 | Cas | Modèle recommandé | Hyperparamètres clés |
 |-----|-------------------|----------------------|
@@ -610,16 +608,14 @@ $f(x) = \operatorname{sign}\left(\sum_i \alpha_i y_i K(x_i, x) + b\right)$
 | Dataset volumineux | RandomForest, XGBoost | `n_estimators`, `max_depth` |
 | Classes déséquilibrées | Boosting, SVM + `class_weight` | `learning_rate`, `class_weight` |
 
-## Interprétation des modèles
+### g. Interprétation des modèles
 - **SVM** → marge large, points support, robustesse.  
 - **AdaBoost** → pondère les erreurs, renforce la marge moyenne.  
 - **Gradient Boosting** → apprend sur les résidus (descente de gradient fonctionnelle).  
 - **Régularisation** → contrôle la complexité, réduit la variance.  
 - **Dualité** → exprime le problème en fonction des produits scalaires, utile pour les noyaux.
 
----
-
-## 🔹 Conditions KKT (rappel rapide)
+### H. Conditions KKT (rappel rapide)
 
 $$
 \begin{cases}
