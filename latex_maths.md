@@ -1,3 +1,9 @@
+<!--
+Title: "LaTex Cheat Sheet - Maths"
+Author: rsquaredata
+Last updated: 2025-12-08
+-->
+
 # LaTeX Cheat Sheet - Maths
 
 ---
@@ -176,7 +182,9 @@
 |------|----------|
 | ``$\infty$`` | $\infty$ |
 | ``$x \cdot y$``, ``$x_1 \cdots x_n$`` | $x \cdot y$,  $x_1 \cdots x_n$ |
-| ``1, 2, \ldots, n$`` | $1, 2, \ldots, n$ |
+| ``$1, 2, \ldots, n$`` | $1, 2, \ldots, n$ |
+| ``$\vdots$`` | $\vdots$ |
+| ``$\ddots$`` | $\ddots$ |
 | ``$g \circ f$`` | $g \circ f$ |
 | ``$\pm \mp$`` | $\pm \mp$ |
 | ``$n \times p$`` | $n \times p$ |
