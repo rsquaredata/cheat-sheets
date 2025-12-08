@@ -1,8 +1,49 @@
 <!--
 Title: "protocole mise en situation"
 Author: rsquaredata
-Last updated: 2025-12-04
+Last updated: 2025-12-04^8
 -->
+
+## Table des matières
+
+1. [Identification du problème](#1-identification-du-problème)
+    1. [Supervisé ou non supervisé ?](#11-supervisé-ou-non-supervisé-)
+        1. [Principe fondamental](#111-principe-fondamental)
+        2. [Indices dans le dataset](#112-indices-dans-le-dataset)
+        3. [Démarche](#113-démarche)
+        4. [Exemples](#114-exemples)
+        5. [Cas limites (hybrides)](#115-cas-limites-hybrides)
+    2. [Classification ou Régression ?](#12-classification-ou-régression-)
+        1. [Nature de la variable cible](#121-étude-de-la-variable-cible-y)
+        2. [Nature des variables d’entrée](#122-étude-des-variables-dentrée-x)
+    3. [Cadrage expérimental](#13-cadrage-expérimental)
+    4. [Formuler le problème](#14-formuler-le-problème)
+
+2. [Choix des modèles](#2-choix-des-modèles)
+    1. [Diagnostic exploratoire](#21-diagnostic-exploratoire)
+        - [Tester la linéarité](#211-linéarité-aka-vérifier-la-complexité-intrinsèque-du-problème)
+        - [Choisir un noyau (SVM)](#212-approche-à-noyau-choisir-un-noyau-svmkernel)
+        - [Choisir un Boosting](#213-approche-additive-choisir-un-boosting)
+        - [Déséquilibre des classes](#214-déséquilibre-des-classes)
+    2. [Choix de la famille de modèles](#22-choix-de-la-famille-de-modèles)
+    3. [Choix selon le type de tâche](#23-choix-des-modèles-selon-le-type-de-tâche)
+
+3. [Prétraitement des données](#3-prétraitement-des-données)
+
+4. [Protocole expérimental](#4-protocole-expérimental)
+
+5. [Choix des métriques](#5-choix-des-métriques)
+    - [Problèmes de régression](#51-pour-les-problèmes-de-régression)
+    - [Problèmes de classification](#52-pour-les-problèmes-de-classification)
+    - [Visualisation des résultats](#53-visualisation)
+
+6. [Tuning des hyperparamètres](#6-tuning-des-hyperparamètres)
+
+7. [Validation et interprétation](#7-validation-et-interprétation)
+
+8. [Cas spéciaux](#8-cas-spéciaux)
+
+9. [Notes de bas de page](#notes-de-bas-de-page)
 
 ## 1. identification du problème
 
@@ -246,8 +287,43 @@ X_poly = poly.fit_transform(X)
 
 - **AUC/R²** non-linéaire $\approx$ linéaire → relation linéaire suffisante → modèle linéaire ok.
 - **AUC/R²** non-linéaire $gg$ linéaire → relation non-linéaire → tester RBF, arbres, boosting.
-- **résidus** courbés/hétéroscédastiques[^4] → relation non-linéaire → transformation des variables ou modèle flexible.
+- **résidus** courbés/hétéroscédastiques[^12] → relation non-linéaire → transformation des variables ou modèle flexible.
+    - si variance des résidus ↗ avec la valeur prédite → transformer la cible (log, sqrt, Box-Cox)
+    - si effet d'une variable manquante -> ajouter un terme polynomial ou un terme di'nteraction
+    - si bruit très inégal selon les classes → utiliser un modèle robuste (Random Forest, Gradient Boosting).
+    - si résidus concentrés sur certains groupes → utiliser régression pondérée (Weighted Least Squares).
 - **importances** très concentrées sur quelques variables → possible effet d'interaction → envisager termes croisés.
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+# --- Tester l'homoscédasticité ---
+
+## méthode visuelle: tracer les résidus en fonction des valeurs prédites.
+## si on voit un effet de cône (dispersion croissant ou décroissante) → hétéroscédascticité.
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+y_pred = model.predict(X_test)
+residuals = y_test - y_pred
+
+sns.scatterplot(x=y_pred, y=residuals)
+plt.axhline(0, color="red", linestyle="--")
+plt.xlabel("Valeurs prédites")
+plt.ylabel("Résidus")
+plt.title("Diagnostic d'hétéroscédasticité")
+plt.show()
+
+## méthode statistique : test de Breusch-Pagan
+## p-value < 0.05 → hétéroscédasticité ; p-value > 0.05 → homoscédasticité.
+from statsmodels.stats.diagnostic import het_breuschpagan
+import statsmodels.api as sm
+
+X_sm = sm.add_constant(X_test)
+test = het_breuschpagan(residuals, X_sm)
+print(f"p-value = {test[1]:.4f}")
+```
+</details>
 
 ###### 2.1.1.2. Approche à noyau : Choisir un noyau (SVM/Kernel)
 
@@ -280,7 +356,7 @@ X_poly = poly.fit_transform(X)
 | Situation | Type de boosting | Justification |
 |-----------|------------------|---------------|
 | Petit dataset, peu de bruit | **AdaBoost** | simple, efficace, marge large[^2] |
-| Données complexes[^5], bruit modéré | **Gradient Boosting** | apprentissage résiduel[^4], flexible |
+| Données complexes[^5], bruit modéré | **Gradient Boosting** | apprentissage résiduel[^13], flexible |
 | Dataset volumineux/*features* nombreuses | **XGBoost / LightGBM** | optimisé, parallèle, régularisé |
 | Variables catégorielles dominantes | **CatBoost** | encodage intégré |
 | Risque d'overfit fort | **↘ `learning_rate`**, ↗ `n_estimators` | meilleur compromis biais/variance |
@@ -309,12 +385,115 @@ X_res, y_res = SMOTE().fit_resample(X, y)
 
 ### 2.2. Choix de la famille de modèles
 
-- SVM
-- Boosting
-- Forêt
-- Réseau de neurones
+#### Objectif
+Choisir une **famille algorithmique en fonction de :
+- la **nature du problème** (linéaire / non-linéaire),
+- la **taille / bruit / structure** des données,
+- la *priorité** (interprétabilité, perfomance, rapidité, etc.)
 
-<!--TODO détailler -->
+<details><summary><span style="color:lightblue; font-weight:bold">Résumé heuristique</span></summary>
+
+| Contrainte principale | Famille recommandée |
+|-----------------------|---------------------|
+| Peu de données, frontière simple | **SVM linéaire** |
+| Données bruitées ou non linéaires | **SVM RBF ou **Random Forest** |
+| Données volumineuses, variables hétérogènes | **XGBoost / LightGBM** |
+| Données séquentielles, image, texte | **Réseaux de neurones** |
+| Priorité à l'interprétabilité | **Régression logistique / Arbres** |
+| Priorité à la performance brute | **Gradient Boosting** |
+
+<small><u>Exemple de rédaction</u> : "J’ai choisi un modèle de type boosting car il gère les interactions non linéaires, les données déséquilibrées et fournit des mesures d’importance de variables, sans nécessiter de normalisation préalable."</small>
+
+</details>
+
+#### Tableau comparatif synthétique
+
+| Famille | Cas d’usage idéal | Forces | Faiblesses | Prétraitement | Métriques adaptées |
+|----------|------------------|---------|-------------|----------------|--------------------|
+| **SVM** (linéaire ou à noyau) | Peu de features, frontière nette, données propres | Excellente généralisation, robuste aux outliers | Lent si dataset volumineux, tuning sensible | Standardisation obligatoire | AUC / F1 / R² |
+| **Boosting** (Ada, GB, XGB, LGBM, CatBoost) | Données tabulaires, patterns complexes, légère non-linéarité | Très performant, gère le déséquilibre, peu de tuning initial | Risque d’overfit si trop d’estimators, training lent | Peu sensible au scaling | AUC / RMSE / F1 |
+| **Forêts aléatoires** | Dataset hétérogène, bruit modéré, besoin de robustesse | Facile à calibrer, peu sensible aux outliers, importance des features | Peu interprétable, moins précis que boosting | Pas de normalisation nécessaire | Accuracy / R² / F1 |
+| **Réseaux de neurones** | Données massives ou non tabulaires (image, texte, séquences) | Très flexible, capture des interactions complexes | Très lent à converger, tuning lourd, overfit facile | Normalisation indispensable | Accuracy / CrossEntropy / RMSE |
+
+#### 2.2.1 SVM (Support Vector Machines)
+
+- Recommandé si **frontière nette** ou **petit nombre de features**.  
+- Permet de choisir entre linéaire et RBF selon la complexité.  
+- Attention au scaling et aux hyperparamètres $C$ et $\gamma$.
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.svm import SVC
+model = SVC(kernel='rbf', C=1, gamma=0.1, probability=True)
+model.fit(X_train_scaled, y_train
+```
+</details>
+
+#### 2.2.2. Boosting (AdaBoost, GradientBoosting, XGBoost, LightGBM, CatBoost)
+
+- Recommandé pour **jeux tabulaire** avec forte variabilité.
+- Apprend résidu par résidu → bon compromis biais/variance.
+- Évite souvent la normalisation.
+- XGBoost/LightGBM = top sur Kaggle-type datasets.
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from xgboost import XGBClassifier
+model = XGBClassifier(
+    n_estimators=300,
+    learning_rate=0.1,
+    max_depth=5,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    eval_metric='auc'
+)
+model.fit(X_train, y_train)
+```
+</details>
+
+#### 2.2.3. Forêts aléatoires (Random Forest)
+
+- Bon **point de départ** pour tout jeu tabulaire.
+- Gère les features mixtes (numériques / catégorielles).
+- Moins de tuning que le boosting, mais plus lent à scorer.
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(
+    n_estimators=200,
+    max_depth=None,
+    class_weight='balanced',
+    random_state=42
+)
+model.fit(X_train, y_train)
+```
+</details>
+
+### 2.2.4. Réseaux de neurones (MLP / CNN / RNN)
+
+- À réserver aux **données nombreuses** ou non tabulaires.
+- Tuning exigeant : `learning_rate`, `epochs`, `batch_size`, `hidden_layers`.
+- Requiert **scaling** et parfois **early stopping**.
+
+<details><summary><span style="color:pink; font-weight:bold">Python</span></summary>
+
+```python
+from sklearn.neural_network import MLPClassifier
+model = MLPClassifier(
+    hidden_layer_sizes=(64, 32),
+    activation='relu',
+    learning_rate_init=0.001,
+    max_iter=500,
+    early_stopping=True
+)
+model.fit(X_train_scaled, y_train)
+```
+</details>
+
 
 ### 2.3. Choix des modèles selon le type de tâche
 
@@ -733,7 +912,7 @@ plt.show()
 [^1]: AdaBoost (comme SVM) cherche à **maximiser une marge moyenne**, càd la **séparation moyenne entre les classes**. Chaque faible classifieur ou *weak learner* (arbre de profondeur 1) est pondéré pour **augmenter la confiance dans les échantillons bien classés** et **corriger les erreurs**. Résultat : le modèle final a une **grande marge effective** → meilleure généralisation, moins de variance.
 [^2]: Mathématiquement, $x_1 x_2 = x_2 x_1$ (interaction symétrique).
 [^3]: Explosion des coefficients en cas de colinéarité : colinéarité → coefficients instables → Ridge ou ACP nécessaire.
-[^4]: Résidus : différences entre $y$ réel et $y$ prédit.
+[^4]: Résidus : erreurs du modèles représentant les différences entre $y$ réel et $y$ prédit ($e_i = y_i - \hat{y}_i$).
 [^5]: Données complexes = structures non linéaires, bruit, variables fortement dépendantes (ex.: prévisions financières, médicales).
 [^6]: Algorithmes d'ensemble : combinaison pondérées de modèles faibles (bagging, boosting).
 [^7]: Gradient Boosting/XGBoost sont sensibles au surfit : surfit si trop trop d'itérations ou si `learning_rate` trop haut).
@@ -741,3 +920,5 @@ plt.show()
 [^9]: Flexibilité d'un modèle : capacité à approximer des fonctions complexes.
 [^10]: Biais et variance : biais ↗ = modèle simple (risque de sous-apprentissage) ; variance ↗ = modèle complexe (risque de surapprentissage).
 [^11]: `RocCurveDisplay.from_estimator()` fonctionne avec tout modèle ayant `predict_proba()` ou `decision_function()`.
+[^12]: Hétéroscédasticité : On parle d'**hétéroscédasticité** quand la variance des résidus **n'est pas constante** : les erreurs sont plus grandes pour certaines valeurs de $\hat{y}$ que pour d'autres. Autrement dit, si la dispersion des résidus augmante ou diminue avec la valeur prédite → variance non constante/hérétoscédasticité / si les résidus ont **variance stablë¨(bande homogène autour de 0) → homoscédasticité. Intérêt = **violation des hypothèses du modèle linéaire** → la régression linéaire suppose l'homoscédasticité ; si les résidus n'ont pas une variance constante, les coefficient du modèle linéaire restent valide **mais** les **tests statistiques** (t, F) deviennent biaisés, les **intervalles de confiance** ne sont plus fiables, et cela indique souvent que le modèle est **mal spécifié** (il manque un terme non-linéaire ou une transformation).
+[^13]: Apprentissage résiduel : fait d'entraîner chaque nouveau modèle non pas sur les **valeurs cibles** $y$ mais sur les **erreurs (résidus)** du modèle précédent ; autrement dit, fait d'apprendre à **corriger les erreurs des modèles précédents**. En pratique : le boosting apprend **séquentiellement** des modèles faibles (petits arbres), chaque modèle suivant essayant de **prédire les résidus** du modèle précédent.
