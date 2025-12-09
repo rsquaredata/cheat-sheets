@@ -1,7 +1,7 @@
 <!--
 Title: "Apprentissage automatique des données massives"
 Author: rsquaredata
-Last updated: 2025-11-30
+Last updated: 2025-12-09
 -->
 # Table des matières
 
