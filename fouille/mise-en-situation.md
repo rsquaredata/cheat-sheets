@@ -6,44 +6,68 @@ Last updated: 2025-12-04^8
 
 ## Table des matières
 
-1. [Identification du problème](#1-identification-du-problème)
-    1. [Supervisé ou non supervisé ?](#11-supervisé-ou-non-supervisé-)
-        1. [Principe fondamental](#111-principe-fondamental)
-        2. [Indices dans le dataset](#112-indices-dans-le-dataset)
-        3. [Démarche](#113-démarche)
-        4. [Exemples](#114-exemples)
-        5. [Cas limites (hybrides)](#115-cas-limites-hybrides)
-    2. [Classification ou Régression ?](#12-classification-ou-régression-)
-        1. [Nature de la variable cible](#121-étude-de-la-variable-cible-y)
-        2. [Nature des variables d’entrée](#122-étude-des-variables-dentrée-x)
-    3. [Cadrage expérimental](#13-cadrage-expérimental)
-    4. [Formuler le problème](#14-formuler-le-problème)
-
-2. [Choix des modèles](#2-choix-des-modèles)
-    1. [Diagnostic exploratoire](#21-diagnostic-exploratoire)
-        - [Tester la linéarité](#211-linéarité-aka-vérifier-la-complexité-intrinsèque-du-problème)
-        - [Choisir un noyau (SVM)](#212-approche-à-noyau-choisir-un-noyau-svmkernel)
-        - [Choisir un Boosting](#213-approche-additive-choisir-un-boosting)
-        - [Déséquilibre des classes](#214-déséquilibre-des-classes)
-    2. [Choix de la famille de modèles](#22-choix-de-la-famille-de-modèles)
-    3. [Choix selon le type de tâche](#23-choix-des-modèles-selon-le-type-de-tâche)
-
-3. [Prétraitement des données](#3-prétraitement-des-données)
-
-4. [Protocole expérimental](#4-protocole-expérimental)
-
-5. [Choix des métriques](#5-choix-des-métriques)
-    - [Problèmes de régression](#51-pour-les-problèmes-de-régression)
-    - [Problèmes de classification](#52-pour-les-problèmes-de-classification)
-    - [Visualisation des résultats](#53-visualisation)
-
-6. [Tuning des hyperparamètres](#6-tuning-des-hyperparamètres)
-
-7. [Validation et interprétation](#7-validation-et-interprétation)
-
-8. [Cas spéciaux](#8-cas-spéciaux)
-
-9. [Notes de bas de page](#notes-de-bas-de-page)
+- [Table des matières](#table-des-matières)
+- [1. identification du problème](#1-identification-du-problème)
+  - [1.1. Supervisé ou non supervisé ?](#11-supervisé-ou-non-supervisé-)
+    - [1.1.1. Principe fondamental](#111-principe-fondamental)
+    - [1.1.2. Indices dans le dataset](#112-indices-dans-le-dataset)
+    - [1.1.3. Démarche](#113-démarche)
+    - [1.1.4. Exemples](#114-exemples)
+  - [1.1.5. Cas limites (hybrides)](#115-cas-limites-hybrides)
+  - [1.2. Classification ou Régression ?](#12-classification-ou-régression-)
+    - [1.2.1. Étude de la variable cible $y$ pour déterminer la nature du problème](#121-étude-de-la-variable-cible-y-pour-déterminer-la-nature-du-problème)
+    - [1.2.2. Étude de la variable d'entrée $X$ (*features*)](#122-étude-de-la-variable-dentrée-x-features)
+  - [1.3. Cadrage expérimental](#13-cadrage-expérimental)
+  - [1.4. Formuler le problème](#14-formuler-le-problème)
+- [2. Choix des modèles](#2-choix-des-modèles)
+  - [2.1. Diagnostic exploratoire](#21-diagnostic-exploratoire)
+    - [2.1.1. Linéarité (a.k.a. "vérifier la complexité intrinsèque du problème")](#211-linéarité-aka-vérifier-la-complexité-intrinsèque-du-problème)
+      - [2.1.1.1. Indices de non-linéarité](#2111-indices-de-non-linéarité)
+        - [Frontière de décision](#frontière-de-décision)
+        - [Interactions entre variables](#interactions-entre-variables)
+        - [Variables fortement corrélées](#variables-fortement-corrélées)
+      - [2.1.1.2. Tester l'hypothèse de linéarité](#2112-tester-lhypothèse-de-linéarité)
+      - [2.1.1.3. Démarche expérimentale](#2113-démarche-expérimentale)
+        - [Protocole](#protocole)
+        - [Indicateurs complémentaires visuels et statistiques](#indicateurs-complémentaires-visuels-et-statistiques)
+        - [Critères quantitatifs à surveiller](#critères-quantitatifs-à-surveiller)
+    - [2.1.2. Approche à noyau : Choisir un noyau (SVM/Kernel)](#212-approche-à-noyau--choisir-un-noyau-svmkernel)
+    - [2.1.3. Approche additive : Choisir un Boosting](#213-approche-additive--choisir-un-boosting)
+    - [2.1.4 Déséquilibre des classes](#214-déséquilibre-des-classes)
+  - [2.2. Choix de la famille de modèles](#22-choix-de-la-famille-de-modèles)
+    - [Objectif](#objectif)
+    - [Tableau comparatif synthétique](#tableau-comparatif-synthétique)
+    - [2.2.1 SVM (Support Vector Machines)](#221-svm-support-vector-machines)
+    - [2.2.2. Boosting (AdaBoost, GradientBoosting, XGBoost, LightGBM, CatBoost)](#222-boosting-adaboost-gradientboosting-xgboost-lightgbm-catboost)
+    - [2.2.3. Forêts aléatoires (Random Forest)](#223-forêts-aléatoires-random-forest)
+  - [2.2.4. Réseaux de neurones (MLP / CNN / RNN)](#224-réseaux-de-neurones-mlp--cnn--rnn)
+  - [2.3. Choix des modèles selon le type de tâche](#23-choix-des-modèles-selon-le-type-de-tâche)
+    - [2.3.1. Problème de régression](#231-problème-de-régression)
+    - [2.3.2. Problème de classification](#232-problème-de-classification)
+- [3. Prétraitement des données](#3-prétraitement-des-données)
+- [4. Définir le protocole expérimental](#4-définir-le-protocole-expérimental)
+- [5. Choix des métriques](#5-choix-des-métriques)
+  - [5.1. Pour les problèmes de régression](#51-pour-les-problèmes-de-régression)
+  - [5.2. Pour les problèmes de classification](#52-pour-les-problèmes-de-classification)
+    - [5.2.1. Jeu équilibré](#521-jeu-équilibré)
+    - [5.2.2. Jeu déséquilibré](#522-jeu-déséquilibré)
+  - [5.3. Visualisation](#53-visualisation)
+- [6. Tuning des hyperparamètres](#6-tuning-des-hyperparamètres)
+    - [Validation imbriquée (Nested Cross-Validation)](#validation-imbriquée-nested-cross-validation)
+- [7. Validation et interprétation](#7-validation-et-interprétation)
+  - [7.1. Comparer plusieurs modèles sur le même split](#71-comparer-plusieurs-modèles-sur-le-même-split)
+  - [7.2. Choisir le modèle qui offre le meilleur compromis](#72-choisir-le-modèle-qui-offre-le-meilleur-compromis)
+  - [7.3. Visualiser les résultats](#73-visualiser-les-résultats)
+    - [Courbe ROC / AUC (classification)](#courbe-roc--auc-classification)
+    - [Courbe  Precision-Recall (classification)](#courbe--precision-recall-classification)
+    - [Matrice de confusion](#matrice-de-confusion)
+    - [Courbe d'apprentissage (classification ou régression)](#courbe-dapprentissage-classification-ou-régression)
+  - [Importance des *features* (arbres, forêts, boosting)](#importance-des-features-arbres-forêts-boosting)
+    - [Graphique des résidus (régression)](#graphique-des-résidus-régression)
+    - [Histogramme / QQ-plot des résidus (régression)](#histogramme--qq-plot-des-résidus-régression)
+    - [Courbe de calibration (régression)](#courbe-de-calibration-régression)
+    - [Courbes d'apprentissage (régression)](#courbes-dapprentissage-régression)
+- [8. Cas spéciaux](#8-cas-spéciaux)
 
 ---
 
@@ -133,11 +157,11 @@ Last updated: 2025-12-04^8
 
 ### 1.4. Formuler le problème
 
-1. Définir l'input et l'output : $X \in \mathbb{R}^{m \times d}$ ; $y \in \mathbb{R}^m$ ou $y \in \\{0,1\\}^m$[^1]
+1. Définir l'input et l'output : $X \in \mathbb{R}^{m \times d}$ ; $y \in \mathbb{R}^m$ ou $y \in \{0,1\}^m$[^1]
 
 2. Formuler la tâche :
     - Régression : trouver $f : X \to \mathbb{R}$
-    - Classification : trouver $f : X \to \\{0,1\\}$ ou $f : X \to \\{1, \ldots, K\\}$
+    - Classification : trouver $f : X \to \{0,1\}$ ou $f : X \to \{1, \ldots, K\}$
 
 3. Choisir l'objectif d'optimisation (minimiser une *loss*) :
   - Régression : MSE, RMSE, MAE
@@ -178,7 +202,7 @@ La **frontière de décision** sépare les zones de l'espace où le modèle pré
 
 Une **interaction** se produit quand **l'effet d'une variable dépend d'une autre variable** :
 - formellement :
-    - $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 (x_1 x_2) + \beta_4 x_1^2 + \beta_5 x_2$, où $x_1 x_2$, $x_2, x_1$, $x_1^2$, x_2^2$ est un modèle polynomial du second degré où $x_1 x_2$ est le terme d'**interaction polynomiale**, $x_1^2$ et $x_2^2$ sont des termes **quadratiques** et $x_1$ et $x_2$ sont des termes **linéaires**[^2].
+    - $y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 (x_1 x_2) + \beta_4 x_1^2 + \beta_5 x_2$ est un modèle polynomial du second degré où $x_1 x_2$ est le terme d'**interaction polynomiale**, $x_1^2$ et $x_2^2$ sont des termes **quadratiques** et $x_1$ et $x_2$ sont des termes **linéaires**[^2].
         - si $\beta_3 \gt 0$, l'effet de $x_1$ augmente quand $x_2$ augmente (et inversement) ;
         - si $\beta_3 \lt 0$, l'effet de $x_1$ diminue quand $x_2$ augmente (et inversement).
 - exemple pratique : l'effet du sport sur la santé dépend de l'âge.
@@ -250,7 +274,7 @@ print(cross_val_score(rbf, X, y, cv=5, scoring="roc_auc").mean())
 ```
 </details>
 
-###### Indicateurs complémentaires visuels et statistiques**
+###### Indicateurs complémentaires visuels et statistiques
 
 1. **Analyse des résidus (régression)** : tracer `y_pred`vs `y_true`ou `residuals = y_true - y_pred` ; si les résidus[^4] montrent une **courbe** ou une **structure** → non-linéarité ; si les résidus sont répartis aléatoirement autour de 0 → linéarité plausible.
 
@@ -398,7 +422,7 @@ Choisir une **famille algorithmique en fonction de :
 | Contrainte principale | Famille recommandée |
 |-----------------------|---------------------|
 | Peu de données, frontière simple | **SVM linéaire** |
-| Données bruitées ou non linéaires | **SVM RBF ou **Random Forest** |
+| Données bruitées ou non linéaires | **SVM RBF** ou **Random Forest** |
 | Données volumineuses, variables hétérogènes | **XGBoost / LightGBM** |
 | Données séquentielles, image, texte | **Réseaux de neurones** |
 | Priorité à l'interprétabilité | **Régression logistique / Arbres** |
@@ -652,6 +676,8 @@ outer_cv = KFold(n_splits=5, shuffle=True, random_state=42)
 scores = cross_val_score(grid, X, y, cv=outer_cv, scoring='roc_auc')
 
 print(f"AUC moyenne : {scores.mean():.3f} ± {scores.std():.3f}")
+```
+</details>
 
 | Modèle | Hyperparamètres clés | Comment / Pourquoi | Effet du réglage | Astuce / Pièges |
 |---------|----------------------|--------------------|------------------|-----------------|
@@ -701,7 +727,7 @@ Cette approche fournit une **estimation non biaisée** de la performance finale,
 - **même métrique** pour tous.
 - **validation croisée §$k$-fold)** :
      - par défaut, $k = 5$.
-     -  **stratifiée**[^6] si classification déséquilibrée.
+     -  **stratifiée**[^14] si classification déséquilibrée.
      -  rapporter moyenne $\pm$ écart-type.
   
 ### 7.2. Choisir le modèle qui offre le meilleur compromis
@@ -952,3 +978,4 @@ plt.show()
 [^11]: `RocCurveDisplay.from_estimator()` fonctionne avec tout modèle ayant `predict_proba()` ou `decision_function()`.
 [^12]: Hétéroscédasticité : On parle d'**hétéroscédasticité** quand la variance des résidus **n'est pas constante** : les erreurs sont plus grandes pour certaines valeurs de $\hat{y}$ que pour d'autres. Autrement dit, si la dispersion des résidus augmante ou diminue avec la valeur prédite → variance non constante/hérétoscédasticité / si les résidus ont **variance stablë¨(bande homogène autour de 0) → homoscédasticité. Intérêt = **violation des hypothèses du modèle linéaire** → la régression linéaire suppose l'homoscédasticité ; si les résidus n'ont pas une variance constante, les coefficient du modèle linéaire restent valide **mais** les **tests statistiques** (t, F) deviennent biaisés, les **intervalles de confiance** ne sont plus fiables, et cela indique souvent que le modèle est **mal spécifié** (il manque un terme non-linéaire ou une transformation).
 [^13]: Apprentissage résiduel : le fait d'entraîner chaque nouveau modèle non pas sur les **valeurs cibles** $y$ mais sur les **erreurs (résidus)** du modèle précédent ; autrement dit, fait d'apprendre à **corriger les erreurs des modèles précédents**. En pratique : le boosting apprend **séquentiellement** des modèles faibles (petits arbres), chaque modèle suivant essayant de **prédire les résidus** du modèle précédent.
+[^14]: Validation croisée stratifiée : dans la classification, la **stratification** garantit que chaque fold de validation conserve la même proportion de classes que le jeu de données complet. Cela évite que certains folds soient déséquilibrés, ce qui peut biaiser l'évaluation du modèle.

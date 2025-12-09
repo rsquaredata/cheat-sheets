@@ -5,6 +5,7 @@ Last updated: 2025-11-30
 -->
 # Table des matières
 
+- [Table des matières](#table-des-matières)
 - [1. Fondamentaux en apprentissage machine](#1-fondamentaux-en-apprentissage-machine)
   - [1.1. Processus d'apprentissage](#11-processus-dapprentissage)
   - [1.2. Cadre d'optimisation](#12-cadre-doptimisation)
@@ -176,7 +177,7 @@ Minimiser le taux d'erreur n'est pas une bonne solution. On utilise xes mesures 
 | **Précision** | $\frac{TP}{TP+FP}$ | Évalue la justesse du modèle dans ses prédictions positives. |
 | **Rappel (Recall)** | $\frac{TP}{TP+FN}$ | Évalue la capacité du modèle à retrouver des exemples de classe minoritaire. |
 | **F-mesure (F_{\beta})** | $$\frac{(1+\beta^2) \times \text{Précision} \times \text{Rappel}}{\beta^2 \times \text{Précison} + \text{Rappel}}$$ (souvent $\beta = 1$) | Moyenne harmonique entre Précision et Rappel. |
-| ** AUC ROC** | Aire sous la courbe (TPR vs FPR). | Mesure plus adaptée aux problématiques de *ranking* et offre plus d'informations sur la qualité du modèle. |
+| **AUC ROC** | Aire sous la courbe (TPR vs FPR). | Mesure plus adaptée aux problématiques de *ranking* et offre plus d'informations sur la qualité du modèle. |
 
 ## 4.2. Stratégies d'échantillonnage (Sampling)
 

@@ -218,7 +218,7 @@ v = np.random.randn(K.shape[0])
 print(v.T @ K @ v)  # doit être ≥ 0
 ```
 
-3. **Via `np.allclose` sur la symétrie :
+3. **Via `np.allclose` sur la symétrie** :
 
 ```python
 np.allclose(K, K.T)   # doit être True
@@ -329,8 +329,6 @@ où $\nu$ = *learning rate*.
 | Kernel | "Pourquoi utiliser un noyau ?" | Pour capturer la non-linéarité sans calculer explicitement la projection φ(x). |
 | Théorie | "Qu’est-ce qu’une surrogate loss ?" | Une fonction convexe qui approxime la 0-1 loss pour rendre l’optimisation dérivable. |
 | Big Data | "Citer une méthode d’apprentissage scalable" | SGD incrémental / Spark MLlib / mini-batch learning. |
-
----
 
 ---
 

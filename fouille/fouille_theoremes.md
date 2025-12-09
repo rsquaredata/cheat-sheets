@@ -4,7 +4,7 @@ Author: rsquaredata
 Last updated: 2025-12-08
 -->
 
-# Fouilles de données massives (SVM & Noyaux) - Théorème
+# Fouilles de données massives (SVM & Noyaux) - Théorèmes
 
 ---
 
@@ -58,13 +58,13 @@ $$
 ## Conditions de Karush-Kuhn-Tucker (KKT)
 
 **Énoncé :**  
-Les conditions KKT définissent le lien entre les variables primales $(w, b, \x_i))$ et duales $(\alpha, \beta)$ :
+Les conditions KKT définissent le lien entre les variables primales $(w, b, x_i)$ et duales $(\alpha, \beta)$ :
 
 $$
 \begin{cases}
 \frac{\partial L}{\partial w} = 0 \Rightarrow w = \sum_i \alpha_i y_i x_i \\
 \frac{\partial L}{\partial b} = 0 \Rightarrow \sum_i \alpha_i y_i = 0 \\
-\frac{\partial L}{\partial \xi_i} = 0 \Rightarrow \alpha_i + \beta_i = \frac{C}{m}
+\frac{\partial L}{\partial x_i} = 0 \Rightarrow \alpha_i + \beta_i = \frac{C}{m}
 \end{cases}
 $$
 
