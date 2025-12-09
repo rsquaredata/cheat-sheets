@@ -1,7 +1,7 @@
 <!--
 Title: "Fouille massive - Protocole expérimental et démarche de résolution"
 Author: rsquaredata
-Last updated: 2025-11-30
+Last updated: 2025-12-09
 -->
 # Table des matières
 
