@@ -1,7 +1,7 @@
 <!--
 Title: "Fouille de données massives : Théorèmes"
 Author: rsquaredata
-Last updated: 2025-12-08
+Last updated: 2025-12-09
 -->
 
 # Fouilles de données massives (SVM & Noyaux) - Théorèmes
