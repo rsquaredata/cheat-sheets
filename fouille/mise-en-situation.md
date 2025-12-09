@@ -1,7 +1,7 @@
 <!--
 Title: "protocole mise en situation"
 Author: rsquaredata
-Last updated: 2025-12-04^8
+Last updated: 2025-12-09
 -->
 
 ## Table des matières
