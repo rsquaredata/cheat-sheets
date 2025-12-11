@@ -31,13 +31,13 @@ Le second était de concevoir un package **robuste**[^1], avec une API[^2] homog
 
 ---
 
-# SLIDE 4 - Architecture (2 min)
+## SLIDE 4 - Architecture (2 min)
 #### Marin (40 sec)
 > La classe mère `ClusterBase` gère tout ce qui est commun : préparation des données, standardisation, structures internes, inertie, convergence, résumé, plots, adhésion.  
-> Elle fournit aussi des "hooks"[^4] que les classes filles spécialisent.
+> Elle fournit aussi des "hooks"[^4] ou methode abstraite que les classes filles spécialisent.
 
 *(question anticipée) : "Pourquoi une classe mère ?*
-> Parce que 80 % du travail est identique entre les méthodes, et il était important d‘éviter la duplication.
+> Parce que 80 % du travail est identique entre les méthodes, et il était important d‘éviter la duplication. (DRY - Don't repeat yourself)
 
 #### Rina (40 sec)
 > Les classes filles (`KMeans`, `KModes`, `KPrototypes`, `KMedoids`) implémentent leur moteur via `run_clustering()`.  
@@ -55,14 +55,14 @@ Le second était de concevoir un package **robuste**[^1], avec une API[^2] homog
 ---
 
 ## SLIDE 5 - Les méthodes (3 min)
-#### Rina - K-means (50 sec)
+#### Marin - K-means (50 sec)
 > K-means fonctionne sur les variables numériques : le prototype est la PC1 locale, et la distance est 1 − r².  
 > C‘est idéal pour découvrir des axes latents[^5] linéaires.
 
 *(question anticipée) : “Pourquoi la PC1 locale[^6] comme prototype ?”*
 > Parce qu‘elle maximise la variance expliquée[^12] dans chaque cluster, ce qui crée un vrai facteur synthétique par groupe.
 
-#### Marin - K-modes (50 sec)
+#### Rina - K-modes (50 sec)
 > Pour les variables catégorielles, on utilise un profil modal.  
 > La distance, c‘est la proportion de désaccords entre les modalités (simple matching).
 
@@ -103,7 +103,6 @@ Le second était de concevoir un package **robuste**[^1], avec une API[^2] homog
 ## SLIDE - Conclusion
 #### Marin (30 sec)
 > Le package est cohérent avec le cahier des charges et fournit une implémentation complète des méthodes de clustering de variables.
-#### Mazilda (30 sec)
 > L’architecture est modulaire, l’API est homogène, et l’application Shiny permet une exploration interactive des résultats.
 #### Rina (30 sec)
 > Le dataset *metal_universe* rend l’outil concret et utilisable en pratique, notamment pour l’enseignement ou la démonstration.
