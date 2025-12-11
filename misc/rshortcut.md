@@ -12,7 +12,7 @@ df_clean <- df[, colSums(is.na(df)) == 0]
 ```r
 selected <- df[, c("col1", "col2")]
 ```
-> Select quqntitative columns
+> Select quantitative columns
 ```r
 numeric_cols <- df[, sapply(df, is.numeric)]
 ```
