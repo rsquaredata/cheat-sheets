@@ -52,7 +52,7 @@ alias rm='rm -i'   # demande confirmation avant suppression
 ```
 
 **Règles non négociables** :
-- je ne lance jamais une règle que je ne comprends pas
+- je ne lance jamais une commande que je ne comprends pas
 - toujours vérfiier `pwd` avant un `rm r`
 - tester les commandes sur des fichiers non critiques
 - préférer copier plutôt que supprimer
@@ -266,7 +266,7 @@ conda activate env               # active l’environnement env
 conda deactivate                 # désactive l’environnement courant
 ```
 
-🟠 Avancé - Gérer dépendances et reproductibilité
+🟠 Avancé - Gérer les dépendances et reproductibilité
 
 ```{bash}
 conda install numpy pandas          # installe des packages dans l’environnement actif
@@ -472,7 +472,7 @@ nohup ./script.sh &    # exécute un script en arrière-plan persistant
 
 ## 13. Serveurs & cloud
 
-🟢 Basique
+🟢 Basique - Connexion distante
 
 ```{bash}
 ssh user@host  # se connecter à un serveur distant en SSH
@@ -482,7 +482,7 @@ whoami         # affiche l’utilisateur connecté
 exit           # se déconnecte du serveur
 ```
 
-🟠 Avancé
+🟠 Avancé - Transfert et synchronisation
 
 ```{bash}
 ssh -i key.pem user@host            # connexion SSH avec clé privée
@@ -491,7 +491,7 @@ scp -r dossier user@host:/path      # copie un dossier récursivement
 rsync -av dossier/ user@host:/path  # synchronisation efficace (recommandé)
 ```
 
-🔴 Expert
+🔴 Expert - Tunnels et sessions persistantes
 
 ```{bash}
 ssh -L 8501:localhost:8501 user@host        # tunnel SSH (exposer un service local distant)
@@ -504,7 +504,7 @@ tmux                                        # lance un multiplexeur de sessions 
 
 ## 14. LLM / IA / API
 
-🟢 Basique
+🟢 Basique - Authentification et tests API
 
 ```{bash}
 export OPENAI_API_KEY="sk-xxxx"                # définit la clé API (session courante)
@@ -516,7 +516,7 @@ curl https://api.openai.com/v1/models \
 **Principe clé** : via le terminal, on utilise des **clés API**, pas un login/mot de passe. Les requêtes API **n’apparaissent pas** dans l’historique de ChatGPT.
 
 
-🟠 Avancé
+🟠 Avancé - Appels LLM scriptés
 
 ```{bash}
 # Appel API texte → texte (exemple générique)
@@ -533,7 +533,7 @@ curl https://api.openai.com/v1/responses \
 - tester une API avec `curl`avant de coder
 - logger les prompts/réponses si on veut un historique
 
-🔴 Expert
+🔴 Expert - LLM local et exposition API
 
 ```{bash}
 # Appel LLM local (ex: Ollama)
