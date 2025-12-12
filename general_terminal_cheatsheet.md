@@ -15,7 +15,7 @@ Ces commandes fonctionnent dans MacOS, des adaptations peuvent être nécessaire
 Section regroupant les **réflexes fondamentaux** à avoir avant toute autre action dans le terminal.  
 Socle **mental et technique** pour arrêter d'être perdu·e et reprendre le contrôle.
 
-🟢 Basique — Réflexes immédiats
+🟢 Basique - Réflexes immédiats
 
 ```{bash}
 pwd             # affiche le dossier courant
@@ -30,7 +30,7 @@ clear           # nettoyer l’écran du terminal
 - `⇥` (Tab) : autocomplétion
 - `Cmd` / `⌘` + `K` : nettoyer le terminal
 
-🟠 Avancé — Reprendre le contrôle
+🟠 Avancé - Reprendre le contrôle
 
 ```{bash}
 history       # afficher l’historique des commandes tapées
@@ -44,7 +44,7 @@ type ls       # savoir si une commande est un alias, builtin ou exécutable
 - si une commande "n'existe pas" → vérifier le `PATH`
 - toujours comprendre **quelle version** d'un outil est utilisée
 
-🔴 Expert — Discipline et sécurité
+🔴 Expert - Discipline et sécurité
 
 ```{bash}
 set -o noclobber   # empêche l’écrasement accidentel de fichiers avec >
@@ -61,7 +61,7 @@ alias rm='rm -i'   # demande confirmation avant suppression
 
 ## 2. Navigation & fichiers
 
-🟢 Basique
+🟢 Basique - Se repérer et se déplacer
 
 
 ```{bash}
@@ -75,7 +75,7 @@ cd ~               # aller dans le dossier personnel (home)
 cd -               # revenir au dossier précédent
 ```
 
-🟠 Avancé
+🟠 Avancé - Manipuler fichiers et dossiers
 
 ```{bash}
 ls -lh                 # liste détaillée avec tailles lisibles (Ko, Mo, Go)
@@ -90,7 +90,7 @@ rm file.txt            # supprimer un fichier (irréversible)
 rm -r dossier          # supprimer un dossier et son contenu (⚠️)
 ```
 
-🔴 Expert
+🔴 Expert - Métadonnées et permissions
 
 ```{bash}
 stat file.txt          # afficher toutes les métadonnées d’un fichier
@@ -107,7 +107,7 @@ chmod 755 script.sh    # changer les permissions (exécutable)
 
 ## 3. Recherche & inspection
 
-🟢 Basique
+🟢 Basique - Lire et inspecter
 
 ```{bash}
 cat file.txt           # affiche tout le contenu d’un fichier (à éviter si gros fichier)
@@ -117,17 +117,18 @@ tail file.txt          # affiche les 10 dernières lignes du fichier
 wc -l file.txt         # compte le nombre de lignes dans le fichier
 ```
 
-🟠 Avancé
+🟠 Avancé - Rechercher efficacement
 
 ```{bash}
-grep -R "pattern" . | less    # recherche récursive + affichage paginé
-ps aux | grep python          # trouve les processus Python en cours
-lsof -i :8501                 # identifie quel programme utilise le port 8501
-file file.txt                 # détecte le type réel d’un fichier
-watch -n 1 tail file.txt      # rafraîchit automatiquement la sortie toutes les secondes
+grep "mot" file.txt            # cherche les lignes contenant "mot" dans le fichier
+grep -i "mot" file.txt         # recherche insensible à la casse (Mot = mot)
+grep -n "mot" file.txt         # affiche aussi le numéro de ligne
+grep -R "mot" dossier/         # recherche récursive dans tous les fichiers d’un dossier
+find . -name "*.csv"           # trouve tous les fichiers .csv à partir du dossier courant
+find . -type d -name "data"    # trouve tous les dossiers nommés data
 ```
 
-🔴 Expert
+🔴 Expert - Debug et inspection système
 
 ```{bash}
 grep -R "pattern" . | less    # recherche récursive + affichage paginé
@@ -141,7 +142,7 @@ watch -n 1 tail file.txt      # rafraîchit automatiquement la sortie toutes les
 
 ## 4. Processus & système
 
-🟢 Basique
+🟢 Basique - Voir ce qui tourne
 
 ```{bash}
 top                     # affiche en temps réel les processus (CPU, mémoire)
@@ -151,7 +152,7 @@ whoami                  # affiche l’utilisateur courant
 uname -a                # informations sur le système (OS, kernel)
 ```
 
-🟠 Avancé
+🟠 Avancé - identifier et arrêter des processus
 
 ```{bash}
 ps aux | grep python     # trouve les processus Python en cours
@@ -162,7 +163,7 @@ free -h                  # mémoire disponible (Linux ; sur macOS utiliser vm_st
 vm_stat                  # statistiques mémoire détaillées macOS
 ```
 
-🔴 Expert
+🔴 Expert - Surveillance et intervention système
 
 ```{bash}
 lsof -i                            # liste les connexions réseau ouvertes
@@ -176,7 +177,7 @@ sudo reboot                        # redémarre la machine (droits admin requis)
 
 ## 5. Réseau & web
 
-🟢 Basique
+🟢 Basique - Vérifier la connectivité
 
 ```{bash}
 ping google.com         # teste la connectivité réseau vers un hôte (Ctrl+C pour arrêter)
@@ -185,7 +186,7 @@ ipconfig getifaddr en0  # affiche l’adresse IP locale (WiFi)
 netstat -an             # liste les connexions réseau et ports (vue brute)
 ```
 
-🟠 Avancé
+🟠 Avancé - Télécharger et inspecter le web
 
 ```{bash}
 curl https://example.com             # récupère le contenu d’une page web (HTML brut)
@@ -195,7 +196,7 @@ wget https://site.com/file.zip       # télécharge un fichier (si wget est inst
 traceroute google.com                # montre le chemin réseau jusqu’à l’hôte
 ```
 
-🔴 Expert
+🔴 Expert - Débug réseau et API
 
 ```{bash}
 lsof -i                              # liste toutes les connexions réseau ouvertes
@@ -214,7 +215,7 @@ nc -vz localhost 8501                # teste si un port local est ouvert (Stream
 
 ## 6. Git
 
-🟢 Basique
+🟢 Basique - Cycle de travail quotidien
 
 ```{bash}
 git status               # affiche l’état du dépôt (fichiers modifiés, suivis ou non)
@@ -224,7 +225,7 @@ git commit -m "message"  # crée un commit avec un message descriptif
 git push                 # envoie les commits vers le dépôt distant (GitHub)
 ```
 
-🟠 Avancé
+🟠 Avancé - Branches et historiques
 
 ```{bash}
 git branch                 # liste les branches locales
@@ -236,7 +237,7 @@ git stash                  # met de côté les modifications non commitées
 git stash pop              # restaure les modifications mises de côté
 ```
 
-🔴 Expert
+🔴 Expert - Réécriture et récupération
 
 ```{bash}
 git rebase -i HEAD~5       # réécrit les 5 derniers commits (nettoyage avant push), outil quali, hésite pas à l'utiliser
@@ -254,7 +255,7 @@ git clean -fd              # supprime les fichiers/dossiers non suivis (⚠️)
 1. un projet = un environnement → jamais tout dans `base`.
 2. toujours exporter l'environnement (`environment.yml`)
 
-🟢 Basique
+🟢 Basique - Créer et activer des environnements
 
 ```{bash}
 conda --version                  # affiche la version de conda installée
@@ -265,7 +266,7 @@ conda activate env               # active l’environnement env
 conda deactivate                 # désactive l’environnement courant
 ```
 
-🟠 Avancé
+🟠 Avancé - Gérer dépendances et reproductibilité
 
 ```{bash}
 conda install numpy pandas          # installe des packages dans l’environnement actif
@@ -277,7 +278,7 @@ conda env export > environment.yml  # exporte l’environnement (reproductibilit
 conda env create -f environment.yml # recrée un env à partir d’un fichier
 ```
 
-🔴 Expert
+🔴 Expert - Nettoyage et configuration fine
 
 ```{bash}
 conda clean --all                        # nettoie caches, tarballs et index (libère de l’espace disque)
@@ -293,7 +294,7 @@ which python                             # vérifie quel Python est réellement 
 
 Conda gère **Python + libs natives + envs** tandis que uv gère **Python + packages Python** → les deux sont complémentaires, pas concurrents.  
 
-🟢🟢 Basique
+🟢🟢 Basique - Installer Python et créer un env
 
 ```{bash}
 uv --version                   # affiche la version de uv installée
@@ -303,7 +304,7 @@ uv venv .venv                  # crée un environnement virtuel dans .venv
 source .venv/bin/activate      # active l’environnement (macOS / Linux)
 ```
 
-🟠 Avancé
+🟠 Avancé - Gestion rapide des dépendances
 
 ```{bash}
 uv pip install numpy pandas    # installe des packages (remplace pip, beaucoup plus rapide)
@@ -313,7 +314,7 @@ uv pip compile requirements.in -o requirements.txt  # génère un fichier verrou
 uv pip sync requirements.txt   # synchronise l’env exactement avec requirements.txt
 ```
 
-🔴 Expert
+🔴 Expert - Exécution contrôlée et verrouillage
 
 ```{bash}
 uv run python script.py        # exécute un script dans l’environnement uv
@@ -326,7 +327,7 @@ rm -rf .venv                   # supprime complètement l’environnement (reset
 
 ## 9. Python en lignes de commande
 
-🟢 Basique
+🟢 Basique - Lancer et vérifier Python
 
 ```{bash}
 python --version            # affiche la version de Python utilisée
@@ -336,7 +337,7 @@ python script.py            # exécute un script Python
 exit()                      # quitte l’interpréteur Python
 ```
 
-🟠 Avancé
+🟠 Avancé - Exécution avancée et diagnostic
 
 ```{bash}
 python -m module            # exécute un module Python comme un script
@@ -345,7 +346,7 @@ python -i script.py         # exécute le script puis reste en mode interactif
 python -X faulthandler script.py  # affiche des traces utiles en cas de crash
 ```
 
-🔴 Expert
+🔴 Expert - debug et performance
 
 ```{bash}
 PYTHONPATH=. python script.py   # ajoute le dossier courant au chemin d’import
@@ -363,7 +364,7 @@ Quand "ça ne marche pas" :
 
 ## 10. Terminal pour la Data Science
 
-🟢 Basique
+🟢 Basique - Explorer les données
 
 ```{bash}
 ls *.csv           # liste les fichiers de données CSV
@@ -373,7 +374,7 @@ wc -l data.csv     # compte le nombre d’observations (lignes)
 du -sh data.csv    # taille du fichier (utile pour anticiper la RAM)
 ```
 
-🟠 Avancé
+🟠 Avancé - Prétraitement et logs
 
 ```{bash}
 cut -d',' -f1 data.csv                # extrait une colonne (ici la 1e, CSV simple)
@@ -383,7 +384,7 @@ for f in *.csv; do wc -l "$f"; done   # compter les lignes de plusieurs datasets
 python script.py > out.log            # redirige la sortie vers un fichier log
 ```
 
-🔴 Expert
+🔴 Expert - Jobs longs et monitoring
 
 ```{bash}
 ps aux | grep python           # surveille les scripts Python en cours
@@ -397,7 +398,7 @@ nohup python script.py &       # lance un script long en arrière-plan
 
 ## 11. Docker & containers
 
-🟢 Basique
+🟢 Basique - Images et conteneurs
 
 ```{bash}
 docker --version                 # affiche la version de Docker installée
@@ -407,7 +408,7 @@ docker ps -a                     # liste tous les conteneurs (actifs + arrêtés
 docker pull python:3.10-slim     # télécharge une image depuis Docker Hub
 ```
 
-🟠 Avancé
+🟠 Avancé - Cycle de vie et ports
 
 ```{bash}
 docker run -it python:3.10-slim bash   # lance un conteneur interactif
@@ -417,7 +418,7 @@ docker rm CONTAINER_ID                 # supprime un conteneur arrêté
 docker rmi IMAGE_ID                    # supprime une image
 ```
 
-🔴 Expert
+🔴 Expert - Debug, build et nettoyage
 
 ```{bash}
 docker exec -it CONTAINER_ID bash      # ouvre un shell dans un conteneur en cours
@@ -437,7 +438,7 @@ docker build -t mon_image .            # construit une image depuis un Dockerfil
 
 **Réflexe à avoir** : commande tapée plus de deux fois = candidate immédiate à l'automatisation.
 
-🟢 Basique
+🟢 Basique - Lancer des scripts
 
 ```{bash}
 bash script.sh          # exécute un script bash
@@ -447,7 +448,7 @@ history                 # affiche l’historique des commandes
 !!                      # rejoue la dernière commande
 ```
 
-🟠 Avancé
+🟠 Avancé - Boucles et redirections
 
 ```{bash}
 for f in *.csv; do echo "$f"; done              # boucle sur des fichiers
@@ -457,7 +458,7 @@ commande >> out.txt                             # ajoute à un fichier existant
 commande 2> err.txt                             # redirige les erreurs
 ```
 
-🔴 Expert
+🔴 Expert - Pipelines et tâches planifiées
 
 ```{bash}
 commande1 | commande2  # pipe : sortie de commande1 → entrée de commande2
