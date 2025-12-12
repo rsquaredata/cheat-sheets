@@ -430,7 +430,7 @@ docker build -t mon_image .            # construit une image depuis un Dockerfil
 
 **Attention** :
 - `docker system prune` **libère beaucoup d'espace** mais supprime ce qui n'est plus utilisé.
-- `docker build`doit toujours partir d'un **Dockerfile propre**.
+- `docker build` doit toujours partir d'un **Dockerfile propre**.
 
 ---
 
