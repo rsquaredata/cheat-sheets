@@ -53,7 +53,7 @@ alias rm='rm -i'   # demande confirmation avant suppression
 
 **Règles non négociables** :
 - je ne lance jamais une commande que je ne comprends pas
-- toujours vérfiier `pwd` avant un `rm r`
+- toujours vérfiier `pwd` avant un `rm -r`
 - tester les commandes sur des fichiers non critiques
 - préférer copier plutôt que supprimer
 
