@@ -27,6 +27,7 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 
 | Sheet | File |
 |-------|------|
+| Terminal | [General Guide to Using the Terminal (MacOS)](./general_terminal_cheatsheet.md) |
 | Markdown | [Mardown cheatsheet](cheat-sheet-markdown.md) |
 | LaTeX Maths | [LaTeX Maths cheatsheet](latex_maths.md) |
 | Pandas | pandas_cheatsheet.md |
