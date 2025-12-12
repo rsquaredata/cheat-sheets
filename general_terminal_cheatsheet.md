@@ -57,7 +57,7 @@ alias rm='rm -i'   # demande confirmation avant suppression
 - tester les commandes sur des fichiers non critiques
 - préférer copier plutôt que supprimer
 
-⸻
+---
 
 ## 2. Navigation & fichiers
 
@@ -103,7 +103,7 @@ chown user file.txt    # changer le propriétaire d’un fichier (admin)
 chmod 755 script.sh    # changer les permissions (exécutable)
 ```
 
-⸻
+---
 
 ## 3. Recherche & inspection
 
@@ -138,7 +138,7 @@ file file.txt                 # détecte le type réel d’un fichier
 watch -n 1 tail file.txt      # rafraîchit automatiquement la sortie toutes les secondes
 ```
 
-⸻
+---
 
 ## 4. Processus & système
 
@@ -173,7 +173,7 @@ uptime                             # durée de fonctionnement + charge moyenne
 sudo reboot                        # redémarre la machine (droits admin requis)
 ```
 
-⸻
+---
 
 ## 5. Réseau & web
 
@@ -211,7 +211,7 @@ nc -vz localhost 8501                # teste si un port local est ouvert (Stream
 - si une app "ne répond pas" → `lsof - i :PORT`
 - si une API "ne marche pas" -> `curl` avant d'ouvrir un navigateur
 
-⸻
+---
 
 ## 6. Git
 
@@ -247,7 +247,7 @@ git reset --hard HEAD      # annule toutes les modifications locales (⚠️ des
 git clean -fd              # supprime les fichiers/dossiers non suivis (⚠️)
 ```
 
-⸻
+---
 
 ## 7. Environnements Python — Conda
 
@@ -288,7 +288,7 @@ conda config --add channels conda-forge  # ajoute conda-forge (canal recommandé
 which python                             # vérifie quel Python est réellement utilisé
 ```
 
-⸻
+---
 
 ## 8. Environnements Python — uv
 
@@ -323,7 +323,7 @@ uv pip install -r requirements.txt --no-deps  # installe strictement les version
 rm -rf .venv                   # supprime complètement l’environnement (reset propre)
 ```
 
-⸻
+---
 
 ## 9. Python en lignes de commande
 
@@ -360,7 +360,7 @@ Quand "ça ne marche pas" :
 2. `python --version`
 3. vérifier l'environnement actif
 
-⸻
+---
 
 ## 10. Terminal pour la Data Science
 
@@ -394,7 +394,7 @@ time python script.py          # mesure le temps total d’exécution
 nohup python script.py &       # lance un script long en arrière-plan
 ```
 
-⸻
+---
 
 ## 11. Docker & containers
 
@@ -432,7 +432,7 @@ docker build -t mon_image .            # construit une image depuis un Dockerfil
 - `docker system prune` **libère beaucoup d'espace** mais supprime ce qui n'est plus utilisé.
 - `docker build`doit toujours partir d'un **Dockerfile propre**.
 
-⸻
+---
 
 ## 12. Automatisation & scripting
 
@@ -468,7 +468,7 @@ crontab -e             # planifie des scripts automatiques
 nohup ./script.sh &    # exécute un script en arrière-plan persistant
 ```
 
-⸻
+---
 
 ## 13. Serveurs & cloud
 
@@ -500,7 +500,7 @@ rsync -av --delete src/ dst/                # miroir exact (⚠️ destructif c�
 tmux                                        # lance un multiplexeur de sessions (si installé)
 ```
 
-⸻
+---
 
 ## 14. LLM / IA / API
 
@@ -558,7 +558,7 @@ python script.py | tee llm.log    # affiche + sauvegarde les réponses
 - API cloud = payant mais scalable
 - toujours contrôler coûts, log et contexte
 
-⸻
+---
 
 
 
