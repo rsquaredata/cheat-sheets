@@ -1,0 +1,596 @@
+# Introduction et lissage exponentiel
+
+## Séries temporelles
+
+### Définition
+
+Une **série temporelle** est :
+
+-   une série de points de données indexés par ordre chronologique
+-   une séquence prise à des instants successifs régulièrement espacés
+-   une séquence de données en temps discret $(x_t)_{1 \le t \le n} = (x_1, \ldots, x_n)$ où $t$ est le temps (seconde, jour, année...).
+
+Notre objectif est le **prévoir le futur** de la série temporelle : $x_{n+1}, x_{n+2}, \ldots$.
+
+### Exemples de séries temporelles
+
+```{r}
+# Figure 1 — Number of accidental deaths in USA from 1973 to 1978
+# Données intégrées à R (datasets)
+data("USAccDeaths")
+
+plot(
+  USAccDeaths,
+  type = "l",
+  xlab = "Time",
+  ylab = "USAccDeaths",
+  sub = "Figure 1: Number of accidental deaths in USA from 1973 to 1978"
+)
+```
+
+Il semble y avoir une *périodicité* : on parle de **saisonnalité**, qui apparaît lorsque les séries temporelles sont affectées par un facteur saisonnier (jour de la semaine, mois de l'année...). La fréquence est fixe et connue.
+
+```{r}
+# Figure 2 — Monthly airline passengers (1949–1960)
+data("AirPassengers")
+
+plot(
+  AirPassengers,
+  type = "l",
+  xlab = "Time",
+  ylab = "AirPassengers",
+  sub = "Figure 2: Monthly Airline Passenger Numbers 1949-1960"
+)
+```
+
+Il semble y avoir une *saisonnalité* mais aussi une **tendance** (augmentation ou diminution à long terme, pas nécessairement linéaire).
+
+```{r}
+data("sunspots")
+
+plot(
+  sunspots,
+  type = "l",
+  xlab = "Time",
+  ylab = "sunspots",
+  sub = "Figure 3: Annual number of sunspots observed on the surface of the sun
+from 1700 to 1980"
+)
+```
+
+Il semble y avoir une *saisonnalité* ou peut-être une **cyclicité** (augmentations et baisses qui ne sont pas de fréquence fixe).
+
+```{r}
+# Figure 4 — French population (1985–2005)
+if (!requireNamespace("WDI", quietly = TRUE)) install.packages("WDI")
+library(WDI)
+
+pop_fr <- WDI::WDI(
+  country = "FR",
+  indicator = "SP.POP.TOTL",   # Population, total
+  start = 1985,
+  end = 2005
+)
+
+# Nettoyage + ts
+pop_fr <- pop_fr[order(pop_fr$year), ]
+pop_ts <- ts(pop_fr$SP.POP.TOTL, start = 1985, frequency = 1)
+
+plot(
+  pop_ts,
+  type = "l",
+  xlab = "Time",
+  ylab = "Population",
+  sub = "Figure 4: French population from 1985 to 2005"
+)
+```
+
+Il semble s'agir d'une *tendance* linéaire.
+
+```{r}
+# Figure 5 — CAC40 index (1991–1998)
+data("EuStockMarkets")
+
+cac40 <- EuStockMarkets[, "CAC"]
+
+plot(
+  cac40,
+  type = "l",
+  xlab = "Time",
+  ylab = "CAC40",
+  sub = "Figure 5: Daily closing values of the CAC40 from 1991 to 1998"
+)
+```
+
+Il ne semble y avoir rien de régulier...
+
+```{r}
+# Figure 6 — Covid19: number of new cases in France up to 23/11/2021
+# Source: Our World in Data (OWID)
+
+if (!requireNamespace("readr", quietly = TRUE)) install.packages("readr")
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("ggplot2", quietly = TRUE)) install.packages("ggplot2")
+
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+urls <- c(
+  "https://covid.ourworldindata.org/data/owid-covid-data.csv",
+  "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
+)
+
+read_owid <- function(url) {
+  message("Trying: ", url)
+  readr::read_csv(url, show_col_types = FALSE)
+}
+
+covid <- NULL
+for (u in urls) {
+  covid <- tryCatch(read_owid(u), error = function(e) NULL)
+  if (!is.null(covid)) {
+    message("OK: ", u)
+    break
+  }
+}
+
+if (is.null(covid)) {
+  stop("Impossible de télécharger le dataset OWID (DNS/connexion). Essaie un autre réseau ou télécharge le fichier via navigateur puis lis-le en local.")
+}
+
+covid_fr <- covid %>%
+  filter(location == "France") %>%
+  mutate(date = as.Date(date)) %>%
+  filter(date <= as.Date("2021-11-23")) %>%
+  select(date, new_cases)
+
+ggplot(covid_fr, aes(x = date, y = new_cases)) +
+  geom_line() +
+  labs(
+    x = "jours",
+    y = "Nb de nouveaux cas de Covid19",
+    subtitle = "Figure 6: Covid19 number of new cases"
+  )
+```
+
+## Une méthode de prévision déjà connue
+
+On considère la série suivante :
+
+```{r}
+data=read.table(file="http://eric.univ-lyon2.fr/jjacques/Download/DataSet/serie1.txt")
+plot(data$V1,type='l',xlim=c(1,120),ylim=c(1,80),xlab='time',ylab='')
+```
+
+À faire : prévoir cette série pour les 20 instants suivants.
+
+On peut utiliser une régression linéaire :
+
+```{r}
+t=1:100;x=data$V1
+model=lm(x~t)
+newt=data.frame(t=101:120)
+p=predict(model,newt)
+plot(t,x,type='l',xlim=c(1,120), ylim=c(1,80),xlab='time',ylab='')
+lines(newt$t,p,col=2)
+```
+
+On considère la série suivante :
+
+```{r}
+data=read.table(file="http://eric.univ-lyon2.fr/jjacques/Download/DataSet/serie2.txt")
+plot(data$V1,type='l',xlim=c(1,120),ylim=c(1,80),xlab='time',ylab='')
+```
+
+```{r}
+t=1:100;x=data$V1
+model=lm(x~t)
+newt=data.frame(t=101:120)
+p=predict(model,newt)
+plot(t,x,type='l',xlim=c(1,120),ylim=c(1,80),xlab='time',ylab='')
+lines(newt$t,p,col=2)
+```
+
+La régression linéaire n’est pas efficace puisque toutes les observations ont le même poids : nous devrions être capables de pondérer les données en fonction de leur ancienneté…
+
+## Séries temporelles avec R
+
+Avec R, l'objet `ts` est dédié aux séries temporelles.
+
+```{r}
+data("AirPassengers")
+str(AirPassengers)
+```
+
+### Création de l'objet `ts`
+
+On charge les données à partir de n'importe quel format (ici un fichier csv par exemple)
+
+```{r}
+data=read.csv(file="http://eric.univ-lyon2.fr/jjacques/Download/DataSet/varicelle.csv")
+plot(data$x)
+```
+
+On indique à R les spécificités de l'objet `ts` :
+
+-   données mensuelles avec saisonnalité annuelle : `freq=12`
+-   début en janvier 1931 : `start=c(1931,1)`
+-   fin en juin 1972 : `end=c(1972,6)`
+
+```{r}
+varicelle<-ts(data$x,start=c(1931,1),end=c(1972,6),freq=12)
+plot(varicelle)
+```
+
+### Tracé avec **`forecast`**
+
+La bibliothèque `forecast` propose de jolis graphiques.
+
+```{r}
+library(forecast)
+library(ggplot2)
+autoplot(varicelle) +
+ggtitle('Number of varicella per month')+
+xlab('year')+
+ylab('Number of varicella')
+```
+
+Il peut être utile d'utiliser un graphique saisonnier, en particulier pour vérifier l’amplitude de la saisonnalité.
+
+```{r}
+ggseasonplot(varicelle,year.labels= TRUE,year.labels.left=TRUE)
+```
+
+ou également avec l'option polaire.
+
+```{r}
+ggseasonplot(varicelle,polar=TRUE)
+```
+
+### Imputation des données manquantes
+
+Certaines séries temporelles peuvent contenir des données manquantes.
+
+Le package suivant propose des méthodes d’imputation.
+
+```{r}
+library(imputeTS)
+x <- ts(c(2, 3, 4, 5, 6, NA, 7, 8))
+ggplot_na_distribution(x)
+```
+
+La méthode d’imputation la plus simple est l’interpolation (linéaire, spline…).
+
+```{r}
+x=na_interpolation(x)
+ggplot_na_distribution(x)
+```
+
+## Statistiques descriptives pour les séries temporelles
+
+**Moyenne** empirique : $\bar{x}_n = \frac{1}{n} \sum_{t=1}^n x_t$
+
+```{r}
+library(forecast)
+mean(varicelle)
+```
+
+**Variance** empirique : $\hat{\sigma}_n(0) = \frac{1}{n} \sum_{t=1}^n \left( x_t - \bar{x}_n\right)^2$
+
+```{r}
+var(varicelle)
+```
+
+**Auto-covariance** empirique d'ordre h (*covariance entre des variances décalées*) :
+
+$$
+\hat{\sigma}_n(h) = \frac{1}{n-h} \sum_{t=1}^{n-h} \left(x_t-\bar{x}_n\right) \left(x_{t+h}-\bar{x}_n\right).
+$$
+
+Elle mesure la covariance linéaire entre $x_t$ et $x_{t-h}$.
+
+```{r}
+tmp=acf(varicelle,type="cov",plot = FALSE)
+tmp$acf[1:3,1,1]
+```
+
+```{r}
+plot(tmp)
+```
+
+Auto-corrélation empirique d’ordre h : $\hat{\rho}_n(h) = \frac{\hat{\sigma}_n(h)}{\hat{\sigma}_n(0)} \quad \in[-1,1]$.
+
+```{r}
+tmp=acf(varicelle,type="cor",plot = FALSE)
+tmp$acf[1:3,1,1]
+```
+
+```{r}
+plot(tmp)
+```
+
+Le graphique est appelé **corrélogramme**. Les valeurs situées entre les lignes bleues ($\pm2/\sqrt{n}$) ne sont pas significativement différentes de zéro.
+
+### Propriétés des auto-corrélations
+
+Si la série temporelle $(x_t)_{1 \le t \le n}$ est une tendance linéaire pure $x_t = at + b$, alors pour tout h : $\hat{\rho}_n(h) \xrightarrow[n \to \infty]{} 1$.
+
+```{r}
+serie=2*(1:100)+4
+par(mfrow=c(1,2))
+plot(ts(serie))
+acf(serie)
+```
+
+Si la série temporelle $(x_t)_{1 \le t \le n}$ est un motif saisonnier pur, par exemple $x_t = a \cos \left(\frac{2t\pi}{T}\right)$, alors pour tout h :
+
+$$
+\hat{\rho}_n(h) \xrightarrow[n \to \infty]{} \cos \frac{2h\pi}{T}.
+$$
+
+```{r}
+serie=cos(2*pi/12*(1:100))
+par(mfrow=c(1,2))
+plot(ts(serie))
+acf(serie)
+```
+
+Ainsi, la présence d’une tendance et d’un motif saisonnier est observable dans les graphiques d’auto-corrélation.
+
+On peut également utiliser ce graphique pour vérifier la valeur de la périodicité…
+
+### Statistiques descriptives pour les séries temporelles
+
+L'**auto-corrélation partielle** d'ordre $h$ mesure la corrélation entre $x_t$ et $x_{t-h}$, **mais en supprimant l'effet de** $x_{t-1}, \ldots, x_{t-h+1}$.
+
+```{r}
+tmp=pacf(varicelle,type="cor",plot = FALSE)
+tmp$acf[1:3,1,1]
+```
+
+```{r}
+plot(tmp)
+```
+
+### Exercice
+
+Le fichier [**http://eric.univ-lyon2.fr/jjacques/Download/DataSet/varicelle.csv**](http://eric.univ-lyon2.fr/jjacques/Download/DataSet/varicelle.csv){.uri} contient le **nombre mensuel de cas de varicelle** de **janvier 1931 à juin 1972**.
+
+▶ Charger ce jeu de données et construire un objet `ts`. ▶ Tracer la série temporelle. ▶ Y a-t-il une tendance, un motif saisonnier ou un motif cyclique ? ▶ Quel est le nombre mensuel moyen de cas de varicelle ? ▶ Tracer le corrélogramme et l’interpréter. ▶ Tracer le graphique saisonnier. ▶ Calculer les nombres annuels de cas de varicelle et les tracer de 1931 à 1972. ▶ Que pouvez-vous dire à partir de ces deux derniers graphiques ?
+
+```{r}
+#charger les données et construire l'objet ts
+library(forecast)
+library(ggplot2)
+autoplot(varicelle) +
+ggtitle('Nombre mensuel de cas de varicelle 1931-1972')+
+xlab('année')+
+ylab('Nombre de cas')
+```
+
+-   **Tendance :** tendance globale décroissante sur la période 1931-1972.
+-   **Saisonnalité :** motif qui se répète tous les 12 mois, avec des pics élevés chaque année et des creux systématiques aux mêmes périodes → saisonnalité annuelle forte et stable dans sa périodicité.
+-   **Cyclicité :** aucun cycle de période longue et non fixe, les variations observées sont expliquée par la saisonnalité annuelle et la tendance de fond → pas de cyclicité clairement identifiable.
+
+```{r}
+# nombre mensuel moyen de cas de varicelle
+mean(varicelle)
+```
+
+```{r}
+# corrélogramme
+plot(tmp)
+```
+
+On observe plusieurs pics significatifs (en dehors des bandes de confiance $\pm 2/\sqrt{n}$) pour certains retards $h$.
+
+-   **retards faibles** : le premier retard présente une [auto-corrélation partielle forte et significative]{.underline}, ce qui indique une [forte dépendance partielle à court terme]{.underline} (la valeur $x_t$ dépend fortement de $x_{t-1}$).
+-   **retard saisonniers :** des pics significatifs apparaissent à des retard correspondant à des [multiples de 12 mois]{.underline} (ou proches), ce qui confirme la présence d'une [saisonnalité annuelle]{.underline} déjà observée sur le graphe de la série.
+-   **décroissance globale :** les coefficient ne s'annulent pas brusquement après un petit nombre de retards, ce qui est cohérent avec une [non-stationnarité]{.underline} et est lié à la [tendance]{.underline} et à la [saisonnalité]{.underline} de la série.
+
+Conclusion : le corrélogramme met en évidence une [forte dépendance temporelle à court terme]{.underline}, une [saisonnalité annuelle]{.underline} (pics à des retards saisonniers), et confirme que la série n'est [pas stationnaire]{.underline}, en raison de la présence conjointe d'une [tendance]{.underline} et d'un [motif saisonnier]{.underline}.
+
+```{r}
+# graphique saisonnier
+ggseasonplot(varicelle,year.labels= TRUE,year.labels.left=TRUE)
+# graphique polaire saisonnier
+ggseasonplot(varicelle,polar=TRUE)
+```
+
+```{r}
+# nombres annuels de cas de varicelle de 1931 à 1972
+varicelle_annuel <- aggregate(varicelle, nfrequency=1)
+# tracé
+plot(varicelle_annuel, type="l", xlab="année", ylab="nombre annuel de cas", main="Nombre annuel de cas de varicelles 1931-1972")
+```
+
+**Interprétation :**
+
+-   **saisonnalité** : les graphiques saisonniers mettent en évidence une saisonnalité annuelle claire et régulière
+    -   les pics de cas surviennent systématiquement au printemps (entre mars et mai)
+    -   les creux apparaissent de manière récurrente en été (juillet-septembre)
+    -   le motif saisonnier est stable dans le temps : les mêmes mois restent associés aux maxima et minima.
+    -   le graphique polaire confirme visuellement cette régularité par une forme répétitive quasi identique chaque année.
+-   **évolution de l'amplitude saisonnière** : même si la périodicité reste constante, l'amplitude de la saisonnalité diminue progressivement au fil des années, et les années plus anciennes présentent des pics beaucoup plus élevés que les années récentes. Cela traduit une baisse globale de l'intensité de la maladie, sans modification du calendrier saisonnier.
+-   **tendance de long terme** : le graphique annuel montre clairement une tendance décroissante marquée sur la période 1931-1972, avec une forte variabilité inter-annuelle au début, suivie d'une diminution nette et durable à partir des années 1950-1960. L'agrégation annuelle fait disparaître la saisonnalité et permet de mettre en évidence la tendance de fond.
+
+[Conclusion]{.underline} :
+
+Les graphiques saisonniers mettent en évidence une **saisonnalité annuelle forte, régulière et stable dans sa périodicité**, avec des pics au printemps et des creux en été.\
+Le graphique annuel révèle une **tendance décroissante marquée** du nombre total de cas de varicelle sur la période étudiée.\
+La combinaison de ces graphiques montre que la dynamique de la série est caractérisée par une **saisonnalité persistante**, dont l’**amplitude diminue progressivement** en raison de la baisse globale de l’incidence de la maladie.
+
+## Quelques tests statistiques pour les séries temporelles
+
+### Significativité de l'auto-corrélation
+
+Le test de Box-Pierce permet de tester si la série temporelle est auto-corrélée ou non.
+
+La statistique de test est $Q_{BP} = n \sum_{k=1}^h \hat{\rho}_k^2$, qui, sous l'hypothèse nulle $H_0$ : la série temporelle est non corrélée, suit asymptotiquement une loi du $\chi_h^2$ (loi du $\chi^2$ à $h$ ddl).
+
+```{r}
+Box.test(varicelle,lag=10,type="Box-Pierce")
+```
+
+Ici, la p-value est très faible (\<0.05) → il existe des auto-corrélations significatives parmi les $h=10$ premières → la série temporelle est auto-corrélée.
+
+Le choix de $h$ ne doit as être trop petit afin de prendre en compte toutes les auto-corrélations potentiellement significatives, mais pas trop grand car la puissance du test diminue lorsque $h$ augmente.
+
+Le test de Box-Pierce est en fait une version simplifiée du test de Ljung-Box, qui est connu pour être plus puissante.
+
+La statistique du test de Ljung-Box est $Q_{LB} = n(n+2) \sum_{k=1}^h \frac{\hat{\rho}_k^2}{n-k}$ qui, sous $H_0$, suit asymptotiquement une un loi $\chi_h^2$.
+
+```{r}
+Box.test(varicelle, lag=10, type="Ljung-Box")
+```
+
+### Tests de présence d'une tendance
+
+Il est possible de tester la présence de tendances paramétriques dans la série temporelle.
+
+-   Tester la présence d'**une tendance linéaire** : un t-test classique ne peut pas être utilisé si la série temporelle est auto-corrélée. Noguchi, Gel et Duguay (2011) proposent une adaptation de ce t-test :
+
+```{r}
+library(funtimes)
+notrend_test(varicelle)$p.value
+```
+
+```{r}
+wavk_test(varicelle~ t)$p.value
+```
+
+-   Tester la présence d'**une tendance monotone** avec le test de Mann-Kendall :
+
+```{r}
+notrend_test(varicelle, test = "MK")$p.value
+```
+
+-   Tester la présence de **tout type de tendance** (Wang, Akritas et Van Keelegom, 2008) :
+
+```{r}
+notrend_test(varicelle, test = "WAVK")$p.value
+```
+
+-   Test pour une tendance paramétrique spécifique (ar exemple polynomiale ici) :
+
+```{r}
+wavk_test(varicelle~ poly(t, 2))$p.value
+```
+
+## Lissage exponentiel
+
+### introduction au lissage exponentiel
+
+Avez-vous une idée du modèle de prévision ?
+
+```{r}
+set.seed(123)
+
+n <- 80
+x <- ts(1:n + rnorm(n, sd = 10))
+
+plot(x, xlab = "Time", ylab = "y(t)")
+```
+
+Peut-être une régression linéaire ?
+
+```{r}
+set.seed(123)
+
+temps <- 1:80
+serie <- temps + rnorm(80, sd = 8)
+
+mod <- lm(serie ~ temps)
+plot(ts(serie),xlim=c(1,120),ylim=c(0,120))
+abline(mod$coefficients,col="red")
+```
+
+Et maintenant ? Encore une régression linéaire ?
+
+```{r}
+set.seed(123)
+
+temps <- 1:100
+
+serie <- c(
+  temps[1:80] + rnorm(80, sd = 6),
+  rep(80, 20) + rnorm(20, sd = 4)
+)
+
+mod <- lm(serie ~ temps)
+plot(ts(serie),xlim = c(1,120),ylim = c(0,120),xlab = "Time",ylab = "ts(serie)")
+abline(mod$coefficients, col = "red", lwd = 2)
+```
+
+La régression linéaire n’est pas efficace puisque chaque observation a le même poids : nous devrions être capables de pondérer les données en fonction de leur ancienneté…
+
+### Définition
+
+**Le lissage exponentiel** est une famille de modèles (constant, linéaire, saisonnier, …) dans lesquels **l’importance des données observées diminue avec leur ancienneté**.
+
+### **Lissage exponentiel simple (Simple Exponential Smoothing - SES)**
+
+Étant donnée une constante de lissage $0 \lt \alpha \lt 1$, la prévision par **lissage exponentiel simple** est :
+
+$$
+\hat{x}_{}n,h = \alpha \sum_{j=0}^{n-1} (1-\alpha)^j x_{n-j}.
+$$
+
+Avec ce modèle, la prévision est :
+
+-   **constante** (elle ne dépend pas de l'horizon $h$),
+-   une **moyenne pondérée** par des observations passées,
+-   plus $\alpha$ est proche de $1$, plus le **poids des observations passées décroît rapidement**.
+
+La constante $\alpha$ doit être ajustée à partir des données.
+
+### Évaluation de la qualité des prévisions
+
+Comment choisir $\alpha$ ? Plus généralement, comment comparer différents modèles de prévision ?
+
+Le jeu de données $x_1, \ldots, x_n$ est séparé en **jeu d'apprentissage (train) et jeu de test** :
+
+```{r}
+# paramètres
+n <- 30
+h <- 6
+
+time <- 1:n
+y <- rep(0, n)
+
+# Plot vide SANS axes
+plot(time, y,
+     type = "n",
+     axes = FALSE,
+     xlab = "",
+     ylab = "",
+     xlim = c(0, n + 2),
+     ylim = c(-0.5, 0.5),
+     frame.plot = FALSE)
+
+# Flèche du temps (axe temporel)
+arrows(1, 0, n + 1, 0, length = 0.1, lwd = 1.5)
+
+# Points training
+points(time[1:(n - h)], y[1:(n - h)],
+       pch = 16, col = "blue", cex = 1.2)
+
+# Points test
+points(time[(n - h + 1):n], y[(n - h + 1):n],
+       pch = 16, col = "red", cex = 1.2)
+
+# Labels
+text(mean(time[1:(n - h)]), 0.25, "Training data", col = "blue")
+text(mean(time[(n - h + 1):n]), 0.25, "Test data", col = "red")
+
+# Label temps
+text(n + 1.5, 0, "time", pos = 4)
+```
+
+La taille de la partie test peut dépendre de :
+
+-   l'horizon de prévision $h$ que l'on souhaite prédire,
+-   la taille du motif saisonnier (sélectionner 1 ou 2 saisons dans le jeu de test)
+
+**Attention** : une fois le modèle de prévision sélectionné, il doit être ré-estimé sur l'ensemble des données $x_1, \ldots, x_n$ avant de prévoir le futur.
