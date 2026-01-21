@@ -51,12 +51,38 @@ set.seed(123)
 
 ## 2.1. Load data
 
-Expected minimal structure:  
--   `date`: Date
--   `value`: numeric
+The data can be loaded from multiple sources using a single toggle.  
+Supported sources include:
+-   local CSV files,
+-   CSV files hosted online (e.g. GitHub raw),
+-   local Excel (`.xlsx`) files,
+-   Excel files (`.xlsx`) hosted online.
+
+In all cases, the expected minimal structure is:
+- `date`: Date
+- `value`: numeric
 
 ```{r}
-data_raw <- read_csv("data.csv")
+library(readxl)
+
+# -----------------------------
+# Data source toggle
+# -----------------------------
+source_type <- "github_csv"
+# source_type <- "local_csv"
+# source_type <- "local_xlsx"
+# source_type <- "url_xlsx"
+
+data_raw <- switch(
+  source_type,
+  local_csv  = read_csv("data.csv"),
+  github_csv = read_csv(
+    "https://raw.githubusercontent.com/OWNER/REPO/BRANCH/path/to/data.csv"
+  ),
+  local_xlsx = read_excel("data.xlsx", sheet = "Sheet1"),
+  url_xlsx   = read_excel("https://example.com/data.xlsx"),
+  stop("Unknown source_type")
+)
 
 glimpse(data_raw)
 ```
