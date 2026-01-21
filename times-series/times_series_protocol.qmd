@@ -1,0 +1,628 @@
+```
+title: "Time Series Analysis: End-to-End Protocol"
+author: "rsquaredata"
+date: 2026-01-21
+date-format: "YYYY-MM-DD"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+```
+
+This notebook provides an end-to-end pipeline for forecasting:
+
+```{mermaid}
+flowchart LR
+    A[Data] --> B[Cleaning]
+    B --> C[EDA]
+    C --> D[Frequency inference]
+    D --> E[Candidate models]
+    E --> F[Rolling CV]
+    F --> G[Model selection]
+    G --> H[Refit]
+    H --> I[Forecast]
+    I --> J[Diagnostics]
+```
+
+# 1. Setup
+
+```{r}
+library(ggplot2)
+library(ggfortify)
+library(forecast)
+library(fpp2)
+
+library(readr)
+library(dplyr)
+
+library(imputeTS)
+library(urca)
+library(patchwork)
+
+set.seed(123)
+```
+
+# 2. Data Ingestion
+
+## 2.1. Load data
+
+Expected minimal structure:  
+-   `date`: Date
+-   `value`: numeric
+
+```{r}
+data_raw <- read_csv("data.csv")
+
+glimpse(data_raw)
+```
+
+## 2.2. Parse and sort dates
+
+```{r}
+data_raw <- data_raw %>%
+  mutate(date = as.Date(date)) %>%
+  arrange(date)
+
+summary(data_raw)
+```
+
+# 3. Automatic Frequency and Seasonality Strategy
+
+## 3.1. Why frequency detection matters
+
+For daily data, `frequency = 365` is often *theoretically* correct but **statistically suboptimal** when:
+-   the dominant seasonality is **weekly**
+-   the sample size is limited
+-   ARIMA struggles with long seasonal periods
+
+## 3.2. Calendar regularity check
+
+```{r}
+date_diffs <- diff(data_raw$date)
+table(date_diffs)
+```
+Interpretation:  
+-   `1 day`→ daily
+-   `7 days`→ weekly
+-   ~30 days → monthly
+-   ~90 days → quarterly
+
+If the data is irregular (missing weekends, trading days, etc.), consider aggregating (weekly/monthly) first.
+
+## 3.3. Frequency + seasonality strategy
+
+`ts` supports **one main seasonal frequency**. **TBATS** can model multiple seasonal periods.
+
+For daily data, common seasonalities:
+-   weekly cycle: 7
+-   yearly-ish cycle: 365 (approx)
+
+We will build a (daily-like) `ts` object, then feed it to TBATS with multiple seasonal periods when relevant.
+
+### 3.3.1. Choose baseline frequency for TS
+
+This is the frequency used by `ts` only for indexing.
+
+```{r}
+# Default: daily indexing
+freq_ts <- 365
+
+# If weekly data:
+# freq_ts <- 52
+# If monthly data:
+# freq_ts <- 12
+# If quarterly data:
+# freq_ts <- 4
+```
+
+### 3.3.2. Build ts object
+
+For daily indexing: start = (year, day-of-year)
+
+```{r}
+start_year <- as.numeric(format(min(data_raw$date), "%Y"))
+start_sub  <- as.numeric(format(min(data_raw$date), "%j"))
+
+ts_data <- ts(
+  data_raw$value,
+  start = c(start_year, start_sub),
+  frequency = freq_ts
+)
+
+ts_data
+```
+
+### 3.3.3. Automatic choice of TBATS seasonal periods
+
+```{r}
+# Automatic TBATS seasonal period selection
+n <- length(ts_data)  # change to n <- length(ts_clean) after handling missing values
+
+tbats_candidates <- list(
+  weekly = c(7),
+  weekly_yearly = c(7, 365)
+)
+
+# Length-based constraint
+if (n < 2 * 365) {
+  tbats_candidates <- list(weekly = c(7))
+}
+
+tbats_candidates
+```
+
+Below is a manual method:
+```{r}
+# Default: daily data often has weekly + yearly seasonalities
+# tbats_seasonal_periods <- c(7, 365)
+
+# If the data are weekly (one strong annual-ish seasonality):
+# tbats_seasonal_periods <- c(52)
+
+# If the data are monthly:
+# tbats_seasonal_periods <- c(12)
+
+# If quarterly:
+# tbats_seasonal_periods <- c(4)
+```
+*note* : if the series is short, including `365` may be too ambitious. In that case, we only try `c(7)` or `c(12)` depending on the context.
+
+# 4. Missing values
+
+```{r}
+ggplot_na_distribution(ts_data)
+ts_clean <- na_interpolation(ts_data)
+sum(is.na(ts_clean))
+```
+
+# 5. Exploratory Data Analysis (EDA)
+
+```{r}
+autoplot(ts_clean) +
+  labs(title = "Time series")
+```
+```{r}
+ggseasonplot(ts_clean) +
+  labs(title = "Seasonal plot (may be messy for daily series)")
+```
+
+## 5.1. Decomposition (illustrative)
+
+This step is used for interpretation and pedagogical purposes. It does not enforce preprocessing choices in the final pipeline.
+
+```{r}
+decomp <- decompose(ts_clean)
+autoplot(decomp) +
+  labs(title = "Classical decomposition (exploratory)")
+```
+
+## 5.2. Box-Jenkins exploratory analysis (pedagogical)
+
+The following section implements a classical Box–Jenkins analysis for exploratory and pedagogical purposes.
+The resulting differenced series is not used in the final model selection, which relies on cross-validation across multiple model classes.
+
+### Candidate differencing
+
+```{r}
+x0  <- ts_clean
+x1  <- diff(ts_clean, differences = 1)
+xS  <- diff(ts_clean, lag = freq_ts, differences = 1)
+x1S <- diff(xS, differences = 1)
+```
+
+### Visual comparison
+
+```{r}
+autoplot(x0)  + ggtitle("Original") |
+autoplot(x1)  + ggtitle("Diff(1)") |
+autoplot(xS)  + ggtitle("Seasonal diff") |
+autoplot(x1S) + ggtitle("Diff + seasonal diff")
+```
+
+### ACF / PACF diagnostics
+
+```{r}
+par(mfrow = c(2,2))
+acf(x0,  main = "ACF original")
+acf(x1,  main = "ACF diff(1)")
+acf(xS,  main = "ACF seasonal diff")
+acf(x1S, main = "ACF diff + seasonal")
+par(mfrow = c(1,1))
+```
+
+### Optional PACF
+
+```{r}
+par(mfrow = c(2,2))
+pacf(x0,  main = "PACF original")
+pacf(x1,  main = "PACF diff(1)")
+pacf(xS,  main = "PACF seasonal diff")
+pacf(x1S, main = "PACF diff + seasonal")
+par(mfrow = c(1,1))
+```
+
+### Box-Jenkins ARIMA (illustrative, not selected globally)
+
+```{r}
+# Manual ARIMA inspired by ACF/PACF (illustrative)
+fit_bj <- auto.arima(
+  ts_clean,
+  seasonal = TRUE,
+  stepwise = FALSE,
+  approximation = FALSE
+)
+
+checkresiduals(fit_bj)
+cat("This ARIMA model is used for Box–Jenkins illustration only.\n")
+```
+
+# 6. Train/Test Split (Final Evaluation)
+
+## 6.1. Holdout Split for Final Evaluation
+
+We keep a final holdout test. Model selection will use rolling-origin CV inside the training set.
+
+```{r}
+h_test <- 30  # final test horizon (daily)
+
+# weekly:  h_test <- 8
+# monthly: h_test <- 12
+# quarterly: h_test <- 8
+
+train_full <- window(ts_clean, end = length(ts_clean) - h_test)
+test_final <- window(ts_clean, start = length(ts_clean) - h_test + 1)
+
+length(train_full)
+length(test_final)
+```
+
+## 6.2. Exponential Smoothing Models (illustrative)
+
+This section explicitly fits the classical exponential smoothing models (SES, Holt, Holt–Winters).
+
+These models are included for **illustrative and pedagogical purposes**. They are **not used** for cross-validation-based model selection, which relies on broader model families (ETS, ARIMA, NNAR, TBATS).
+
+```{r}
+fit_ses  <- ses(train_full, h = h_test)
+fit_holt <- holt(train_full, h = h_test)
+fit_hw_add <- hw(train_full, seasonal = "additive", h = h_test)
+
+# Optional: multiplicative if variance increases with level
+# fit_hw_mul <- hw(train_full, seasonal = "multiplicative", h = h_test)
+```
+
+Quick visual comparison
+
+```{r}
+autoplot(train_full) +
+  autolayer(fit_ses$mean, series = "SES") +
+  autolayer(fit_holt$mean, series = "Holt") +
+  autolayer(fit_hw_add$mean, series = "HW additive") +
+  labs(title = "Exponential Smoothing Models (Illustrative)")
+```
+
+# 7. Rolling-Origin Cross-Validation Utilities
+
+We will compare models using time-series CV:  
+-   expanding window
+-   forecasting `h_cv` steps ahead
+-   compute RMSE over all folds
+
+## RMSE
+
+```{r}
+rmse <- function(y_true, y_pred) {
+  sqrt(mean((y_true - y_pred)^2, na.rm = TRUE))
+}
+```
+
+## Make folds
+
+```{r}
+# Create rolling-origin folds
+# initial: initial training size
+# h_cv: forecasting horizon per fold
+# step: shift between folds
+make_folds <- function(x, initial, h_cv, step) {
+  n <- length(x)
+  stops <- seq(initial, n - h_cv, by = step)
+  lapply(stops, function(stop_idx) {
+    list(
+      train = window(x, end = stop_idx),
+      test  = window(x, start = stop_idx + 1, end = stop_idx + h_cv)
+    )
+  })
+}
+```
+
+## Choose CV parameters
+
+```{r}
+# CV horizon: small (daily) so we can repeat many folds
+h_cv <- 14
+
+# For weekly/monthly, typical:
+# weekly:  h_cv <- 4
+# monthly: h_cv <- 6
+
+# initial training size:
+initial <- max(100, round(0.6 * length(train_full)))
+
+# step between folds:
+step <- max(1, round(0.05 * length(train_full)))
+
+folds <- make_folds(train_full, initial = initial, h_cv = h_cv, step = step)
+length(folds)
+```
+
+## TBATS seasonal-period selection via CV (Conditional)
+
+```{r}
+tbats_cv_scores <- sapply(tbats_candidates, function(sp) {
+  cv_score_model("tbats", folds, seasonal_periods = sp)
+})
+
+tbats_cv_scores
+
+tbats_seasonal_periods <- tbats_candidates[[which.min(tbats_cv_scores)]]
+tbats_seasonal_periods
+```
+
+## Speed Mode (Optional)
+
+TBATS models are computationally expensive, especially when combined with rolling-origin cross-validation and multiple seasonalities.
+
+Speed mode provides strategies to reduce computation time while preserving statistical validity. It is recommended for exploratory analysis, long daily series, or interactive notebooks.
+
+| **When to use speed mode**  | **When not to use speed mode** |
+|-----------------------------|--------------------------------|
+| • exploratory analysis</br> • long daily series (> 5–10 years)</br> • interactive experimentation | • final report</br> • grading or evaluation</br> • production model selection |
+
+### Option 1 - Fewer folds for TBATS
+
+```{r}
+# Speed mode option 1: subsample folds for TBATS only
+folds_tbats <- folds[seq(1, length(folds), by = 2)]
+```
+Use `folds_tbats`**only** when scoring TBATS.
+
+### Option 2 - Conditional activation (seasonality check)
+
+```{r}
+acf_vals <- acf(ts_clean, plot = FALSE)$acf
+has_strong_seasonality <- max(abs(acf_vals[-1])) > 0.3
+
+if (!has_strong_seasonality) {
+  model_names <- setdiff(model_names, "tbats")
+}
+```
+
+### Option 3 - Series-length threshold
+
+```{r}
+if (length(ts_clean) > 5000) {
+  model_names <- setdiff(model_names, "tbats")
+}
+```
+
+# 8. Candidate Models
+
+We include:
+-   Baselines: naive, seasonal naive, mean
+-   ETS
+-   ARIMA
+-   NNAR
+-   TBATS (multi-seasonality)
+
+## 8.1. Model Fit + Forecast Wrapper
+
+```{r}
+fit_and_forecast <- function(model_name, train, h, seasonal_periods = c(7,365)) {
+  if (model_name == "naive") {
+    return(naive(train, h = h))
+  }
+  if (model_name == "snaive") {
+    return(snaive(train, h = h))
+  }
+  if (model_name == "meanf") {
+    return(meanf(train, h = h))
+  }
+  if (model_name == "ets") {
+    fit <- ets(train)
+    return(forecast(fit, h = h))
+  }
+  if (model_name == "arima") {
+    fit <- auto.arima(train, seasonal = TRUE, stepwise = TRUE, approximation = TRUE)
+    return(forecast(fit, h = h))
+  }
+  if (model_name == "nnar") {
+    fit <- nnetar(train)
+    return(forecast(fit, h = h))
+  }
+  if (model_name == "tbats") {
+    fit <- tbats(train, seasonal.periods = seasonal_periods)
+    return(forecast(fit, h = h))
+  }
+  stop("Unknown model_name")
+}
+```
+
+## 8.2. Cross-Validation Scoring
+
+```{r}
+model_names <- c("naive", "snaive", "meanf", "ets", "arima", "nnar", "tbats")
+
+cv_score_model <- function(model_name, folds, seasonal_periods) {
+  fold_rmses <- sapply(folds, function(fold) {
+    fc <- fit_and_forecast(model_name, fold$train, h = length(fold$test), seasonal_periods)
+    rmse(as.numeric(fold$test), as.numeric(fc$mean))
+  })
+  mean(fold_rmses, na.rm = TRUE)
+}
+
+cv_scores <- sapply(model_names, function(m) cv_score_model(m, folds, tbats_seasonal_periods))
+cv_scores
+```
+
+```{r}
+cv_table <- data.frame(
+  model = model_names,
+  cv_rmse = as.numeric(cv_scores)
+) %>% arrange(cv_rmse)
+
+cv_table
+
+best_model_cv <- cv_table$model[1]
+best_model_cv
+```
+
+# 9. Final Evaluation on Holdout Test
+
+Now we fit the selected model on `train_full` and evaluate on `test_final`.
+
+```{r}
+fc_best <- fit_and_forecast(best_model_cv, train_full, h = length(test_final), tbats_seasonal_periods)
+accuracy(fc_best, test_final)
+```
+
+We also compare to baselines on final test (sanity check):
+
+```{r}
+acc_final <- rbind(
+  naive  = accuracy(naive(train_full,  h = length(test_final)), test_final)[2,],
+  snaive = accuracy(snaive(train_full, h = length(test_final)), test_final)[2,],
+  meanf  = accuracy(meanf(train_full,  h = length(test_final)), test_final)[2,],
+  best   = accuracy(fc_best, test_final)[2,]
+)
+
+acc_final
+```
+
+## Holdout Comparison Table
+
+```{r}
+acc_holdout <- rbind(
+  naive = accuracy(naive(train_full, h = h_test), test_final)[2,],
+  snaive = accuracy(snaive(train_full, h = h_test), test_final)[2,],
+  meanf = accuracy(meanf(train_full, h = h_test), test_final)[2,],
+  ses = accuracy(fit_ses, test_final)[2,],
+  holt = accuracy(fit_holt, test_final)[2,],
+  hw = accuracy(fit_hw_add, test_final)[2,],
+  ets = accuracy(forecast(ets(train_full), h = h_test), test_final)[2,],
+  arima = accuracy(forecast(auto.arima(train_full), h = h_test), test_final)[2,],
+  nnar = accuracy(forecast(nnetar(train_full), h = h_test), test_final)[2,],
+  tbats = accuracy(
+    forecast(tbats(train_full, seasonal.periods = tbats_seasonal_periods),
+             h = h_test),
+    test_final
+  )[2,]
+)
+
+acc_holdout
+```
+
+
+# 10. Refit on Full Data + Forecast for The Future
+
+Forecast horizon for production:
+
+```{r}
+h_future <- 30
+# weekly:  h_future <- 8
+# monthly: h_future <- 12
+```
+
+```{r}
+final_forecast <- fit_and_forecast(best_model_cv, ts_clean, h = h_future, tbats_seasonal_periods)
+final_forecast
+```
+
+# 11. Final Forecast Plot
+
+```{r}
+autoplot(final_forecast) +
+  labs(
+    title = "Final Forecast (V3)",
+    subtitle = paste("Selected by CV:", best_model_cv,
+                     "| TBATS seasonal periods:", paste(tbats_seasonal_periods, collapse = ", "))
+  )
+```
+
+# 12. Diagnostics
+
+If the selected model is ARIMA/ETS/NNAR/TBATS, `checkresiduals()` works on the fitted model object.  
+But here we have a forecast object, so we refit the best model to inspect residuals properly.
+
+```{r}
+refit_best_model <- function(model_name, x, seasonal_periods) {
+  if (model_name == "ets") return(ets(x))
+  if (model_name == "arima") return(auto.arima(x, seasonal = TRUE))
+  if (model_name == "nnar") return(nnetar(x))
+  if (model_name == "tbats") return(tbats(x, seasonal.periods = seasonal_periods))
+  return(NULL)  # baselines don't have meaningful residual diagnostics
+}
+
+best_fit_obj <- refit_best_model(best_model_cv, train_full, tbats_seasonal_periods)
+
+if (!is.null(best_fit_obj)) {
+  checkresiduals(best_fit_obj)
+} else {
+  cat("Selected model is a baseline; residual diagnostics not applicable.\n")
+}
+```
+
+# 13. Methodology summary
+
+This notebook implements a complete and reproducible workflow for time series forecasting, combining classical statistical theory with modern model selection practices.
+
+The methodology follows these main steps:
+
+1.	Data preparation
+
+The raw data is parsed, sorted chronologically, and converted into a ts object. Calendar regularity is checked to ensure compatibility with time series models.
+
+2.	Frequency and seasonality strategy
+
+A baseline frequency is selected for indexing purposes, while potential seasonal structures are identified. For daily data, both weekly and yearly seasonalities are considered. When relevant, multi-seasonal models (TBATS) are used.
+
+3.	Exploratory analysis
+
+Visualization, seasonal plots, and classical decomposition are used to understand the structure of the series. A Box–Jenkins analysis (differencing, ACF/PACF) is included for pedagogical and interpretative purposes only.
+
+4.	Illustrative classical models
+
+Classical exponential smoothing models (SES, Holt, Holt–Winters) are fitted explicitly to illustrate the concepts taught in the course. These models are not used for final model selection.
+
+5.	Holdout split
+
+A final portion of the series (holdout set) is reserved and excluded from all model selection steps. This set is used only for the final evaluation of the selected model.
+
+6.	Rolling-origin cross-validation
+
+Model selection is performed using an expanding-window cross-validation scheme. Candidate models include baselines, ETS, ARIMA/SARIMA, NNAR, and TBATS. Performance is measured using RMSE averaged across folds.
+
+7.	Model selection and refitting
+
+The model with the best cross-validated performance is selected and refitted on the full training data.
+
+8.	Final evaluation and forecasting
+
+The selected model is evaluated on the holdout set, then refitted on the complete dataset to produce future forecasts.
+
+9.	Diagnostics
+Residual diagnostics are performed on the fitted model to assess remaining autocorrelation and model adequacy.
+
+This approach ensures a clear separation between exploratory analysis, model selection, and final evaluation, while remaining consistent with both classical time series theory and modern validation practices.
+
+
+
+
+
+
+
