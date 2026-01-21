@@ -39,6 +39,9 @@ library(fpp2)
 
 library(readr)
 library(dplyr)
+library(conflicted)
+conflict_prefer("filter", "dplyr")
+conflict_prefer("lag", "dplyr")   # optional, same idea (stats::lag vs dplyr::lag)
 
 library(imputeTS)
 library(urca)
@@ -91,7 +94,7 @@ glimpse(data_raw)
 
 ```{r}
 data_raw <- data_raw %>%
-  mutate(date = as.Date(date)) %>%
+  mutate(date = as.POSIXct(date)) %>%   # keeps intraday if present
   arrange(date)
 
 summary(data_raw)
@@ -109,16 +112,34 @@ For daily data, `frequency = 365` is often *theoretically* correct but **statist
 ## 3.2. Calendar regularity check
 
 ```{r}
-date_diffs <- diff(data_raw$date)
-table(date_diffs)
+# Ensure date is POSIXct to preserve intraday resolution
+if (!inherits(data_raw$date, "POSIXct")) {
+  data_raw <- data_raw %>%
+    mutate(date = as.POSIXct(date))
+}
+
+time_diffs <- diff(data_raw$date)
+time_diffs_hours <- as.numeric(time_diffs, units = "hours")
+
+summary(time_diffs_hours)
+table(round(time_diffs_hours, 3))
 ```
 Interpretation:  
--   `1 day`→ daily
--   `7 days`→ weekly
--   ~30 days → monthly
--   ~90 days → quarterly
+-   < 1 hour → sub-hourly / intraday
+-   ~1 hour → hourly
+-   ~24 hours → daily
+-   ~168 hours → weekly
+-   ~720 hours → monthly
+-   ~2160 hours → quarterly
 
-If the data is irregular (missing weekends, trading days, etc.), consider aggregating (weekly/monthly) first.
+**Interpretation**
+
+The distribution of time differences between consecutive observations indicates that the series is sampled at a **[regular / approximately regular / irregular]** frequency.
+
+The dominant time step is approximately **[X] hours**, corresponding to **[hourly / daily / weekly / monthly]** data.  
+No major irregular gaps are observed, suggesting that the data can be modeled directly without preliminary temporal aggregation.
+
+If irregularities were present (e.g. missing weekends or trading days), an aggregation step (weekly or monthly) would be considered prior to modeling.
 
 ## 3.3. Frequency + seasonality strategy
 
@@ -132,19 +153,97 @@ We will build a (daily-like) `ts` object, then feed it to TBATS with multiple se
 
 ### 3.3.1. Choose baseline frequency for TS
 
-This is the frequency used by `ts` only for indexing.
+The baseline frequency is chosen to reflect the **dominant seasonal cycle**, not the calendar unit.
+
+The baseline frequency is used for indexing and SARIMA only; multi-seasonality is handled exclusively by TBATS.
 
 ```{r}
-# Default: daily indexing
-freq_ts <- 365
+# -----------------------------------------
+# Automatic baseline frequency (freq_ts)
+# -----------------------------------------
+# freq_ts = number of observations per seasonal cycle used by ts() and SARIMA (auto.arima with seasonal=TRUE)
+# NOTE:
+# ts() and SARIMA support only ONE seasonal period.
+# For multi-seasonality (e.g. intraday + weekly), TBATS is used later with explicit seasonal.periods.
 
-# If weekly data:
-# freq_ts <- 52
-# If monthly data:
-# freq_ts <- 12
-# If quarterly data:
-# freq_ts <- 4
+freq_mode <- "auto"
+# freq_mode <- "manual"
+
+# Only used if freq_mode == "manual"
+freq_ts_manual <- 365
+
+# Infer median time step in days
+step_days <- as.numeric(median(diff(data_raw$date)), units = "days")
+
+if (!is.finite(step_days) || step_days <= 0) {
+  stop("Cannot infer time step from `date`. Check date parsing.")
+}
+
+if (freq_mode == "auto") {
+
+  freq_ts <- dplyr::case_when(
+
+    # ---- Intraday ----
+    step_days < 1/48 ~ round(1 / step_days),         # e.g. 15-min -> 96
+    step_days < 1/24 ~ 48,                           # 30-min
+    step_days < 1/12 ~ 24,                           # hourly
+
+    # ---- Daily ----
+    step_days < 2     ~ 7,                           # weekly seasonality
+
+    # ---- Weekly ----
+    step_days < 10    ~ 52,                          # yearly seasonality
+
+    # ---- Monthly ----
+    step_days < 40    ~ 12,
+
+    # ---- Quarterly ----
+    step_days < 120   ~ 4,
+
+    # ---- Fallback ----
+    TRUE              ~ 1                           # if no clear seasonality can be inferred, the series is treated
+  )                                                 # as non seasonal (freq_ts = 1)
+
+} else {
+  freq_ts <- freq_ts_manual
+}
+
+message("Inferred freq_ts = ", freq_ts,
+        " (step ≈ ", round(step_days, 4), " days)")
+
+# Sanity checks
+stopifnot(freq_ts >= 1)
+stopifnot(is.finite(freq_ts))
+
+if (freq_ts > length(data_raw$value) / 2) {
+  warning(
+    "freq_ts is large relative to series length. ",
+    "Seasonal ARIMA may be unstable; TBATS is preferred."
+  )
+}
 ```
+<details><summary>Reveal what the above chunk does</summary>
+
+| Data type | Example spacing | `freq_ts` chosen | Meaning            |
+|-----------|-----------------|------------------|--------------------|
+| 15-min    | 0.0104 days     | 96               | daily seasonality  |
+| 30-min    | 0.0208 days     | 48               | daily seasonality  |
+| Hourly    | 0.0417 days     | 24               | daily seasonality  |
+| Daily     | 1 day           | 7                | weekly seasonality |
+| Weekly    | 7 days          | 52               | yearly seasonality |
+| Monthly   | ~30 days        | 12               | yearly seasonality |
+| Quarterly | ~90 days        | 4                | yearly seasonality |
+
+</details>
+
+**Baseline frequency choice**
+
+Based on the inferred time step, the baseline frequency was set to **freq_ts = [value]**, corresponding to a dominant **[daily / weekly / yearly]** seasonal cycle.
+
+This frequency is used **only for time indexing and SARIMA-type models**.  
+It does not imply that the series follows a single seasonal structure.
+
+Potential additional seasonal patterns are handled separately using multi-seasonal models (TBATS).
 
 ### 3.3.2. Build ts object
 
@@ -167,16 +266,26 @@ ts_data
 
 ```{r}
 # Automatic TBATS seasonal period selection
-n <- length(ts_data)  # change to n <- length(ts_clean) after handling missing values
+n <- length(ts_data)   # change to length(ts_clean) after missing-value handling
 
+# Default candidates (daily data)
 tbats_candidates <- list(
   weekly = c(7),
   weekly_yearly = c(7, 365)
 )
 
+# Intraday / hourly override
+# If freq_ts >= 24, freq_ts represents a daily cycle (e.g. 24, 48, 96)
+if (freq_ts >= 24) {
+  tbats_candidates <- list(
+    daily = c(freq_ts),
+    daily_weekly = c(freq_ts, freq_ts * 7)
+  )
+}
+
 # Length-based constraint
-if (n < 2 * 365) {
-  tbats_candidates <- list(weekly = c(7))
+if (n < 2 * max(unlist(tbats_candidates))) {
+  tbats_candidates <- tbats_candidates[1]
 }
 
 tbats_candidates
@@ -227,6 +336,16 @@ autoplot(decomp) +
   labs(title = "Classical decomposition (exploratory)")
 ```
 
+**Decomposition analysis**
+
+The classical decomposition highlights three main components:
+
+- **Trend**: The trend component shows a **[stable / increasing / decreasing / nonlinear]** long-term evolution.
+- **Seasonality**: A recurring seasonal pattern is visible, consistent with a **[weekly / yearly / intraday]** cycle.
+- **Remainder**: The remainder component appears **[low / moderate / high]** in variance, suggesting **[weak / moderate / strong]** unexplained short-term fluctuations.
+
+This analysis is exploratory and is not used to enforce differencing or detrending decisions in the final modeling pipeline.
+
 ## 5.2. Box-Jenkins exploratory analysis (pedagogical)
 
 The following section implements a classical Box–Jenkins analysis for exploratory and pedagogical purposes.
@@ -272,6 +391,16 @@ pacf(x1S, main = "PACF diff + seasonal")
 par(mfrow = c(1,1))
 ```
 
+**ACF / PACF interpretation**
+
+The ACF of the original series exhibits **[slow decay / significant seasonal spikes / rapid cutoff]**, indicating the presence of **[non-stationarity / seasonality]**.
+
+After differencing, the ACF and PACF show **[reduced autocorrelation / remaining short-term dependence]**, suggesting that **[one / both]** of the following may be required:
+- non-seasonal differencing,
+- seasonal differencing.
+
+These observations are consistent with the classical Box–Jenkins identification approach and motivate the consideration of ARIMA/SARIMA-type models.
+
 ### Box-Jenkins ARIMA (illustrative, not selected globally)
 
 ```{r}
@@ -286,6 +415,16 @@ fit_bj <- auto.arima(
 checkresiduals(fit_bj)
 cat("This ARIMA model is used for Box–Jenkins illustration only.\n")
 ```
+
+**Box–Jenkins model diagnostics (illustrative)**
+
+The residual diagnostics of the manually specified ARIMA model show:
+- residuals that are **[approximately / not]** centered around zero,
+- **[absence / presence]** of significant autocorrelation,
+- a Ljung–Box test p-value of **[value]**.
+
+This model is used for pedagogical illustration only.  
+Final model selection is based on rolling-origin cross-validation across multiple model families.
 
 # 6. Train/Test Split (Final Evaluation)
 
@@ -331,6 +470,17 @@ autoplot(train_full) +
   autolayer(fit_hw_add$mean, series = "HW additive") +
   labs(title = "Exponential Smoothing Models (Illustrative)")
 ```
+
+**Exponential smoothing models**
+
+The SES, Holt, and Holt–Winters models illustrate different assumptions regarding trend and seasonality:
+
+- SES assumes no trend and no seasonality,
+- Holt allows for a trend,
+- Holt–Winters incorporates both trend and seasonality.
+
+Visual inspection suggests that **[model name]** better captures the observed dynamics.  
+However, these models are included for illustration only and are not used in the final model selection process.
 
 # 7. Rolling-Origin Cross-Validation Utilities
 
@@ -507,6 +657,12 @@ best_model_cv <- cv_table$model[1]
 best_model_cv
 ```
 
+**Cross-validation results**
+
+Rolling-origin cross-validation indicates that the **[model name]** model achieves the lowest average RMSE across folds.
+
+This suggests that the model provides the best compromise between bias and variance on unseen data, according to the chosen evaluation metric.
+
 # 9. Final Evaluation on Holdout Test
 
 Now we fit the selected model on `train_full` and evaluate on `test_final`.
@@ -552,6 +708,11 @@ acc_holdout <- rbind(
 acc_holdout
 ```
 
+**Holdout evaluation**
+
+The performance on the holdout set confirms that the selected model generalizes well beyond the training period.
+
+Compared to baseline models, the selected model achieves a **[lower / comparable]** error, validating the cross-validation-based selection strategy.
 
 # 10. Refit on Full Data + Forecast for The Future
 
@@ -601,6 +762,16 @@ if (!is.null(best_fit_obj)) {
   cat("Selected model is a baseline; residual diagnostics not applicable.\n")
 }
 ```
+
+**Residual diagnostics**
+
+The residual diagnostics of the final model indicate that:
+-   residuals are **[approximately / not]** white noise,
+-   no significant autocorrelation remains,
+-   the Ljung–Box test yields a p-value of **[value]**.
+
+As the p-value exceeds the 5% significance level, we fail to reject the null hypothesis of uncorrelated residuals.  
+This suggests that the model adequately captures the temporal structure of the data.
 
 # 13. Methodology summary
 
