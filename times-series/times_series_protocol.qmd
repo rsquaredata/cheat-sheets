@@ -105,9 +105,20 @@ glimpse(data_raw)
 ## 2.2. Parse and sort dates
 
 ```{r}
-data_raw <- data_raw %>%
-  mutate(date = as.POSIXct(date)) %>%   # keeps intraday if present
+data_raw <- data_raw |>
+  mutate(
+    date = case_when(
+      inherits(date, "POSIXct") ~ date,
+      inherits(date, "Date")    ~ as.POSIXct(date),
+      is.character(date)        ~ as.POSIXct(date, tz = "UTC"),
+      is.numeric(date)          ~ as.POSIXct(date, origin = "1970-01-01", tz = "UTC"),
+      TRUE ~ NA_POSIXct_
+    )
+  ) |>
   arrange(date)
+
+# Sanity check
+stopifnot(!any(is.na(data_raw$date)))
 
 summary(data_raw)
 ```
