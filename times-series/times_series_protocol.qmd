@@ -68,22 +68,34 @@ In all cases, the expected minimal structure is:
 ```{r}
 library(readxl)
 
+# Helper for Excel (binary) files
+read_xlsx_from_url <- function(url) {
+  tmp <- tempfile(fileext = ".xlsx")
+  download.file(url, tmp, mode = "wb", quiet = TRUE)
+  read_excel(tmp)
+}
+
 # -----------------------------
 # Data source toggle
+# (un-comment the relevant source_type)
 # -----------------------------
 # source_type <- "github_csv"
+# source_type <- "github_xlsx"
 # source_type <- "local_csv"
 # source_type <- "local_xlsx"
 # source_type <- "url_xlsx"
 
 data_raw <- switch(
   source_type,
-  local_csv  = read_csv("data.csv"),
-  github_csv = read_csv(
+  local_csv   = read_csv("data.csv"),
+  github_csv  = read_csv(
     "https://raw.githubusercontent.com/OWNER/REPO/BRANCH/path/to/data.csv"
   ),
-  local_xlsx = read_excel("data.xlsx", sheet = "Sheet1"),
-  url_xlsx   = read_excel("https://example.com/data.xlsx"),
+  local_xlsx  = read_excel("data.xlsx", sheet = "Sheet1"),
+  url_xlsx    = read_xlsx_from_url("https://example.com/data.xlsx"),
+  github_xlsx = read_xlsx_from_url(
+    "https://raw.githubusercontent.com/OWNER/REPO/BRANCH/times/path/to/data.xlsx"
+  ),
   stop("Unknown source_type")
 )
 
