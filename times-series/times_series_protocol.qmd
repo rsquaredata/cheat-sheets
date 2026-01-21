@@ -99,7 +99,9 @@ data_raw <- switch(
   stop("Unknown source_type")
 )
 
-glimpse(data_raw)
+# Inspect the data
+head(data_raw)
+str(data_raw)
 ```
 
 ## 2.2. Parse and sort dates
