@@ -1,4 +1,4 @@
-```
+```{yaml}
 title: "Time Series Analysis: End-to-End Protocol"
 author: "rsquaredata"
 date: 2026-01-21
@@ -12,7 +12,6 @@ execute:
   echo: true
   warning: false
   message: false
----
 ```
 
 This notebook provides an end-to-end pipeline for forecasting:
