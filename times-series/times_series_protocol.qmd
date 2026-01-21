@@ -106,23 +106,107 @@ str(data_raw)
 
 ## 2.2. Parse and sort dates
 
+### Date column detection
+
 ```{r}
-data_raw <- data_raw |>
-  mutate(
-    date = case_when(
-      inherits(date, "POSIXct") ~ date,
-      inherits(date, "Date")    ~ as.POSIXct(date),
-      is.character(date)        ~ as.POSIXct(date, tz = "UTC"),
-      is.numeric(date)          ~ as.POSIXct(date, origin = "1970-01-01", tz = "UTC"),
-      TRUE ~ NA_POSIXct_
+detect_date_column <- function(df) {
+  candidates <- names(df)[
+    sapply(df, function(x)
+      inherits(x, c("POSIXct", "POSIXlt", "Date")) ||
+      is.character(x) ||
+      is.numeric(x)
     )
-  ) |>
-  arrange(date)
+  ]
 
-# Sanity check
-stopifnot(!any(is.na(data_raw$date)))
+  if (length(candidates) == 0) {
+    stop("No candidate date column found.")
+  }
 
-summary(data_raw)
+  # Priority keywords
+  priority <- c("date", "time", "datetime", "timestamp")
+  # Lowercase mapping
+  names_lower <- tolower(candidates)
+  # Find first priority match
+  hit <- which(names_lower %in% priority)
+
+  if (length(hit) > 0) {
+    return(candidates[hit[1]])
+  }
+
+  # Fallback: first candidate
+  candidates[1]
+}
+
+date_col <- detect_date_column(data_raw)
+message("Detected date column: ", date_col)
+```
+
+### Datetime parsing
+
+```{r}
+parse_mixed_datetime <- function(x, tz = "UTC") {
+
+  # Case 1: already POSIXct
+  if (inherits(x, "POSIXct")) {
+    return(x)
+  }
+
+  # Case 2: Date
+  if (inherits(x, "Date")) {
+    return(as.POSIXct(x, tz = tz))
+  }
+
+  # Case 3: numeric Excel serial
+  if (is.numeric(x)) {
+    return(as.POSIXct(x, origin = "1899-12-30", tz = tz))
+  }
+
+  # Case 4: character (Excel serial OR datetime string)
+  if (is.character(x)) {
+
+    # Try Excel serial first
+    suppressWarnings({
+      num <- as.numeric(x)
+    })
+
+    is_excel <- !is.na(num) & num > 30000
+
+    out <- rep(NA_real_, length(x))
+
+    # Excel serials
+    out[is_excel] <- as.numeric(
+      as.POSIXct(num[is_excel], origin = "1899-12-30", tz = tz)
+    )
+
+    # Character datetimes
+    out[!is_excel] <- as.numeric(
+      as.POSIXct(x[!is_excel],
+                 format = "%m/%d/%Y %H:%M",
+                 tz = tz)
+    )
+
+    res <- as.POSIXct(out, origin = "1970-01-01", tz = tz)
+
+    if (any(is.na(res))) {
+      stop("Some timestamps could not be parsed. Check datetime formats.")
+    }
+
+    return(res)
+  }
+
+  stop("Unsupported date column type.")
+}
+
+date_col <- detect_date_column(data_raw)
+message("Detected date column: ", date_col)
+
+data_raw$date <- parse_mixed_datetime(data_raw[[date_col]])
+
+data_raw <- data_raw |>
+  dplyr::select(-all_of(date_col)) |>
+  dplyr::arrange(date)
+
+summary(data_raw$date)
 ```
 
 # 3. Automatic Frequency and Seasonality Strategy
