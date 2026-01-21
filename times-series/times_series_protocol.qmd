@@ -71,7 +71,7 @@ library(readxl)
 # -----------------------------
 # Data source toggle
 # -----------------------------
-source_type <- "github_csv"
+# source_type <- "github_csv"
 # source_type <- "local_csv"
 # source_type <- "local_xlsx"
 # source_type <- "url_xlsx"
