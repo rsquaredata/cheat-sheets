@@ -19,7 +19,7 @@ last updated: 2026-01-25
 
 ## 1.1. What is a time series?
 
-A **time series** is a sequence of observations indexed by time: $(x_t)_{1 \le t \le n} = (x_1, \ldots, x_n$
+A **time series** is a sequence of observations indexed by time: $(x_t)_{1 \le t \le n} = (x_1, \ldots, x_n)$
 
 Properties:
 -   observations are **ordered in time**
@@ -28,13 +28,13 @@ Properties:
 
 **Main objective**: forecast future values $x_{n+1}, x_{n+2}, \ldots$
 
-## 2.1. Typical components of a time series
+## 1.2. Typical components of a time series
 
 A time series can contain:
 
 | **component**   | **meaning**                              |
 |-----------------|------------------------------------------|
-| **trend**       | long-terme increase or decrease          |
+| **trend**       | long-term increase or decrease          |
 | **seasonality** | regular pattern with fixed period        |
 | **cycle**       | irregular oscillations (no fixed period) |
 | **noise**       | random fluctuations                      |
@@ -44,7 +44,7 @@ A time series can contain:
 <details><summary>HOW TO: plot a `ts`</summary>
 
 ```r
-plot(ts,
+plot(serie,
     type="l",
     xlab="time",
     ylab="dataset_name",
@@ -96,10 +96,10 @@ x <- data$Var1
 model <- lm(x ~ t)
 # create a df with a a column t for new times 101 to 120
 newt <- data.frame(t=101:120)
-# predictions of the model for the the new times
-p <- predict(t,x,type="l",xlim=c(1,120),ylim=c(1,80), xlab="time",ylab="")
-# add to the same plot a red line with the predictions
-lines(newt$t,p,col=2)
+# forecast 20 steps ahead
+p <- predict(model, newdata = newt)
+# plot with additional red line for the predictions
+lines(newt$t,p,col="red",lwd=2)
 ```
 </details>
 
@@ -120,7 +120,7 @@ plot(data$x)
 ## yearly seasonality → freq=12
 ## assuming data start in January 2000 and end in December 2001
 series <- ts(data$x, start=c(2000,1), end=c(2001,12))
-plot(x_ts)
+plot(series)
 ```
 </details>
 
@@ -134,7 +134,7 @@ varicelle <- ts(
 ```
 Key parameters:
 -   `start`: first observation (year, sub-period)
--   `fraquency`: number of observations per cycle
+-   `frequency`: number of observations per cycle
 
 ### Visualization with forecast
 
@@ -211,7 +211,7 @@ plot(tmp)
 
 ### Mean and variance
 
-```(r}
+```{r}
 mean(varicelle)
 var(varicelle)
 ```
@@ -226,7 +226,7 @@ var(varicelle)
 # series with a pure linear trend: x_t = ax+b
 series <- 2*(1:100)+4
 par(mfrow=c(1,2))
-plot(ts(series)
+plot(ts(series))
 acf(series)
 ```
 ```r
@@ -265,9 +265,9 @@ pacf(series, type="cor")
 
 **Autocovariance (lag $h$)**: $\hat{\sigma}(h)$
 
-**Autocorrelation (lag $h$)**: $\hat{\phi}(h) = \frac{\hat{\sigma}(h)}{\hat{\sigma}(0)}
+**Autocorrelation (lag $h$)**: $\hat{\phi}(h) = \frac{\hat{\sigma}(h)}{\hat{\sigma}(0)}$
 
-```(r}
+```{r}
 acf(varicelle)
 pacf(varicelle)
 ```
@@ -290,7 +290,7 @@ Box.test(series, lag=h, type="Box-Pierce")
 - a p-value < 0.05 means the time series is autocorrelated
 
 ```{r}
-Box.test(series, lag h, type="Ljung-Box")
+Box.test(series, lag=h, type="Ljung-Box")
 ```
 - same test, more powerful
 </details>
@@ -307,7 +307,7 @@ Box.test(varicelle, lag = 10, type = "Ljung-Box")
 
 #### Linear trend (robust to autocorrelation)
 
-```(r}
+```{r}
 library(funtimes)
 t <- time(varicelle)
 wavk_test(varicelle ~ t)$p.value
@@ -323,7 +323,7 @@ MannKendall(varicelle)$sl
 #### Any type of trend (global approach)
 
 ```{r}
-wak_test(varicelle ~ t)$p.value
+wavk_test(varicelle ~ t)$p.value
 ```
 
 <details><summary>HOW TO: do the same tests without `funtimes`</summary>
@@ -396,7 +396,7 @@ Linear regression assigns the **same weights** to all observations, regardless o
 This may lead to poor forecasts when:
 -   the most recent observations are more informative,
 -   the trend changes over time,
--   the process stabilizees or saturates
+-   the process stabilizes or saturates
 
 ```{r}
 set.seed(123)
@@ -412,7 +412,7 @@ mod <- lm(serie ~ temps)
 plot(ts(serie), xlim = c(1,120), ylim = c(0,120))
 abline(mod$coefficients, col = "red", lwd = 2)
 ```
-This example show that linear regression extrapolates a trend even when the series has clearly stabilized.
+This example shows that linear regression extrapolates a trend even when the series has clearly stabilized.
 
 ## 2.2. Principle of exponential smoothing
 
@@ -420,7 +420,7 @@ Exponential smoothing assigns **exponentially decreasing weights** to past obser
 -   recent observations have more influence,
 -   older observations progressively lose importance,
 
-This family of models is **deterministic**: it explicitely models level, trend, and seasonality.
+This family of models is **deterministic**: it explicitly models level, trend, and seasonality.
 
 ## 2.3. Simple Exponential Smoothing (SES)
 
@@ -459,7 +459,7 @@ train <- window(serie, end = n - h)
 test  <- window(serie, start = n - h + 1)
 ```
 
-Once the best model is selected, it must be *$re-estiùated on the full dataset** before producing final forecasts.
+Once the best model is selected, it must be **re-estimated on the full dataset** before producing final forecasts.
 
 ## 2.5. Forecast accuracy metrics
 
@@ -494,7 +494,7 @@ lines(predict(fit_holt, n.ahead = 20), col = 2)
 
 Used when the trend is expected to **flatten over time**.
 
-```(r}
+```{r}
 library(forecast)
 
 fit_holt_damped <- holt(serie, damped = TRUE, h = 20)
@@ -571,16 +571,16 @@ These values help validate the coherence of the selected model.
 
 ## 2.10 Key takeaway
 
-| **Model**         | **Components**                   |
-|-------------------|----------------------------------|
-| SES               | level                            |
-| Holt              | level + trend                    |
-| HW additive       | level + trend + additive seeason |
-| HW multiplicative | level x season                   |
+| **Model**         | **Components**                  |
+|-------------------|---------------------------------|
+| SES               | level                           |
+| Holt              | level + trend                   |
+| HW additive       | level + trend + additive season |
+| HW multiplicative | level x season                  |
 
 Exponential smoothing models:
 -   capture **deterministic components** (level, trend, seasonality),
--   eight observations according to their recency,
+-   weight observations according to their recency,
 -   are interpretable and robust for short-to-medium time series,
 -   should be selected based on **out-of-sample performance**.
 
@@ -592,13 +592,13 @@ They provide a natural bridge between exploratory analysis and more complex stoc
 
 ARIMA models are designed to model the **stochastic component** of a time series.
 
-Before fitting an ARIMA model, the **deterministic structure** (trend and seasonal pattern) must be removed. Only atfer this step can we model the remaining dependent structure.
+Before fitting an ARIMA model, the **deterministic structure** (trend and seasonal pattern) must be removed. Only after this step can we model the remaining dependent structure.
 
 ## 3.2. Decomposition of a time series
 
 We assume an **additive decomposition** $x_t = T_t + S_t + \varepsilon_t$, where $T_t$ is the trend, $S_t$ is the seasonal pattern (period $T$) and $\varepsilon_t$ is the stochastic component.
 
-If the decomposiiton is multiplicative, taking logs yields an additive decomposition.
+If the decomposition is multiplicative, taking logs yields an additive decomposition.
 
 ## 3.3. Removing trend and seasonality
 
@@ -630,7 +630,7 @@ autoplot(decompose(co2, type = "additive"))
 
 ### 3.3.2. Differencing
 
-Differencing removed deterministic components while preserving forecastability.
+Differencing removes deterministic components while preserving forecastability.
 
 #### Regular differencing
 
@@ -678,7 +678,7 @@ plot(diff(diff(co2, lag=12)))
 
 ## 3.4. Stationarity
 
-A time seties is **stationary** if its distribution does not depend on time:
+A time series is **stationary** if its distribution does not depend on time:
 -   no trend
 -   no seasonality
 -   constant variance
@@ -704,7 +704,7 @@ Box.test(diff(diff(co2, lag=12)), lag=10, type="Ljung-Box")
 
 ### AirPassengers
 
-```(r}
+```{r}
 plot(AirPassengers)
 ```
 -   strong trend
@@ -722,7 +722,7 @@ The differenced series appears stationary but not white noise.
 
 ### Google stock price
 
-```(r}
+```{r}
 library(fpp2)
 plot(goog200)
 ```
@@ -747,7 +747,7 @@ $x_t = c + \sum_{j=1}^p a_j x_{t-j} + \varepsilon_t$
 
 Stationarity requires roots of the characteristic polynomial to lie outside the unit circle.
 
-### identification rules
+### Identification rules
 
 -   ACF: exponential decay
 -   PACF: cutoff after lag $p$
@@ -837,7 +837,7 @@ p-value > 0.05 → residual = white noise.
 
 ## 3.13. Forecasting
 
-```(r}
+```{r}
 forecast(fit1, h=10) %>% autoplot()
 ```
 
@@ -857,7 +857,7 @@ ggtsdisplay(diff(diff(euretail, lag=4)))
 
 Example:
 
-```(r}
+```{r}
 fit <- Arima(euretail, order=c(0,1,3), seasonal=c(0,1,1))
 checkresiduals(fit)
 forecast(fit, h=12) %>% autoplot()
@@ -874,9 +874,9 @@ auto.arima(AirPassengers, lambda="auto")
 
 ## 3.16. Final takeaway
 
-ARIMA methodology follows a stric pipeline:
+ARIMA methodology follows a strict pipeline:
 1.   remove deterministic structure (trend, seasonality),
-2.   ensure statioanrity,
+2.   ensure stationarity,
 3.   identify $p$ and $q$ using ACF/PACF,
 4.   estimate via MLE,
 5.   select using penalized criteria,
@@ -902,7 +902,7 @@ General idea: $x_t = f(x_{t-1}, x_{t-2}, \ldots, x_{t-T}$ where $f$ is learned f
 
 A neuron computes $y = g \left( \alpha_0 + \sum_{j=1}^p \alpha_j x^j \right)$:
 -   linear combination of inputs,
--   followed by an activation fucntion.
+-   followed by an activation function.
 
 Special case: $g(x) = x \quad \Rightarrow \quad \text{linear regression}$
 
@@ -953,7 +953,7 @@ Options:
 
 **Pros**
 -   flexible, nonlinear,
--   captures cycles and complexe patterns.
+-   captures cycles and complex patterns.
 
 **Cons**
 -   no explicit stochastic structure,
@@ -973,7 +973,7 @@ autoplot(sunspotarea) +
 ```
 NNAR successfully models **asymmetric cyclic behavior**, which linear SARIMA cannot.
 
-## 4.3. Deep Naural Networks
+## 4.3. Deep Neural Networks
 
 ### 4.3.1. Recurrent Neural Networks (RNN)
 
@@ -1150,7 +1150,7 @@ Sequential or block forecasting can be implemented.
 -   extrapolation far beyond training range.
 
 **Final hierarchy (practical)**
-1.   ETS /ARIMA → string structure, interpretability
+1.   ETS /ARIMA → strong structure, interpretability
 2.   NNAR → nonlinear patterns, moderate compelxity
 3.   Deep learning → large data, complexe dynamics
 4.   Tree-based ML -< flexible but fragile in extrapolation
@@ -1170,7 +1170,7 @@ This assumption is often **violated** in time series.
 
 Time series can include deterministic components:
 -   **Trend**: $x_t = c + \beta_0t + \varepsilon_t$
--   **Seasonality (period $T$)**: $x_t = c + \beta_0t + \sum_{j=2}^T \delta_j d_{jt} + \varepsilon
+-   **Seasonality (period $T$)**: $x_t = c + \beta_0t + \sum_{j=2}^T \delta_j d_{jt} + \varepsilon_t$
 -   seasonal dummies model **fixed calendar effects**
 -   first season is absorbed in the intercept
 
@@ -1209,7 +1209,7 @@ Feature selection used **classical regression criteria**:
 CV(fit)
 ```
 
-If a varaible is not significant, compare nested models:
+If a variable is not significant, compare nested models:
 
 ```{r}
 fit2 <- tslm(
@@ -1225,7 +1225,7 @@ CV(fit2)
 
 Even if coefficient are significant, **residuals must be checked**.
 
-```(r}
+```{r}
 checkresiduals(fit, test = FALSE)
 ```
 
@@ -1244,7 +1244,7 @@ In practice:
 -   covariates explain part of the signal,
 -   residuals still contain **temporal dependence**.
 
-Dynamic regression models this explicitely: $x_t = c + \beta^T z_t + u_t, \quad u_t \sim ARIMA_{(p,d,q)}$
+Dynamic regression models this explicitly: $x_t = c + \beta^T z_t + u_t, \quad u_t \sim ARIMA_{(p,d,q)}$
 
 ### 5.4.2. Estimation with `Arima(xreg=...)`
 
@@ -1298,14 +1298,14 @@ For Random Forests, XGBoost, SVM: covariates are added as **extra columns** in t
 
 General structure: $x_{t+1} = f(x_t, \ldots, x_{t-T}, z_t, z_{t+1}$
 
-## 5.6. Electricity demand case studt (methodological pipeline)
+## 5.6. Electricity demand case study (methodological pipeline)
 
 This exercise illustrates **model escalation logic**.
 
 ### Step 1 - Baseline multivariate TSLM
 
 ```{r}
-fit_tslm <- tslm(
+fit_lin <- tslm(
   Demand ~ Temperature + WorkDay + trend + season,
   data = train_data
 )
@@ -1318,20 +1318,20 @@ Findings:
 ### Step 2 - Quadratic enhancement
 
 ```{r}
-fit_tslm <- tslm(
-  Demand ~ Temperature + WorkDay + trend + season,
+fit_quad <- tslm(
+  Demand ~ Temperature + I(Temperature^2) + WorkDay + trend + season,
   data = train_data
 )
 ```
 
 Results:
--   captures **U-sahped temperature effect**,
+-   captures **U-shaped temperature effect**,
 -   strong RMSE reduction,
 -   residual autocorrelation still present.
 
 ### Step 3 - Dynamic regression
 
-```(r}
+```{r}
 fit_arima <- auto.arima(
   train_data[,"Demand"],
   xreg = train_xreg
@@ -1368,7 +1368,7 @@ Each variable depends on:
 
 ### 5.7.2. Cross-correlation analysis
 
-```(r}
+```{r}
 ccf(usconsumption[,"Consumption"],
     usconsumption[,"Income"])
 ```
@@ -1448,39 +1448,5 @@ Interpretation:
 
 # Final methodological rule
 
-> Always start simple, diagnose residuals, and increase model compelxity **only when statistically justified**.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+> Always start simple, diagnose residuals, and increase model complexity **only when statistically justified**.
 
