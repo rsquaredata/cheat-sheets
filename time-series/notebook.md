@@ -1337,7 +1337,7 @@ fit_arima <- auto.arima(
   xreg = train_xreg
 )
 ```
--   ARIMA captures remaining temoral structure,
+-   ARIMA captures remaining temporal structure,
 -   better in-sample fit,
 -   not necessarily better out-of-sample.
 
