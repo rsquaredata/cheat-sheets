@@ -2,6 +2,8 @@
 title: "Time series"
 author: "rsquaredata"
 last updated: 2026-01-25
+URL trackers:
+    https://www.shorturl.at/url-total-clicks.php?u=shorturl.at/wyHaH
 --->
 
 💡 To run the present file as a notebook:
@@ -26,7 +28,7 @@ Properties:
 -   usually **equally spaced**
 -   time can be days, months, years, etc.
 
-**Main objective**: forecast future values $x_{n+1}, x_{n+2}, \ldots$
+**Main objective**: forecast future values $x_{n+1}$, $x_{n+2}, \ldots$
 
 ## 1.2. Typical components of a time series
 
@@ -125,7 +127,7 @@ plot(series)
 </details>
 
 ```{r}
-data <- read.csv(file="https://raw.githubusercontent.com/rsquaredata/cheat-sheets/refs/heads/main/time-series/varicelle.csv")
+data <- read.csv(file="https://shorturl.at/wyHaH")
 varicelle <- ts(
   data$x,
   start = c(1931, 1),
@@ -1296,7 +1298,7 @@ NNETAR automatically combines:
 
 For Random Forests, XGBoost, SVM: covariates are added as **extra columns** in the design matrix.
 
-General structure: $x_{t+1} = f(x_t, \ldots, x_{t-T}, z_t, z_{t+1}$
+General structure: $x_{t+1} = f(x_t, \ldots, x_{t-T}, z_t, z_{t+1})$
 
 ## 5.6. Electricity demand case study (methodological pipeline)
 
