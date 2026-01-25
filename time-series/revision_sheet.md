@@ -4,6 +4,9 @@ author: "rsquaredata"
 last updated: 2026-01-25
 --->
 
+💡 To run this document as a notebook, save the file locally as `revision_sheet.qmd` and open it with [RStudio](https://posit.co/download/rstudio-desktop/).
+
+
 # 1. Introduction to Time Series
 
 ## 1.1. What is a time series?
@@ -21,22 +24,25 @@ Properties:
 
 A time series can contain:
 
-| **component** | **meaning**                              |
-|---------------|------------------------------------------|
-| **trend**     | long-terme increase or decrease          |
-| **seasonality | regular pattern with fixed period        |
-| **cycle**     | irregular oscillations (no fixed period) |
-| **noise*      | random fluctuations                      |
+| **component**   | **meaning**                              |
+|-----------------|------------------------------------------|
+| **trend**       | long-terme increase or decrease          |
+| **seasonality** | regular pattern with fixed period        |
+| **cycle**       | irregular oscillations (no fixed period) |
+| **noise**       | random fluctuations                      |
 
 ### Visual exploration (always first step)
 
-> **Plot a `ts`**
->
-> plot(ts,
->    type="l",
->    xlab="time",
->    ylab="dataset_name",
->    sub="Figure 1: Description of the plot")
+<details><summary>HOW TO: plot a `ts`</summary>
+
+```r
+plot(ts,
+    type="l",
+    xlab="time",
+    ylab="dataset_name",
+    sub="Figure 1: Description of the plot")
+```
+</details>
 
 ```{r}
 plot(USAccDeaths)
@@ -67,9 +73,48 @@ Problems:
 
 ## 1.4. Time series objects in R (`ts`)
 
+<details><summary>HOW TO: forecast wih predict</summary>
+
+```r
+# fetch tabular data from url and create a data frame
+data <- read.table(file="https://example.com/dataset.csv")
+# assuming the relevant values are in the variable column 'Var1'
+plot(data$Var1)
+# create time vector (say from 1 to 100)
+t <- 1:100
+# create the data vector from observed values
+x <- data$Var1
+# fit a linear regression
+model <- lm(x ~ t)
+# create a df with a a column t for new times 101 to 120
+newt <- data.frame(t=101:120)
+# predictions of the model for the the new times
+p <- predict(t,x,type="l",xlim=c(1,120),ylim=c(1,80), xlab="time",ylab="")
+# add to the same plot a red line with the predictions
+lines(newt$t,p,col=2)
+```
+</details>
+
 R uses the `ts` class to store time series metadata.
 
 ### Creating a ts object
+
+<details><summary>HOW TO: create a ts object</summary>
+
+```r
+# fetch data
+data <- read.csv(file="http://example.com")
+# check variable/column names
+names(data)
+# visualize data (assuming x is the relevant variable)
+plot(data$x)
+# create the ts object
+## yearly seasonality → freq=12
+## assuming data start in January 2000 and end in December 2001
+series <- ts(data$x, start=c(2000,1), end=c(2001,12))
+plot(x_ts)
+```
+</details>
 
 ```{r}
 data <- read.csv(file="https://raw.githubusercontent.com/rsquaredata/cheat-sheets/refs/heads/main/time-series/varicelle.csv")
@@ -85,26 +130,23 @@ Key parameters:
 
 ### Visualization with forecast
 
-> **Forecast with predict**
-> 
-> ```{r}
-> # fetch tabular data from url and create a data frame
-> data <- read.table(file="https://example.com/dataset.csv")
-> # assuming the relevant values are in the variable column 'Var1'
-> plot(data$Var1)
-> # create time vector (say from 1 to 100)
-> t <- 1:100
-> # create the data vector from observed values
-> x <- data$Var1
-> # fit a linear regression
-> model <- lm(x ~ t)
-> # create a df with a a column t for new times 101 to 120
-> newt <- data.frame(t=101:120)
-> # predictions of the model for the the new times
-> p <- predict(t,x,type="l",xlim=c(1,120),ylim=c(1,80), xlab="time",ylab="")
-> # add to the same plot a red line with the predictions
-> lines(newt$t,p,col=2)
-> ```
+<details><summary>HOW TO: plot with forecast</summary>
+
+```r
+library(forecast)
+library(ggplot2)
+autoplot(series) +
+    ggtitle("Title") +
+    xlab("year") +
+    ylab("values")
+
+# seasonal plot
+ggseasonplot(series, year, labels=TRUE, year.labels.left=TRUE)
+
+# polar seasonal plot
+ggsesonplot(series, polar=TRUE)
+```
+</details>
 
 ```{r}
 library(forecast)
@@ -121,6 +163,19 @@ ggseasonplot(varicelle, polar = TRUE)
 
 ## 1.5. Handling missing values
 
+<details><summary>HOW TO: handle missing values</summary>
+
+```r
+#distribution of missing values
+library(imputeTS)
+ggplot_na_distribution(series)
+
+# imputation by interpolation
+timeseries <- na_interpolation(series)
+ggplot_na_distribution(series)
+```
+</details>
+
 Missing values are common in time series.
 
 ```{r}
@@ -131,6 +186,21 @@ x <- na_interpolation(x)
 
 ## 1.6. Descriptive statistics for time series
 
+<details><summary>HOW TO: do descriptive stats on time series</summary>
+
+```r
+library(forecast)
+# empirical mean
+mean(series)
+# empirical variance
+var(series)
+# empirical covariance
+tmp <- acf(series, type="cor", plot=FALSE)
+# plot the correlogram
+plot(tmp)
+```
+</details>
+
 ### Mean and variance
 
 ```(r}
@@ -139,6 +209,51 @@ var(varicelle)
 ```
 
 ### Autocovariance and autocorrelation
+
+<details><summary>HOW TO: interpret auto-correlations</summary>
+
+### ACF
+
+```r
+# series with a pure linear trend: x_t = ax+b
+series <- 2*(1:100)+4
+par(mfrow=c(1,2))
+plot(ts(series)
+acf(series)
+```
+```r
+# series with a pure seasonal pattern, e.g. x_t = a*cos(2t*pi/T)
+series <- cos(2*pi/12*(1:100))
+par(mfrow=c(1,2))
+plot(ts(series))
+acf(series)
+```
+
+| ACF pattern                  |observed behavior | interpretation |
+|-------------------------------|-------------------|-----------------|
+| rapid decay to zero           | autocorrelations become insignificant after a few lags | stationary series, short range dependence |
+| slow monotonic decay          | high autocorrelation over many lags | trend / non-stationarity |
+| persistent sinusoidal pattern | regular oscillation with stable amplitude | non-stationary seasonality |
+| damped sinusoidal pattern     | oscillations with decreased amplitude | oscillatory AR process (complex roots) |
+| sharp cutoff after lag $q$    | autocorrelation drops to zero after $q$ | $MA_q$ process |
+| significant spikes at multiples of $T$ | peaks at lags $T$, $2T$, $3T$, ...) | seasonality with period $T$ |
+| no significant autocorrelations | all lags within confidence bounds | white noise |
+
+#### PACF
+
+```{r}
+pacf(series, type="cor")
+```
+
+| PACF pattern | observed behavior | interpretation | typical action |
+|--------------|-------------------|----------------|----------------|
+| sharp cutoff after lag $p$ | significant partial autocorrelation up to lag $p$, then none | $AR_p$ process | $p$ = $AR$ order |
+| gradual decay | significant partial autocorrelations decrease slowly | $MA_q$ or $ARMA_{(p,q)}$ | use ACF to identify $q$ |
+| significant spike at lag 1 only | only lag 1 is significant | $AR_1$ | $p$ = 1 |
+| significant spikes at lags 1 and 2 | Two significant partial autocorrelations | $AR_2$ | $p$ = 2 |
+| significant spikes at multiples of $T$ | peaks at lags $T$, $2T$, ... | seasonal $AR$ component | seasonal AR term |
+| no significant partial autocorrelations | all values within confidence bounds | no $AR$ structure / white noise | no $AR$ term |
+</details>
 
 **Autocovariance (lag $h$)**: $\hat{\sigma}(h)$
 
@@ -156,6 +271,21 @@ Interpretation:
 ## 1.7. Statistical tests for time series
 
 ### 1.7.1 Autocorrelation tests
+
+<details><summary>HOW TO: test the significance of autocorrelations</summary>
+
+```r
+Box.test(series, lag=h, type="Box-Pierce")
+```
+- h: degrees of freedom; h should be high enough to reckon with all significant autocorrelations but low enough so that the test remains sufficiently powerful
+- the p-value is the probability to observe a result which is at least as extreme as the result obtained if the null $H_0$ were true.
+- a p-value < 0.05 means the time series is autocorrelated
+
+```{r}
+Box.test(series, lag h, type="Ljung-Box")
+```
+- same test, more powerful
+</details>
 
 **Box-Pierce / Ljung-Box**
 
@@ -188,278 +318,9 @@ MannKendall(varicelle)$sl
 wak_test(varicelle ~ t)$p.value
 ```
 
-Without `funtimes`:
+<details><summary>HOW TO: do the same tests without `funtimes`</summary>
 
-# 2. Exponential Smoothing
-
-## 2.1. Core idea
-
-> **Recent observations are more informative than old ones**
-
-Weight decrease **exponentially** with age.
-
-Given a time series:
-```{r}
-set.seed(123)
-temps <- 1:80
-serie <- temps + rnorm(80, sd = 8)
-```
-
-## 2.2. Simple Exponential Smoothing (SES)
-
-SES forecast: $\hat{x}_{n,h} = \alpha \sum_{j=0}^{n-1} (1 - ÷alpha)^j x_{n-j}
-
-Properties:
--   forecast is **constant**
--   controlled by smoothing parameter $\alpha \in [0,1]$
-
-### SES in R
-
-```{r}
-LES <- HoltWinters(
-  serie,
-  alpha = NULL,
-  beta = FALSE,
-  gamma = FALSE
-)
-```
-Automatic tuning of $\alpha$.
-
-Forecast:
-```{r}
-predict(LES, n.ahead = 20)
-```
-
-With prediction intervals:
-```{r}
-predict(LES, n.ahead = 20, prediction.interval = TRUE)
-```
-
-## 2.3. Model evaluation
-
-### Train/test split
-
-```{r}
-train <- window(x, end = c(1970,12))
-test  <- window(x, start = c(1971,1))
-```
-
-Metrics:
--   RMSE
--   MAPE
-
-```{r}
-accuracy(forecast_model, test)
-```
-
-### Time series cross-validation
-
-```{r}
-tsCV(serie, ses, h = 1)
-```
-Avoids dependency on a single test split.
-
-## 2.4. Holt-Winters family of models
-
-| **Model**         | **Components**                   |
-|-------------------|----------------------------------|
-| SES               | level                            |
-| Holt              | level + trend                    |
-| HW additive       | level + trend + additive seeason |
-| HW multiplicative | level x season                   |
-
-### Non-seasonal Holt
-
-```{r}
-holt(serie, h = 20)
-```
-
-### Damped Holt
-
-```{r}
-holt(serie, damped = TRUE, h = 20)
-```
-Damping avoids unrealistic ling-term trends.
-
-### Seasonal Holt-Winters
-
-Additive seasonality:
-```{r}
-hw(serie, seasonal = "additive", h = 18)
-```
-
-Multiplicative seasonality:
-```{r)
-hw(serie, seasonal = "multiplicative", h = 18)
-```
-
-Rule of thumb:
--   additive → constant seasonal amplitude
--   multiplicative → amplitude grows with level
-
-## 2.5 Model selection via examples
-
-### CO2 concentration
-
--   clear trend + seasonality
--   **additive HW** outperforms multiplicative
--   confirùed via RMSE and cross-validated MAPE
-
-### San Francisco precipitation
-
--   extremely noisy
--   weak seasonality
--   SES looks best graphically
-
-→ **Graphical intuition ≠ numerical optimality
-
-## 2.6. Interpretation of smoothing parameters
-
--   small $\alpha$ → strong noise, slow adaptation
--   $\beta \approx 0$ → no trend
--   $\gamma \approx 0$ → stable seasonal pattern
-
-Parameters reveal **data structure**, not just forecasting ability.
-
-## 2.7. Final takeaway
-
--   Time series are **not i.i.d.**
--   Visual + statistical analysis comes first
--   Exponential smoothing models capture **deterministic components**, and are simple, robust, interpretable
--   Always validate with **out-of-sample performance**
-
-> Exponential smoothing models describe **what is predictable**, not the stochastic noise (which motivates ARIMA and ML models later).
-
-## create a `ts` object
-
-```{r}
-# fetch data
-data <- read.csv(file="http://example.com")
-# check variable/column names
-names(data)
-# visualize data (assuming x is the relevant variable)
-plot(data$x)
-# create the ts object
-## yearly seasonality → freq=12
-## assume data start in January 2000 → start=c(2000,1)
-## assume data end in December 2001 → end=c{2001,12)
-series <- ts(data$x, start=c(2000,1), end=c(2001,12))
-plot(x_ts)
-```
-
-## plot with `forecast`
-
-```{r}
-library(forecast)
-library(ggplot2)
-autoplot(series) +
-    ggtitle("Title") +
-    xlab("year") +
-    ylab("values")
-```
-
-```{r}
-# seasonal plot
-ggseasonplot(series, year, labels=TRUE, year.labels.left=TRUE)
-```
-
-```{r}
-# polar seasonal plot
-ggsesonplot(series, polar=TRUE)
-```
-
-## Missing data imputation
-
-```{r}
-#distribution of missing values
-library(imputeTS)
-ggplot_na_distribution(series)
-```
-
-```{r}
-# imputation by interpolation
-timeseries <- na_interpolation(series)
-ggplot_na_distribution(series)
-```
-
-## Descriptive statistics for time series
-
-```{r}
-library(forecast)
-# empirical mean
-mean(series)
-# empirical variance
-var(series)
-# empirical covariance
-tmp <- acf(series, type="cor", plot=FALSE)
-# plot the correlogram
-plot(tmp)
-```
-
-## auto-correlations: trends and seasonal patterns
-
-### ACF
-
-```{r}
-# series with a pure linear trend: x_t = ax+b
-series <- 2*(1:100)+4
-par(mfrow=c(1,2))
-plot(ts(series)
-acf(series)
-```
-
-```{r}
-# series with a pure seasonal pattern, e.g. x_t = a*cos(2t*pi/T)
-series <- cos(2*pi/12*(1:100))
-par(mfrow=c(1,2))
-plot(ts(series))
-acf(series)
-```
-
-| ACF pattern                  |observed behavior | interpretation |
-|-------------------------------|-------------------|-----------------|
-| rapid decay to zero           | autocorrelations become insignificant after a few lags | stationary series, short range dependence |
-| slow monotonic decay          | high autocorrelation over many lags | trend / non-stationarity |
-| persistent sinusoidal pattern | regular oscillation with stable amplitude | non-stationary seasonality |
-| damped sinusoidal pattern     | oscillations with decreased amplitude | oscillatory AR process (complex roots) |
-| sharp cutoff after lag $q$    | autocorrelation drops to zero after $q$ | $MA_q$ process |
-| significant spikes at multiples of $T$ | peaks at lags $T$, $2T$, $3T$, ...) | seasonality with period $T$ |
-| no significant autocorrelations | all lags within confidence bounds | white noise |
-
-### PACF
-
-```{r}
-pacf(series, type="cor")
-```
-
-| PACF pattern | observed behavior | interpretation | typical action |
-|--------------|-------------------|----------------|----------------|
-| sharp cutoff after lag $p$ | significant partial autocorrelation up to lag $p$, then none | $AR_p$ process | $p$ = $AR$ order |
-| gradual decay | significant partial autocorrelations decrease slowly | $MA_q$ or $ARMA_{(p,q)}$ | use ACF to identify $q$ |
-| significant spike at lag 1 only | only lag 1 is significant | $AR_1$ | $p$ = 1 |
-| significant spikes at lags 1 and 2 | Two significant partial autocorrelations | $AR_2$ | $p$ = 2 |
-| significant spikes at multiples of $T$ | peaks at lags $T$, $2T$, ... | seasonal $AR$ component | seasonal AR term |
-| no significant partial autocorrelations | all values within confidence bounds | no $AR$ structure / white noise | no $AR$ term |
-
-## statistical tests for time series
-
-### Testing the significance of autocorrelations
-
-```{r}
-Box.test(series, lag=h, type="Box-Pierce")
-```
-- h: degrees of freedom; h should be high enough to reckon with all significant autocorrelations but low enough so that the test remains sufficiently powerful
-- the p-value is the probability to observe a result which is at least as extreme as the result obtained if the null $H_0$ were true.
-- a p-value < 0.05 means the time series is autocorrelated
-
-```{r}
-Box.test(series, lag h, type="Ljung-Box")
-```
-- same test, more powerful
-
-### Testing the presence of parametric trends (without `funtimes` library)
-
-#### Testing for a linear trend (linear regression)
+1. Testing for a linear trend (linear regression)
 
 ```{r}
 t <- time(series)
@@ -469,7 +330,7 @@ cat("p-value:", formatC(p_trend, format = "e", digits = 3), "\n")
 - the p-value extracted here is the p-value of the t-test on the slope coefficient $\beta_1$
 - p-value < 0.05 means there is a statistically significant linear trend / the time series is not stationary
 
-### Testing for a monotonic trend (Mann-Kendall test)
+2. Testing for a monotonic trend (Mann-Kendall test)
 
 ```{r}
 library(Kendall)
@@ -477,9 +338,9 @@ mk_test <- MannKendall(series)
 p_mk <- mk_test$sl
 cat("Mann–Kendall p-value:", formatC(p_mk, format = "e", digits = 3), "\n")
 ```
-- p-value < 0.05 is evidence of a monotonic trend (not necessarily linear)
+p-value < 0.05 is evidence of a monotonic trend (not necessarily linear)
 
-### Testing for any kind of trend (combination of tests)
+3. Testing for any kind of trend (combination of tests)
 
 ```{r}
 t <- time(varicelle)
@@ -509,13 +370,14 @@ trend_tests <- data.frame(
 print(trend_tests)
 ```
 
-## Testing for a specific (e.g. polynomial) trend
+4. Testing for a specific (e.g. polynomial) trend
 
 ```{r}
 t <- time(series)
 p_poly <- anova(lm(series ~ poly(t, 2, raw = TRUE)))[["Pr(>F)"]][1]
 cat("Polynomial trend test p-value:", formatC(p_poly, format = "e", digits = 3), "\n")
 ```
+</details>
 
 # 2. Exponential smoothing
 
@@ -700,6 +562,13 @@ The estimated parameters provide insight into the data structure:
 These values help validate the coherence of the selected model.
 
 ## 2.10 Key takeaway
+
+| **Model**         | **Components**                   |
+|-------------------|----------------------------------|
+| SES               | level                            |
+| Holt              | level + trend                    |
+| HW additive       | level + trend + additive seeason |
+| HW multiplicative | level x season                   |
 
 Exponential smoothing models:
 -   capture **deterministic components** (level, trend, seasonality),
