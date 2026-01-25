@@ -4,37 +4,332 @@ author: "rsquaredata"
 last updated: 2026-01-25
 --->
 
-# 1. Introductionto time series
+# 1. Introduction to Time Series
 
-## plot a `ts`
+## 1.1. What is a time series?
+
+A **time series** is a sequence of observations indexed by time: $(x_t)_{1 \le t \le n} = (x_1, \ldots, x_n$
+
+Properties:
+-   observations are **ordered in time**
+-   usually **equally spaced**
+-   time can be days, months, years, etc.
+
+**Main objective**: forecast future values $x_{n+1}, x_{n+2}, \ldots$
+
+## 2.1. Typical components of a time series
+
+A time series can contain:
+
+| **component** | **meaning**                              |
+|---------------|------------------------------------------|
+| **trend**     | long-terme increase or decrease          |
+| **seasonality | regular pattern with fixed period        |
+| **cycle**     | irregular oscillations (no fixed period) |
+| **noise*      | random fluctuations                      |
+
+### Visual exploration (always first step)
+
+> **Plot a `ts`**
+>
+> plot(ts,
+>    type="l",
+>    xlab="time",
+>    ylab="dataset_name",
+>    sub="Figure 1: Description of the plot")
 
 ```{r}
-plot(ts,
-    type="l",
-    xlab="time",
-    ylab="dataset_name",
-    sub="Figure 1: Description of the plot")
+plot(USAccDeaths)
+plot(AirPassengers)
+plot(sunspots)
+plot(EuStockMarkets[, "CAC"])
 ```
-## forecast with `predict`
+Visual inspection already gives strong hints about:
+-   presence of a trend
+-   presence of a seasonality
+-   appropriateness of forecasting models
+
+## 1.3. Why linear regression is not ideal for time series
+
+### Linear regression treats all observations equally
 
 ```{r}
-# fetch tabular data from url and create a data frame
-data <- read.table(file="https://example.com/dataset.csv")
-# assume the relevant values are in the variable column 'Var1'
-plot(data$Var1)
-# create time vector (say from 1 to 100)
 t <- 1:100
-# create the data vector from observed values
-x <- data$Var1
-# fit a linear regression
 model <- lm(x ~ t)
-# create a df with a a column t for new times 101 to 120
-newt <- data.frame(t=101:120)
-# predictions of the model for the the new times
-p <- predict(t,x,type="l",xlim=c(1,120),ylim=c(1,80), xlab="time",ylab="")
-# add to the same plot a red line with the predictions
-lines(newt$t,p,col=2)
 ```
+
+Problems:
+-   old observations get the **same weight** as recent ones
+-   poorly adapts to **structural changes**
+-   unsuitable when recent history is more informative
+
+→ This motivates **exponential smoothing**.
+
+## 1.4. Time series objects in R (`ts`)
+
+R uses the `ts` class to store time series metadata.
+
+### Creating a ts object
+
+```{r}
+data <- read.csv(file="https://raw.githubusercontent.com/rsquaredata/cheat-sheets/refs/heads/main/time-series/varicelle.csv")
+varicelle <- ts(
+  data$x,
+  start = c(1931, 1),
+  frequency = 12
+)
+```
+Key parameters:
+-   `start`: first observation (year, sub-period)
+-   `fraquency`: number of observations per cycle
+
+### Visualization with forecast
+
+> **Forecast with predict**
+> 
+> ```{r}
+> # fetch tabular data from url and create a data frame
+> data <- read.table(file="https://example.com/dataset.csv")
+> # assuming the relevant values are in the variable column 'Var1'
+> plot(data$Var1)
+> # create time vector (say from 1 to 100)
+> t <- 1:100
+> # create the data vector from observed values
+> x <- data$Var1
+> # fit a linear regression
+> model <- lm(x ~ t)
+> # create a df with a a column t for new times 101 to 120
+> newt <- data.frame(t=101:120)
+> # predictions of the model for the the new times
+> p <- predict(t,x,type="l",xlim=c(1,120),ylim=c(1,80), xlab="time",ylab="")
+> # add to the same plot a red line with the predictions
+> lines(newt$t,p,col=2)
+> ```
+
+```{r}
+library(forecast)
+autoplot(varicelle)
+```
+
+Seasonal plots:
+
+```{r}
+ggseasonplot(varicelle)
+ggseasonplot(varicelle, polar = TRUE)
+```
+→ Useful to assess **strength and stability of seasonality**.
+
+## 1.5. Handling missing values
+
+Missing values are common in time series.
+
+```{r}
+library(imputeTS)
+x <- ts(c(2, 3, 4, 5, 6, NA, 7, 8))
+x <- na_interpolation(x)
+```
+
+## 1.6. Descriptive statistics for time series
+
+### Mean and variance
+
+```(r}
+mean(varicelle)
+var(varicelle)
+```
+
+### Autocovariance and autocorrelation
+
+**Autocovariance (lag $h$)**: $\hat{\sigma}(h)$
+
+**Autocorrelation (lag $h$)**: $\hat{\phi}(h) = \frac{\hat{\sigma}(h)}{\hat{\sigma}(0)}
+
+```(r}
+acf(varicelle)
+pacf(varicelle)
+```
+Interpretation:
+-   slow decay → trend or non-stationarity
+-   spikes are multiples of period → seasonality
+-   PACF → useful to identify AR structure later
+
+## 1.7. Statistical tests for time series
+
+### 1.7.1 Autocorrelation tests
+
+**Box-Pierce / Ljung-Box**
+
+```{r}
+Box.test(varicelle, lag = 10, type = "Ljung-Box")
+```
+-   $H_0$: no autocorrelation
+-   small p-value → time dependence exists.
+
+### 1.7.2. Trend tests
+
+#### Linear trend (robust to autocorrelation)
+
+```(r}
+library(funtimes)
+t <- time(varicelle)
+wavk_test(varicelle ~ t)$p.value
+```
+
+#### Monotonic trend (non-parametric)
+
+```{r}
+library(Kendall)
+MannKendall(varicelle)$sl
+```
+
+#### Any type of trend (global approach)
+
+```{r}
+wak_test(varicelle ~ t)$p.value
+```
+
+Without `funtimes`:
+
+# 2. Exponential Smoothing
+
+## 2.1. Core idea
+
+> **Recent observations are more informative than old ones**
+
+Weight decrease **exponentially** with age.
+
+Given a time series:
+```{r}
+set.seed(123)
+temps <- 1:80
+serie <- temps + rnorm(80, sd = 8)
+```
+
+## 2.2. Simple Exponential Smoothing (SES)
+
+SES forecast: $\hat{x}_{n,h} = \alpha \sum_{j=0}^{n-1} (1 - ÷alpha)^j x_{n-j}
+
+Properties:
+-   forecast is **constant**
+-   controlled by smoothing parameter $\alpha \in [0,1]$
+
+### SES in R
+
+```{r}
+LES <- HoltWinters(
+  serie,
+  alpha = NULL,
+  beta = FALSE,
+  gamma = FALSE
+)
+```
+Automatic tuning of $\alpha$.
+
+Forecast:
+```{r}
+predict(LES, n.ahead = 20)
+```
+
+With prediction intervals:
+```{r}
+predict(LES, n.ahead = 20, prediction.interval = TRUE)
+```
+
+## 2.3. Model evaluation
+
+### Train/test split
+
+```{r}
+train <- window(x, end = c(1970,12))
+test  <- window(x, start = c(1971,1))
+```
+
+Metrics:
+-   RMSE
+-   MAPE
+
+```{r}
+accuracy(forecast_model, test)
+```
+
+### Time series cross-validation
+
+```{r}
+tsCV(serie, ses, h = 1)
+```
+Avoids dependency on a single test split.
+
+## 2.4. Holt-Winters family of models
+
+| **Model**         | **Components**                   |
+|-------------------|----------------------------------|
+| SES               | level                            |
+| Holt              | level + trend                    |
+| HW additive       | level + trend + additive seeason |
+| HW multiplicative | level x season                   |
+
+### Non-seasonal Holt
+
+```{r}
+holt(serie, h = 20)
+```
+
+### Damped Holt
+
+```{r}
+holt(serie, damped = TRUE, h = 20)
+```
+Damping avoids unrealistic ling-term trends.
+
+### Seasonal Holt-Winters
+
+Additive seasonality:
+```{r}
+hw(serie, seasonal = "additive", h = 18)
+```
+
+Multiplicative seasonality:
+```{r)
+hw(serie, seasonal = "multiplicative", h = 18)
+```
+
+Rule of thumb:
+-   additive → constant seasonal amplitude
+-   multiplicative → amplitude grows with level
+
+## 2.5 Model selection via examples
+
+### CO2 concentration
+
+-   clear trend + seasonality
+-   **additive HW** outperforms multiplicative
+-   confirùed via RMSE and cross-validated MAPE
+
+### San Francisco precipitation
+
+-   extremely noisy
+-   weak seasonality
+-   SES looks best graphically
+
+→ **Graphical intuition ≠ numerical optimality
+
+## 2.6. Interpretation of smoothing parameters
+
+-   small $\alpha$ → strong noise, slow adaptation
+-   $\beta \approx 0$ → no trend
+-   $\gamma \approx 0$ → stable seasonal pattern
+
+Parameters reveal **data structure**, not just forecasting ability.
+
+## 2.7. Final takeaway
+
+-   Time series are **not i.i.d.**
+-   Visual + statistical analysis comes first
+-   Exponential smoothing models capture **deterministic components**, and are simple, robust, interpretable
+-   Always validate with **out-of-sample performance**
+
+> Exponential smoothing models describe **what is predictable**, not the stochastic noise (which motivates ARIMA and ML models later).
+
 ## create a `ts` object
 
 ```{r}
