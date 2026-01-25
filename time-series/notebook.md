@@ -4,8 +4,16 @@ author: "rsquaredata"
 last updated: 2026-01-25
 --->
 
-💡 To run this document as a notebook, save the file locally as `revision_sheet.qmd` and open it with [RStudio](https://posit.co/download/rstudio-desktop/).
+💡 To run the present file as a notebook:
+1. Save this file locally, as well as [varicelle](https://raw.githubusercontent.com/rsquaredata/cheat-sheets/refs/heads/main/time-series/varicelle.csv) and [sanfran](https://raw.githubusercontent.com/rsquaredata/cheat-sheets/refs/heads/main/time-series/sanfran.csv) data
+2. Rename this file to `notebook.qmd` ([Quarto](https://quarto.org/) file)
+3. Open the file with [RStudio](https://posit.co/download/rstudio-desktop/).
+4. 
+5. Enjoy
 
+</br>
+</br>
+</br>
 
 # 1. Introduction to Time Series
 
