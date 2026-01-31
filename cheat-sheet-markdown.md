@@ -26,11 +26,16 @@ Ce document rassemble les éléments Markdown et HTML que j'utilise le plus dans
 `~~Barré~~` → ~~Barré~~
 `**_Gras + italique_**` → **_Gras + italique_**
 
-### Taille
+### Taille du texte
 
-`<small>Petit</small>` → <small>Petit</small>
-`<span style="font-size:80%;">Très petit</span>` → <span style="font-size:80%;">Très petit</span>
-`<span style="font-size:130%;">Grand</span>` → <span style="font-size:130%;">Grand</span>
+| **Syntaxe**                                                            | **Résultat** |
+|-|-|
+| `<sup>Petit</sup>`                                                     | <sup>Petit</sup> |
+| `<sub>Plus petit</sub>`                                                | <sub>Plus petit</sub>                          |
+| `<sup><sub>Tout petit</sub></sup>`                                     | <sup><sub>Tout petit</sub></sup> |
+| `<sub><sup><sup><sup>Minuscule</sup></sup></sup></sub>`                | <sub><sup><sup><sup>Minuscule</sup></sup></sup></sub> |
+| `<sub><sup><sup><sup><sub>Microscopique</sub></sup></sup></sup></sub>` | <sub><sup><sup><sup><sub>Microscopique</sub></sup></sup></sup></sub> |
+
 
 ### Couleur
 
