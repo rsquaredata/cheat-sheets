@@ -3,6 +3,10 @@
 > Pour Docker Desktop sur macOS.  
 > Les commandes sont les mêmes que sous Linux, mais n’oublie pas de lancer **Docker Desktop** avant d’utiliser le terminal.
 
+```bash
+docker desktop start
+```
+
 ---
 
 ## 1. Vérifications de base
