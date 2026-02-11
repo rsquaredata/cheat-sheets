@@ -1,0 +1,179 @@
+# Introduction et Contexte (00:00 - 02:00)
+
+## Aya
+
+### SLIDE 1 : Titre
+
+Bonjour à tous. Nous vous présentons Urgence Manager, une solution de régulation logistique agentique. Notre projet répond à une crise majeure : l'engorgement des services d'urgences. L'objectif est d'utiliser l'IA pour orchestrer les flux patients de manière optimale, en libérant du temps de cerveau pour les équipes soignantes.
+
+## Mazilda
+
+### SLIDE 2 : Le défi
+
+Le défi est triple : les flux sont imprévisibles, les ressources limitées et la pression décisionnelle constante. Au triage, le délai d'attente impacte directement le pronostic vital. Urgence Manager intervient ici comme un assistant intelligent capable de prioriser les actions logistiques en temps réel.
+
+## Rina
+
+### SLIDE 3 : Architecture hybride
+
+L'innovation repose sur une architecture hybride. Nous séparons strictement la logique métier déterministe, qui est notre source de vérité, du raisonnement IA. Cela permet de bénéficier de la puissance de calcul des LLM tout en garantissant un cadre opérationnel rigide et sécurisé.
+
+## Aya
+
+Techniquement, nous utilisons Python 3.11 pour le moteur de règles et l'API de Mistral AI pour le cerveau décisionnel. L'ensemble de l'état hospitalier est modélisé par des objets Pydantic, assurant une validation stricte des données avant chaque cycle de décision.
+
+# Architecture et Logique Agentique (02:00 - 04:00)
+
+## Mazilda
+
+### SLIDE 4 : Logique agentique
+
+Le "Brain" de l'agent fonctionne par cycles de perception-action. Il récupère le dashboard complet des urgences, analyse les risques de saturation et génère une série d'actions structurées en JSON. Ce raisonnement suit des priorités médicales pré-établies.
+
+## Rina
+
+La priorité absolue est l'urgence Vital, ou Priorité 0. Tout patient classé ROUGE au triage est immédiatement orienté vers les soins critiques. L'IA ne peut pas ignorer ce protocole : elle doit mobiliser les ressources nécessaires pour libérer un box de déchocage en priorité.
+
+## Aya
+
+Vient ensuite la priorité de Flux. L'IA surveille la disponibilité des médecins. Dès qu'une salle de consultation se libère, elle organise le transfert du prochain patient prioritaire. L'objectif est d'éliminer les temps morts entre deux consultations.
+
+## Mazilda
+Enfin, la priorité de Boarding gère la sortie des urgences. Dès qu'une décision d'hospitalisation est prise, l'agent cherche à transférer le patient vers les services d'aval, comme la cardiologie ou l'orthopédie, en fonction des capacités de lits réelles.
+
+# Outils et RAG (04:00 - 06:00)
+
+## Rina
+
+### SLIDE 5 : Outils opérationnels
+
+Pour agir, l'IA dispose d'un catalogue d'outils atomiques. Ces outils ne sont pas directement du code IA, mais des fonctions Python "LLM-Safe". Par exemple, le Transfer Escort vérifie systématiquement si un aide-soignant est disponible avant de lancer l'action.
+
+## Aya
+
+Ces outils gèrent également les contraintes de temps. Un transport prend entre 5 et 45 minutes selon la complexité. L'agent doit donc anticiper l'occupation du personnel sur ces durées pour ne pas paralyser le service par une succession de transferts mal planifiés.
+
+## Mazilda
+
+### SLIDE 6 : Pipeline RAG
+
+Pour l'explicabilité, nous avons intégré un pipeline RAG (Retrieval-Augmented Generation). L'IA peut répondre aux questions des soignants en croisant l'état actuel avec l'historique des trajectoires stocké en CSV. Cela justifie chaque décision par des faits.
+
+## Rina
+
+Cette brique RAG permet de comprendre pourquoi un patient PAT_001 attend depuis deux heures. L'IA analyse les priorités comparatives et les règles médicales IOA pour fournir une réponse factuelle, renforçant ainsi la confiance clinique envers le système.
+
+# Machine Learning et Analytique (06:00 - 08:00)
+
+## Aya
+
+### SLIDE 7 : Machine Learning
+
+En parallèle du LLM, nous exploitons le Machine Learning classique. Un modèle K-Means effectue un clustering de l'état de tension du service. On passe dynamiquement d'un état "Calme" à "Critique", ce qui modifie l'agressivité des politiques de transfert de l'IA.
+
+## Mazilda
+
+Nous utilisons aussi une Random Forest pour prédire la probabilité d'hospitalisation. Dès l'entrée au triage, si le modèle prédit une probabilité de 90%, l'Urgence Manager commence à pré-alerter les services d'aval pour anticiper la libération d'un lit.
+
+## Rina
+
+### SLIDE 8 : Dashboard
+
+Le monitoring est assuré par un Dashboard Streamlit. Il offre une vue en temps réel via des diagrammes de Sankey, montrant les flux physiques des patients. On y suit aussi la latence des appels API et la consommation des jetons Mistral.
+
+## Aya
+
+Ce dashboard permet une traçabilité totale. Chaque mouvement, chaque décision du "Brain" est logguée. En cas de décision contestée, l'équipe SISE peut remonter la chaîne de raisonnement pour vérifier si une règle métier a été mal interprétée.
+
+# Validation et Éthique (08:00 - 10:00)
+
+## Mazilda
+
+### SLIDE 9 : Stress tests
+
+La fiabilité du système a été testée sur 9 scénarios critiques. Nous avons simulé des pannes de lits, des afflux massifs de patients et des effectifs réduits. Dans tous les cas, les "Guardrails" ont empêché l'IA de violer les protocoles de sécurité vitale.
+
+## Rina
+
+### SLIDE 10 : Éthique
+
+Notre solution adopte une approche responsable. Notre IA est sobre : nous utilisons Mistral-Small pour les tâches simples afin de limiter l'empreinte carbone. De plus, l'IA ne remplace jamais le médecin ; elle se contente d'exécuter la logistique validée par les protocoles.
+
+## Aya
+
+###  SLIDE 11 : Conclusion
+
+En conclusion, Urgence Manager transforme la gestion des urgences en une orchestration dynamique. L'impact est immédiat : réduction de la charge mentale, fluidification des parcours et surtout, une meilleure sécurité pour les patients les plus graves.
+
+## Rina
+
+### SLIDE 12 : Questions
+Urgence Manager est ainsi un pas vers l'hôpital augmenté. Merci de votre attention.
+
+Si n'avez pas de questions, nous passons maintenant à la présenation de l'app.
+
+---
+
+---
+
+# Démo Streamlit (5 Minutes)
+
+Scénario : Optimisation Personnel Minimal (1 AS)
+
+# Configuration & Dashboard Temps Réel (00:00 - 01:30)
+
+## Aya
+
+Nous utilisons ici le scénario de stress-test Personnel Minimal. Comme vous le voyez dans la barre latérale, un seul Aide-Soignant est actif. Dans la section Statut des Ressources, le compteur affiche 'AS Disponibles : 1'. Ce paramètre force l'agent IA à hiérarchiser les transferts de manière drastique, car une seule ressource ne peut pas déplacer deux patients simultanément.
+
+## Mazilda
+
+Le Diagramme de Sankey montre l'impact immédiat de cette contrainte. Les flux entre le Triage et les Salles d'attente sont épais, mais le goulot d'étranglement se situe vers les Boxes de consultation. L'IA doit attendre qu'un infirmier ou l'unique AS soit libéré pour vider les zones d'attente. L'épaisseur des liens nous permet de visualiser en temps réel la formation de cette file d'attente logistique."
+
+## Rina
+
+L'Historique des événements en bas de page confirme cette latence. On observe des séquences d'admission rapides suivies de pauses forcées dans les transferts. L'agent doit décider si l'AS déplace un patient stable vers une salle d'attente ou s'il doit prioriser l'amenée d'une urgence vers un box. C'est là que la logique de priorité médicale (P0, P1) devient vitale."
+
+# Analyse Statistique & Goulots d'Étranglement (01:30 - 03:00)
+
+## Aya
+
+Passons à l'onglet Simulation Stats. La Heatmap de l'Attente par Zone est révélatrice. Dans ce scénario à un seul AS, les zones 'Salle d'Attente 1' et 'Triage' virent au rouge foncé. Cela indique un temps d'attente moyen élevé. Ce graphique permet à l'encadrement de voir immédiatement que le blocage est logistique et non médical (les boxes étant souvent libres mais inaccessibles).
+
+## Mazilda
+
+Le graphique de Distribution de la Sévérité (U1 à U5) nous montre la charge clinique. Notez que malgré le manque de personnel, l'IA parvient à maintenir un temps d'attente faible pour les 'U1' (Urgences Vitales). En revanche, le graphique Temps d'attente par Sévérité montre une courbe ascendante : les cas légers sont sacrifiés logistiquement pour garantir la sécurité des cas graves."
+
+## Rina
+
+Regardons l'Occupation du Personnel. L'unique AS affiche un taux d'occupation proche de 100%. Le système enregistre un nombre élevé de Transferts Basic et Escort. Cette donnée prouve l'efficacité de l'agent : il ne laisse aucune seconde de répit à la ressource disponible, optimisant chaque mouvement pour que le patient le plus urgent soit toujours le prochain déplacé.
+
+# Logique IA & Aide à la Décision (03:00 - 04:30)
+
+## Aya
+
+Dans l'onglet AI Brain Logic, nous voyons comment Mistral justifie ses choix. Avec 1 seul AS, l'IA génère des messages du type : 'Priorisation du patient U2 car l'AS est actuellement seul'. L'explicabilité permet aux soignants de comprendre pourquoi un patient moins grave attend plus longtemps que d'habitude : la ressource est engagée ailleurs.
+
+## Maya
+
+L'onglet Machine Learning complète cette vision. En analysant la tension actuelle (100% d'occupation AS), le modèle de clustering classifie immédiatement le service en état 'Critique'. Cette classification change automatiquement le comportement de l'IA, qui passe en mode 'Sauvegarde de Flux' pour éviter l'engorgement total du Triage.
+
+## Rina
+
+Le System Monitoring nous montre que même sous cette contrainte de stress, la latence des décisions reste sous les 2 secondes. L'Urgence Manager réagit plus vite qu'un régulateur humain pour réassigner l'unique AS dès qu'une tâche se termine. Le coût reste maîtrisé, prouvant la scalabilité de la solution même en mode dégradé.
+
+# Synthèse de la Démo (04:30 - 05:00)
+
+## Aya
+
+En conclusion, cette démonstration avec personnel minimal démontre l'intérêt d'Urgence Manager.
+
+## Mazila
+
+L'IA ne crée pas de ressources, mais elle garantit que la ressource existante est utilisée là où le risque médical est le plus élevé.
+
+## Rina
+
+Les visualisations confirment une gestion de crise cohérente et transparente.
+
+Merci pour votre attention.
