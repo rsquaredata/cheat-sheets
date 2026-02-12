@@ -180,7 +180,7 @@ Il ne l'exécute pas.
 
 Pour garantir la transparence, nous avons intégré un mécanisme RAG.
 
-Nous injectons l'historique des états et les règles pertinentes dans le contexte du LLM.
+Nous injectons l'état courant et les règles pertinentes dans le contexte du LLM.
 
 Le modèle génère alors une justification liée explicitement aux priorités métier.
 
