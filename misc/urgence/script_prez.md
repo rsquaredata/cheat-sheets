@@ -165,9 +165,9 @@ Il ne garantit pas la validité.
 
 ## AYA
 
-Nous avons ajouté une brique ML pour prédire la tension du service.
+Nous avons ajouté une brique ML pour classifier l'état de tension du service.
 
-À partir de l'occupation, du nombre de patients critiques et de la disponibilité du staff, nous estimons le niveau de saturation futur.
+À partir de l'occupation et du nombre de patients critiques, nous estimons le niveau de saturation.
 
 Cela permet de passer d'une orchestration réactive à une orchestration anticipative.
 
