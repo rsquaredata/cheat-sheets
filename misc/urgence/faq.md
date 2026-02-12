@@ -193,10 +193,128 @@
 
 ---
 
-# VII. QUESTION FINALE (TRÈS PROBABLE)
+# VII. AUTRES QUESTIONS
 
 ## Quelle est la contribution scientifique principale ?
 
 > La démonstration qu'un agent IA peut être intégré dans un système logistique critique sans compromettre la sécurité déterministe, grâce à une séparation formelle entre sélection heuristique et validation structurelle.
 
 ---
+
+## Expliquez les chiffres du dashboard.
+
+Peu importe la métrique, toujours répondre  en 3 temps :
+1. Ce que c'est
+2. Comment c'est calculé
+3. Ce que ça signifie dans le scénario en question
+
+→ Toujours rattacher au scénario.
+
+Exemple :  
+> Le temps d'attente moyen est calculé à partir des timestamps d'entrée et de sortie par gravité.
+> Dans le scénario 1 AS, il augmente mécaniquement pour les patients verts, car la priorité vitale est respectée.
+
+---
+
+## Quelles sont les limites du projet ?
+
+> Les principales limites sont :
+> - données simulées,
+> - absence de validation clinique,
+> - heuristiques définies a priori,
+> - absence d'optimisation globale formelle.
+> En revanche, la robustesse structurelle est démontrée.
+
+---
+
+## Pourquoi utiliser le plus gros modèle Mistral ?
+
+> Nous avons choisi un modèle plus expressif pour maximiser la qualité de la justification et la cohérence des propositions heuristiques.
+> Cependant, l'architecture est indépendante du modèle : un modèle plus léger pourrait être substitué sans compromettre la validation.
+
+> Le choix du modèle n'affecte pas la sécurité, uniquement la qualité linguistique et contextuelle.
+
+---
+
+## Pourquoi ne pas afficher clairement le staff disponible ?
+
+> Le staff disponible est intégré dans l'état système et utilisé par le moteur de validation.
+> L'interface privilégie la lisibilité globale.
+> Une amélioration UX consisterait à exposer explicitement ces informations.
+
+---
+
+## Définissez heuristique.
+
+> Une heuristique est une règle décisionnelle approximative utilisée pour sélectionner une action sans résoudre un problème d'optimisation formelle complète.
+
+Ou plus simple :  
+> Une heuristique guide la décision rapidement, sans garantir l'optimalité globale.
+
+Dans notre système :  
+> Dans notre système, une heuristique est une règle décisionnelle utilisée par l'agent pour sélectionner une action candidate à partir de l'état courant et des priorités métier, sans résoudre un problème d'optimisation globale.
+
+---
+
+## Les chiffres ont-ils une valeur réelle ?
+
+> Ils ont une valeur interne au modèle simulé.
+> Ils ne prétendent pas refléter un hôpital réel, mais permettent d'évaluer la cohérence du système sous contraintes.
+
+> Les métriques sont calculées sur les trajectoires simulées et servent à évaluer la cohérence interne du système sous contraintes.
+
+---
+
+## Pourquoi ne pas avoir fait du RL ?
+
+> L'objectif n'était pas l'apprentissage optimal, mais la démonstration d'un cadre sécurisé d'intégration d'agent.
+
+---
+
+## Votre système est-il vraiment intelligent ?
+
+> Il est structurellement sûr.
+> L'intelligence est encadrée, pas autonome.
+
+---
+
+## Votre système améliore-t-il objectivement les performances par rapport à un baseline sans LLM ?
+
+> Nous n'avons pas conduit d'évaluation comparative formelle entre une politique sans LLM et une politique avec LLM.
+> L'objectif du projet était architectural : démontrer la possibilité d'intégrer un agent heuristique sous contraintes, pas d'optimiser quantitativement les performances.
+> Qualitativement, le LLM produit des arbitrages plus contextualisés et des justifications plus riches. Mais nous n'avons pas mesuré un gain statistiquement validé.
+
+> Nous n'avons pas mené d'évaluation quantitative formelle.
+> Cependant, l'architecture est modulaire : il serait trivial d'implémenter une politique purement déterministe basée uniquement sur les priorités métier, sans agent heuristique.
+> Cela constituerait une baseline naturelle.
+> L'intérêt de notre architecture est précisément qu'elle permet cette comparaison, sans refactorisation du système.
+
+Plus académique :
+> La séparation sélection/validation rend l'ablation study immédiate :
+> il suffit de remplacer la couche heuristique par une règle déterministe fixe.
+
+---
+
+## Si la baseline déterministe respecte déjà les priorités, quel est l'intérêt du LLM ?
+
+> Le moteur garantit la légalité des actions.
+> Le LLM améliore la qualité du choix parmi les actions légales.
+
+Plus académique :
+> Une politique déterministe stricte applique une hiérarchie figée.
+> Le LLM permet d'introduire une sélection heuristique adaptative lorsque l'espace d'actions valides contient plusieurs alternatives équivalentes au regard des contraintes.
+> Il apporte de la flexibilité décisionnelle et de l'explicabilité en langage naturel.
+
+---
+
+## Pourquoi votre projet mérite-t-il une très bonne note ?
+
+> Parce que nous ne nous sommes pas limités à développer une application fonctionnelle.
+> Nous avons formalisé un système dynamique contraint, conçu une architecture modulaire, intégré un agent heuristique non déterministe sous validation déterministe stricte, et assuré traçabilité, explicabilité et monitoring.
+> Le projet démontre une maîtrise technique, une structuration théorique cohérente et une réflexion critique sur ses limites.
+Pause
+> Il s'agit d'un démonstrateur architectural robuste, pas d'un simple prototype visuel.
+
+
+
+
