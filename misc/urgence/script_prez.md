@@ -21,7 +21,7 @@ _(micro pause - regard)_
 
 ## MAZILDA
 
-Un service d'urgences est un système sous pression permanente/
+Un service d'urgences est un système sous pression permanente :
 
 Personnel limité.  
 Flux patients imprévisibles.  
