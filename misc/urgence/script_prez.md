@@ -1,115 +1,281 @@
-# Introduction et Contexte (00:00 - 02:00)
+# SLIDE 1 - Contexte & Problématique
 
-## Aya
+## AYA
 
-### SLIDE 1 : Titre
+Un service d'urgence est un système sous pression permanente.
 
-Bonjour à tous. Nous vous présentons Urgence Manager, une solution de régulation logistique agentique. Notre projet répond à une crise majeure : l'engorgement des services d'urgences. L'objectif est d'utiliser l'IA pour orchestrer les flux patients de manière optimale, en libérant du temps de cerveau pour les équipes soignantes.
+Le personnel est limité. Les flux sont imprévisibles. Les décisions doivent être prises en quelques secondes.
 
-## Mazilda
+Chaque choix impacte la congestion, les délais... et parfois le pronostic vital.
 
-### SLIDE 2 : Le défi
+_(pause courte)_
 
-Le défi est triple : les flux sont imprévisibles, les ressources limitées et la pression décisionnelle constante. Au triage, le délai d'attente impacte directement le pronostic vital. Urgence Manager intervient ici comme un assistant intelligent capable de prioriser les actions logistiques en temps réel.
+## MAZILDA
 
-## Rina
+Le problème n'est pas uniquement médical. Il est logistique.
 
-### SLIDE 3 : Architecture hybride
+Comment orchestrer patients, personnel et capacités... sous contraintes strictes et en temps réel ?
 
-L'innovation repose sur une architecture hybride. Nous séparons strictement la logique métier déterministe, qui est notre source de vérité, du raisonnement IA. Cela permet de bénéficier de la puissance de calcul des LLM tout en garantissant un cadre opérationnel rigide et sécurisé.
+_Transition_
 
-## Aya
+Nous avons donc choisi d'aborder les urgences comme un problème d'orchestration sous contraintes.
 
-Techniquement, nous utilisons Python 3.11 pour le moteur de règles et l'API de Mistral AI pour le cerveau décisionnel. L'ensemble de l'état hospitalier est modélisé par des objets Pydantic, assurant une validation stricte des données avant chaque cycle de décision.
+# SLIDE 2 - Modélisation formelle
 
-# Architecture et Logique Agentique (02:00 - 04:00)
+## RINA
 
-## Mazilda
+Nous avons formalisé le service comme un système dynamique discret.
 
-### SLIDE 4 : Logique agentique
+À chaque instant t, l'état sₜ est défini par les patients, les ressources, les files et l'occupation temporelle.
 
-Le "Brain" de l'agent fonctionne par cycles de perception-action. Il récupère le dashboard complet des urgences, analyse les risques de saturation et génère une série d'actions structurées en JSON. Ce raisonnement suit des priorités médicales pré-établies.
+Les actions possibles appartiennent à un ensemble fini : transférer un patient, mobiliser du staff, organiser une escorte.
 
-## Rina
+Mais toutes les actions ne sont pas autorisées.
 
-La priorité absolue est l'urgence Vital, ou Priorité 0. Tout patient classé ROUGE au triage est immédiatement orienté vers les soins critiques. L'IA ne peut pas ignorer ce protocole : elle doit mobiliser les ressources nécessaires pour libérer un box de déchocage en priorité.
+## AYA
 
-## Aya
+_(pointer vers la fonction de contrainte)_
 
-Vient ensuite la priorité de Flux. L'IA surveille la disponibilité des médecins. Dès qu'une salle de consultation se libère, elle organise le transfert du prochain patient prioritaire. L'objectif est d'éliminer les temps morts entre deux consultations.
+Nous définissons une fonction C(sₜ, aₜ) ∈ {0,1}.
 
-## Mazilda
-Enfin, la priorité de Boarding gère la sortie des urgences. Dès qu'une décision d'hospitalisation est prise, l'agent cherche à transférer le patient vers les services d'aval, comme la cardiologie ou l'orthopédie, en fonction des capacités de lits réelles.
+1 : action valide. 0 : action interdite.
 
-# Outils et RAG (04:00 - 06:00)
+_(pause)_
 
-## Rina
+Le système n'autorise jamais une action qui viole les règles métier.
 
-### SLIDE 5 : Outils opérationnels
+_Punchline :_
 
-Pour agir, l'IA dispose d'un catalogue d'outils atomiques. Ces outils ne sont pas directement du code IA, mais des fonctions Python "LLM-Safe". Par exemple, le Transfer Escort vérifie systématiquement si un aide-soignant est disponible avant de lancer l'action.
+Ici, l'IA ne décide pas seule. Elle agit dans un espace strictement contraint.
 
-## Aya
+## MAZILDA
 
-Ces outils gèrent également les contraintes de temps. Un transport prend entre 5 et 45 minutes selon la complexité. L'agent doit donc anticiper l'occupation du personnel sur ces durées pour ne pas paralyser le service par une succession de transferts mal planifiés.
+_Transition :_
 
-## Mazilda
+À partir de cette base formelle, nous avons construit une architecture hybride.
 
-### SLIDE 6 : Pipeline RAG
+# SLIDE 3 - Architecture hybride intelligente
 
-Pour l'explicabilité, nous avons intégré un pipeline RAG (Retrieval-Augmented Generation). L'IA peut répondre aux questions des soignants en croisant l'état actuel avec l'historique des trajectoires stocké en CSV. Cela justifie chaque décision par des faits.
+"Notre architecture repose sur une séparation stricte entre logique et raisonnement.
 
-## Rina
+_(pointer schéma)_
 
-Cette brique RAG permet de comprendre pourquoi un patient PAT_001 attend depuis deux heures. L'IA analyse les priorités comparatives et les règles médicales IOA pour fournir une réponse factuelle, renforçant ainsi la confiance clinique envers le système.
+À gauche : le moteur de règles en Python, structuré avec Pydantic.
 
-# Machine Learning et Analytique (06:00 - 08:00)
+C'est la source de vérité. Il garantit les contraintes métier.
 
-## Aya
+## RINA
 
-### SLIDE 7 : Machine Learning
+À droite : le cerveau IA, basé sur Mistral.
 
-En parallèle du LLM, nous exploitons le Machine Learning classique. Un modèle K-Means effectue un clustering de l'état de tension du service. On passe dynamiquement d'un état "Calme" à "Critique", ce qui modifie l'agressivité des politiques de transfert de l'IA.
+Il analyse, propose, justifie... mais ne peut pas agir directement.
 
-## Mazilda
+Toute action passe par le moteur de règles.
 
-Nous utilisons aussi une Random Forest pour prédire la probabilité d'hospitalisation. Dès l'entrée au triage, si le modèle prédit une probabilité de 90%, l'Urgence Manager commence à pré-alerter les services d'aval pour anticiper la libération d'un lit.
+_Punchline :_
 
-## Rina
+L'IA raisonne. Le système décide.
 
-### SLIDE 8 : Dashboard
+_Transition :_
 
-Le monitoring est assuré par un Dashboard Streamlit. Il offre une vue en temps réel via des diagrammes de Sankey, montrant les flux physiques des patients. On y suit aussi la latence des appels API et la consommation des jetons Mistral.
+Mais raisonner ne suffit pas. Il faut prioriser.
 
-## Aya
+# SLIDE 4 - Règles de priorité
 
-Ce dashboard permet une traçabilité totale. Chaque mouvement, chaque décision du "Brain" est logguée. En cas de décision contestée, l'équipe SISE peut remonter la chaîne de raisonnement pour vérifier si une règle métier a été mal interprétée.
+## AYA
 
-# Validation et Éthique (08:00 - 10:00)
+Nous avons implémenté trois niveaux de priorité.
+- Priorité vitale : le pronostic vital prime toujours.
+- Priorité de flux : éviter les goulots d'étranglement.
+- Priorité de boarding : limiter l'occupation prolongée des box.
 
-## Mazilda
+Ces règles structurent les décisions de l'agent.
 
-### SLIDE 9 : Stress tests
+Nous avons testé 6 scénarios, dont plusieurs stress tests.
 
-La fiabilité du système a été testée sur 9 scénarios critiques. Nous avons simulé des pannes de lits, des afflux massifs de patients et des effectifs réduits. Dans tous les cas, les "Guardrails" ont empêché l'IA de violer les protocoles de sécurité vitale.
+Dans chaque cas, le système respecte strictement ces priorités.
 
-## Rina
+## MAZILDA
 
-### SLIDE 10 : Éthique
+_Transition :_
 
-Notre solution adopte une approche responsable. Notre IA est sobre : nous utilisons Mistral-Small pour les tâches simples afin de limiter l'empreinte carbone. De plus, l'IA ne remplace jamais le médecin ; elle se contente d'exécuter la logistique validée par les protocoles.
+Pour orchestrer ces décisions, nous avons implémenté un agent.
 
-## Aya
+# SLIDE 5 - Architecture agentique
 
-###  SLIDE 11 : Conclusion
 
-En conclusion, Urgence Manager transforme la gestion des urgences en une orchestration dynamique. L'impact est immédiat : réduction de la charge mentale, fluidification des parcours et surtout, une meilleure sécurité pour les patients les plus graves.
+L'agent fonctionne en boucle.
 
-## Rina
+Il observe l'état du système.
 
-### SLIDE 12 : Questions
-Urgence Manager est ainsi un pas vers l'hôpital augmenté. Merci de votre attention.
+Il génère une analyse via le LLM.
 
-Si n'avez pas de questions, nous passons maintenant à la présentation de l'app.
+Il propose une action.
 
----
+Cette action est validée par les règles.
+
+Puis le scheduler met à jour l'état.
+
+## RINA 
+
+Nous avons donc une boucle analyse → validation → action.
+
+_Transition :_
+
+Mais pour garantir la sécurité, nous avons ajouté des garde-fous.
+
+# SLIDE 6 - Guardrails
+
+
+Nous avons intégré trois niveaux de guardrails.
+- Contraintes métier codées.
+- Validation systématique des actions.
+- Séparation stricte entre génération et exécution.
+
+Même si le modèle propose une action incohérente...
+
+_(pause)_
+
+Elle est automatiquement refusée.
+
+_Punchline :_
+
+L'IA n'a jamais le pouvoir final.
+
+## AYA
+
+_Transition :_
+
+Voyons maintenant les outils d'action.
+
+# SLIDE 7 - Tools sécurisés
+
+Nous avons défini trois outils d'action :
+- TransferPatient.
+- TransferEscort.
+- TransferStaff.
+
+Chaque outil déclenche une vérification complète des contraintes.
+
+Si une règle est violée, l'action est bloquée.
+
+## MAZILDA
+
+_Transition :_
+
+Ces actions s'inscrivent dans une dynamique temporelle.
+
+# SLIDE 8 - Scheduler & dynamique
+
+Le système évolue par cycles discrets.
+
+Chaque cycle met à jour les disponibilités via busy_until.
+
+Cela nous permet de modéliser l'occupation réelle du personnel.
+
+Le système est donc un système dynamique contraint.
+
+_Transition :_
+
+Pour garantir robustesse et maintenabilité, nous avons structuré le code.
+
+# SLIDE 9 - Clean Code & Typage fort
+
+## RINA
+
+Le projet repose sur une architecture modulaire.
+
+Typage fort avec Pydantic.
+
+Séparation claire des responsabilités.
+
+Contraintes implémentées de manière déterministe.
+
+Cela garantit robustesse, traçabilité et extensibilité du système.
+
+## RINA
+
+_Transition :_
+
+Nous avons également ajouté une brique d'apprentissage.
+
+# SLIDE 11 – Brique ML
+
+Nous avons intégré un module de prédiction de tension du service.
+
+Il permet d'anticiper les pics de congestion.
+
+Ce module peut être couplé à l'agent pour adapter la stratégie.
+
+Nous passons ainsi d'une orchestration réactive...
+
+_(pause)_
+
+À une orchestration anticipative.
+
+## AYA
+
+_Transition :_
+
+Pour améliorer l'explicabilité, nous avons aussi intégré un mécanisme RAG.
+
+# SLIDE 12 – RAG & explicabilité
+
+Nous extrayons les trajectoires du système.
+
+Nous injectons les règles IOA.
+
+Le LLM génère une justification en langage naturel.
+
+Chaque décision peut donc être expliquée.
+
+_Punchline :_
+
+L'agent n'est pas seulement efficace. Il est explicable.
+
+_Transition :_
+
+Enfin, nous avons adopté une approche d'IA responsable.
+
+# SLIDE 13 - IA responsable
+
+## MAZILDA
+
+Sobriété : modèles optimisés et coût API monitoré.
+
+Maîtrise : guardrails et contrôle humain.
+
+Transparence : justification des priorités.
+
+Notre objectif n'est pas d'automatiser la médecine.
+
+_(pause)_
+
+Mais d'assister la logistique en toute sécurité.
+
+_Transition :_
+
+Techniquement, voici notre stack.
+
+# SLIDE 14 – Stack & Synthèse
+
+## RINA
+
+Python, Pydantic, moteur de règles déterministe.
+
+Mistral pour le raisonnement.
+
+Architecture modulaire et extensible.
+
+Au croisement de trois dimensions :
+- Modélisation formelle.
+- IA agentique contrôlée.
+- Système orienté produit.
+
+_Punchline finale :_
+
+Urgence Manager est un agent logistique sous contraintes, explicable et maîtrisé.
+
+_Transition vers démo :_
+
+Nous allons maintenant vous montrer le système en action.
