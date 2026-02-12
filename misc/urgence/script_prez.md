@@ -42,7 +42,7 @@ comment formaliser cette orchestration pour qu'elle soit sûre et explicable ?
 
 Nous avons commencé par formaliser le système.
 
-À chaque instant $t$, , l'état $s_t$ comprend :
+À chaque instant $t$, l'état $s_t$ comprend :
 - les patients,
 - les ressources humaines,
 - les files et capacités,
