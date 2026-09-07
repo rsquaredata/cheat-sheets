@@ -20,6 +20,7 @@ This repository is meant to be my **all‑in‑one personal reference library** 
 | Time Series | [Time Series](./time-series) |
 | BI & OLAP | bi_olap_cheatsheet.md |
 | SQL for DS | sql_cheatsheet.md |
+| Computer Vision | [Computer Vision](computer_vision.md) |
 
 ---
 
